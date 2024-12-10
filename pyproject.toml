@@ -1,0 +1,56 @@
+[tool.poetry]
+name = "pixel-battle-backend"
+version = "0.1.0"
+description = "Simple backend for pixel battle"
+authors = ["emptybutton <88573504+emptybutton@users.noreply.github.com>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.13"
+typenv = "^0.2.0"
+dishka = "^1.4.0"
+fastapi = "^0.115.2"
+uvicorn = "^0.30.6"
+redis = "^5.2.1"
+
+[tool.poetry.group.dev.dependencies]
+mypy = {extras = ["faster-cache"], version = "^1.13.0"}
+ruff = "^0.7.2"
+pytest = "^8.3.2"
+pytest-asyncio = "^0.23.8"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+strict = true
+no_namespace_packages = true
+
+[tool.ruff]
+src = ["src"]
+preview = true
+line-length = 80
+indent-width = 4
+
+[tool.ruff.lint]
+select = [
+    "ANN", "F", "W", "E", "B", "C90", "N", "UP", "YTT", "ASYNC", "PL", "RUF",
+    "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
+    "PERF", "INP", "I", "S", "FAST", "TID", "TCH", "INT"
+]
+ignore = [
+    "ANN101", "ANN102", "N818", "RUF009", "UP018", "PLR6301", "PLR0913", "PLW0108"
+]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+asyncio_mode = "auto"
+
+[tool.ruff.lint.per-file-ignores]
+"src/pixel_battle_backend/entities/*" = ["PLR2004"]
+"src/pixel_battle_backend/application/interactors/*" = ["PLR0917"]
