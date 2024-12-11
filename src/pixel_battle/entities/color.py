@@ -1,45 +1,42 @@
 from dataclasses import dataclass
 
 
-class ColorValueError(Exception): ...
+@dataclass(kw_only=True, frozen=True, slots=True)
+class Color: ...
 
 
-class ColorValueNumberInInvalidRangeError(ColorValueError): ...
+class RGBColorValueError(Exception): ...
+
+
+class RGBColorValueNumberInInvalidRangeError(RGBColorValueError): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class ColorValue:
+class RGBColorValue:
     number: int
 
     def __post_init__(self) -> None:
         if 0 <= self.number <= 255:
             return
 
-        raise ColorValueNumberInInvalidRangeError
+        raise RGBColorValueNumberInInvalidRangeError
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Color:
-    red: ColorValue
-    green: ColorValue
-    blue: ColorValue
+class RGBColor(Color):
+    red: RGBColorValue
+    green: RGBColorValue
+    blue: RGBColorValue
 
 
-white = Color(
-    red=ColorValue(number=0),
-    green=ColorValue(number=0),
-    blue=ColorValue(number=0),
+@dataclass(kw_only=True, frozen=True, slots=True)
+class UndefinedColor(Color): ...
+
+
+undefined_color = UndefinedColor()
+
+white = RGBColor(
+    red=RGBColorValue(number=0),
+    green=RGBColorValue(number=0),
+    blue=RGBColorValue(number=0),
 )
-
-
-def color_with(
-    *,
-    red_value_number: int,
-    green_value_number: int,
-    blue_value_number: int,
-) -> Color:
-    red = ColorValue(number=red_value_number)
-    green = ColorValue(number=green_value_number)
-    blue = ColorValue(number=blue_value_number)
-
-    return Color(red=red, green=green, blue=blue)

@@ -13,6 +13,7 @@ dishka = "^1.4.0"
 fastapi = "^0.115.2"
 uvicorn = "^0.30.6"
 redis = "^5.2.1"
+Pillow = "^11.0.0"
 
 [tool.poetry.group.dev.dependencies]
 mypy = {extras = ["faster-cache"], version = "^1.13.0"}
@@ -27,6 +28,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.mypy]
 strict = true
 no_namespace_packages = true
+allow_redefinition = true
 
 [tool.ruff]
 src = ["src"]

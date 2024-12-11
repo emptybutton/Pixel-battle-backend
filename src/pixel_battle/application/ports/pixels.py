@@ -1,25 +1,20 @@
 from abc import ABC, abstractmethod
 
+from pixel_battle.entities.chunk import Chunk
+from pixel_battle.entities.color import Color, RGBColor
 from pixel_battle.entities.pixel import Pixel
-from pixel_battle.entities.position import Position
 
 
-class Pixels[PixelSetViewT](ABC):
+class Pixels(ABC):
     @abstractmethod
-    async def add(self, pixel: Pixel) -> None: ...
-
-    @abstractmethod
-    async def remove(self, pixel: Pixel) -> None: ...
+    async def put(self, pixel: Pixel[RGBColor]) -> None: ...
 
     @abstractmethod
-    async def update(self, pixel: Pixel) -> None: ...
+    async def remove[ColorT: Color](self, pixel: Pixel[ColorT]) -> None:
+        ...
 
-    @abstractmethod
-    async def pixel_at(self, position: Position) -> Pixel: ...
 
+class ChunkViewFrom[ChunkViewT](ABC):
     @abstractmethod
-    async def view_of_pixels_inside_rectangle(
-        self,
-        position1: Position,
-        position2: Position,
-    ) -> PixelSetViewT: ...
+    async def __call__(self, pixels: Pixels, *, chunk: Chunk) -> ChunkViewT:
+        ...

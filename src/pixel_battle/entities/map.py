@@ -1,27 +1,27 @@
 from dataclasses import dataclass
 from functools import cached_property
 
-from pixel_battle.entities.postition import Position
+from pixel_battle.entities.position import Position
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Rectangle:
-    postition1: Position
-    postition2: Position
+    position1: Position
+    position2: Position
 
     @cached_property
     def x_range(self) -> range:
-        return range(*sorted([self.postition1.x, self.postition2.x + 1]))
+        return range(*sorted([self.position1.x, self.position2.x + 1]))
 
     @cached_property
     def y_range(self) -> range:
-        return range(*sorted([self.postition1.y, self.postition2.y + 1]))
+        return range(*sorted([self.position1.y, self.position2.y + 1]))
 
-    def __contains__(self, postition: Position) -> bool:
-        return postition.x in self.x_range and postition.y in self.y_range
+    def __contains__(self, position: Position) -> bool:
+        return position.x in self.x_range and position.y in self.y_range
 
 
 map_ = Rectangle(
     position1=Position(x=0, y=0),
-    postition2=Position(x=1590, y=400),
+    position2=Position(x=1600, y=400),
 )

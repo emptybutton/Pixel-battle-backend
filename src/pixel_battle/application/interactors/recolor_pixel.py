@@ -3,7 +3,12 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from pixel_battle.application.ports.pixels import Pixels
-from pixel_battle.entities.color import color_with
+from pixel_battle.entities.chunk import Chunk
+from pixel_battle.entities.color import (
+    RGBColor,
+    RGBColorValue,
+    undefined_color,
+)
 from pixel_battle.entities.pixel import (
     Pixel,
     default_pixel_at,
@@ -17,12 +22,13 @@ from pixel_battle.entities.user import User, new_user_when
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
     user: User
-    pixel: Pixel | None
+    pixel: Pixel[RGBColor] | None
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RecolorPixel[PixelSetViewT]:
-    pixels: Pixels[PixelSetViewT]
+class RecolorPixel:
+    chunk: Chunk
+    pixels: Pixels
 
     async def __call__(
         self,
@@ -33,37 +39,39 @@ class RecolorPixel[PixelSetViewT]:
         new_color_red_value_number: int,
         new_color_green_value_number: int,
         new_color_blue_value_number: int,
-    ) -> PixelSetViewT:
+    ) -> Output:
         current_time = Time(datetime=datetime.now(UTC))
 
-        if None in {user_id, datetime_of_user_obtaining_recoloring_right}:
-            user = new_user_when(current_time=current_time)
+        if (
+            user_id is None
+            or datetime_of_user_obtaining_recoloring_right is None
+        ):
+            user = new_user_when(current_time=current_time, chunk=self.chunk)
             return Output(user=user, pixel=None)
 
         user_time = Time(datetime=datetime_of_user_obtaining_recoloring_right)
-        user = User(id=user_id, time_of_obtaining_recoloring_right=user_time)
-
-        new_pixel_color = color_with(
-            red_value_number=new_color_red_value_number,
-            green_value_number=new_color_green_value_number,
-            blue_value_number=new_color_blue_value_number,
+        user = User(
+            id=user_id,
+            time_of_obtaining_recoloring_right=user_time,
+            chunk=self.chunk,
         )
 
         pixel_position = Position(x=pixel_position_x, y=pixel_position_y)
-        pixel = await self.pixels.pixel_at(pixel_position)
+        pixel = Pixel(position=pixel_position, color=undefined_color)
 
-        default_pixel = default_pixel_at(pixel_position)
-
-        if pixel is None:
-            pixel = default_pixel
+        new_pixel_color = RGBColor(
+            red=RGBColorValue(number=new_color_red_value_number),
+            green=RGBColorValue(number=new_color_green_value_number),
+            blue=RGBColorValue(number=new_color_blue_value_number),
+        )
 
         result = recolored_by(
             user, pixel, new_color=new_pixel_color, current_time=current_time
         )
 
-        if result.pixel == default_pixel:
+        if result.pixel == default_pixel_at(pixel_position):
             await self.pixels.remove(pixel)
         else:
-            await self.pixels.update(result.pixel)
+            await self.pixels.put(result.pixel)
 
-        return Output(user=user, pixel=pixel)
+        return Output(user=result.user, pixel=result.pixel)

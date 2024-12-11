@@ -19,7 +19,10 @@ class Time:
             raise NotUTCTimeError
 
     def map(self, mapped: Callable[[datetime_], datetime_]) -> "Time":
-        return Time(mapped(self.datetime))
+        return Time(datetime=mapped(self.datetime))
 
     def __gt__(self, other: "Time") -> bool:
         return self.datetime > other.datetime
+
+    def __ge__(self, other: "Time") -> bool:
+        return self.datetime >= other.datetime
