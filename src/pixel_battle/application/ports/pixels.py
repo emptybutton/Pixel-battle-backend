@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from pixel_battle_backend.entities.pixel import Pixel
-from pixel_battle_backend.entities.position import Position
+from pixel_battle.entities.pixel import Pixel
+from pixel_battle.entities.position import Position
 
 
 class Pixels[PixelSetViewT](ABC):

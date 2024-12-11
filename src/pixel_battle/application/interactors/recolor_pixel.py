@@ -2,16 +2,16 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from uuid import UUID
 
-from pixel_battle_backend.application.ports.pixels import Pixels
-from pixel_battle_backend.entities.color import color_with
-from pixel_battle_backend.entities.pixel import (
+from pixel_battle.application.ports.pixels import Pixels
+from pixel_battle.entities.color import color_with
+from pixel_battle.entities.pixel import (
     Pixel,
     default_pixel_at,
     recolored_by,
 )
-from pixel_battle_backend.entities.position import Position
-from pixel_battle_backend.entities.time import Time
-from pixel_battle_backend.entities.user import User, new_user_when
+from pixel_battle.entities.position import Position
+from pixel_battle.entities.time import Time
+from pixel_battle.entities.user import User, new_user_when
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

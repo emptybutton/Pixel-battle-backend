@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from uuid import UUID, uuid4
 
-from pixel_battle_backend.entities import Time
+from pixel_battle.entities import Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

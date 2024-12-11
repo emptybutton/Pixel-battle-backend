@@ -1,19 +1,30 @@
 from dataclasses import dataclass
 
-from pixel_battle_backend.entities.color import Color, white
-from pixel_battle_backend.entities.position import Position
-from pixel_battle_backend.entities.time import Time
-from pixel_battle_backend.entities.user import (
+from pixel_battle.entities.color import Color, white
+from pixel_battle.entities.map import map_
+from pixel_battle.entities.position import Position
+from pixel_battle.entities.time import Time
+from pixel_battle.entities.user import (
     User,
     has_right_to_recolor,
     temporarily_without_right_to_recolor,
 )
 
 
+class PixelError(Exception): ...
+
+
+class PixelOutOfMapError(PixelError): ...
+
+
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Pixel:
     position: Position
     color: Color
+
+    def __post_init__(self) -> None:
+        if self.position not in map_:
+            raise PixelOutOfMapError
 
 
 def default_pixel_at(position: Position) -> Pixel:
