@@ -1,0 +1,8 @@
+version: "3"
+services:
+  pixel-battle:
+    build: .
+    container_name: pixel-battle
+    restart: "no"
+    volumes:
+      - .:/pixel-battle

@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "pixel-battle-backend"
+name = "pixel-battle"
 version = "0.1.0"
 description = "Simple backend for pixel battle"
 authors = ["emptybutton <88573504+emptybutton@users.noreply.github.com>"]
