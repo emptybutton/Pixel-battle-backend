@@ -1,0 +1,25 @@
+name: ci
+
+on: [push, pull_request]
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ruff
+        run: docker compose -f .docker-compose.dev.yml run pixel-battle ruff check src tests -n
+
+  mypy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: mypy
+        run: docker compose -f .docker-compose.dev.yml run pixel-battle mypy src
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: pytest
+        run: docker compose -f .docker-compose.dev.yml run pixel-battle pytest tests
