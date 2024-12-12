@@ -46,3 +46,21 @@ black = RGBColor(
     green=RGBColorValue(number=0),
     blue=RGBColorValue(number=0),
 )
+
+red = RGBColor(
+    red=RGBColorValue(number=255),
+    green=RGBColorValue(number=0),
+    blue=RGBColorValue(number=0),
+)
+
+green = RGBColor(
+    red=RGBColorValue(number=0),
+    green=RGBColorValue(number=255),
+    blue=RGBColorValue(number=0),
+)
+
+blue = RGBColor(
+    red=RGBColorValue(number=0),
+    green=RGBColorValue(number=0),
+    blue=RGBColorValue(number=255),
+)

@@ -26,9 +26,9 @@ class Output:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RecolorPixel:
+class RecolorPixel[PixelsT: Pixels]:
     chunk: Chunk
-    pixels: Pixels
+    pixels: PixelsT
 
     async def __call__(
         self,

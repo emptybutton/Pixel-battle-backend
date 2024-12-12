@@ -14,7 +14,7 @@ class Pixels(ABC):
         ...
 
 
-class ChunkViewFrom[ChunkViewT](ABC):
+class ChunkViewOf[PixelsT: Pixels, ChunkViewT](ABC):
     @abstractmethod
-    async def __call__(self, pixels: Pixels, *, chunk: Chunk) -> ChunkViewT:
+    async def __call__(self, pixels: PixelsT, *, chunk: Chunk) -> ChunkViewT:
         ...
