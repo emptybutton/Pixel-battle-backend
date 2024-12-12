@@ -10,11 +10,15 @@ class Rectangle:
 
     @property
     def x_range(self) -> range:
-        return range(*sorted([self.position1.x, self.position2.x + 1]))
+        min_x, max_x = sorted([self.position1.x, self.position2.x])
+
+        return range(min_x, max_x + 1)
 
     @property
     def y_range(self) -> range:
-        return range(*sorted([self.position1.y, self.position2.y + 1]))
+        min_y, max_y = sorted([self.position1.y, self.position2.y])
+
+        return range(min_y, max_y + 1)
 
     def __contains__(self, position: Position) -> bool:
         return position.x in self.x_range and position.y in self.y_range

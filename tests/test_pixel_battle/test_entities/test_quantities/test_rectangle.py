@@ -28,6 +28,13 @@ from pixel_battle.entities.quantities.rectangle import Rectangle
                 position2=Position(x=600, y=600),
             ),
         ],
+        [
+            Position(x=600, y=600),
+            Rectangle(
+                position1=Position(x=600, y=600),
+                position2=Position(x=0, y=0),
+            ),
+        ],
     )
 )
 def test_contains_true(position: Position, rectangle: Rectangle) -> None:
