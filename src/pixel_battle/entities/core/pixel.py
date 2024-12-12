@@ -36,7 +36,7 @@ class Pixel[ColorT: Color]:
             raise PixelOutOfCanvasError
 
 
-def default_pixel_at(position: Position) -> Pixel[Color]:
+def default_pixel_at(position: Position) -> Pixel[RGBColor]:
     return Pixel(position=position, color=white)
 
 
