@@ -30,12 +30,18 @@ class RGBColor(Color):
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UndefinedColor(Color): ...
+class UnknownColor(Color): ...
 
 
-undefined_color = UndefinedColor()
+unknown_color = UnknownColor()
 
 white = RGBColor(
+    red=RGBColorValue(number=255),
+    green=RGBColorValue(number=255),
+    blue=RGBColorValue(number=255),
+)
+
+black = RGBColor(
     red=RGBColorValue(number=0),
     green=RGBColorValue(number=0),
     blue=RGBColorValue(number=0),

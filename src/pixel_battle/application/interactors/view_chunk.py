@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from pixel_battle.application.ports.pixels import ChunkViewFrom, Pixels
-from pixel_battle.entities.chunk import Chunk
+from pixel_battle.entities.core.chunk import Chunk
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

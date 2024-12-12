@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-from pixel_battle.entities.chunk import Chunk
-from pixel_battle.entities.color import Color, RGBColor
-from pixel_battle.entities.pixel import Pixel
+from pixel_battle.entities.core.chunk import Chunk
+from pixel_battle.entities.core.pixel import Pixel
+from pixel_battle.entities.quantities.color import Color, RGBColor
 
 
 class Pixels(ABC):

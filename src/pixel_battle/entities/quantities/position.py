@@ -5,3 +5,6 @@ from dataclasses import dataclass
 class Position:
     x: int
     y: int
+
+
+zero_position = Position(x=0, y=0)

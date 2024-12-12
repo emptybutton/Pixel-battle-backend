@@ -3,20 +3,20 @@ from datetime import UTC, datetime
 from uuid import UUID
 
 from pixel_battle.application.ports.pixels import Pixels
-from pixel_battle.entities.chunk import Chunk
-from pixel_battle.entities.color import (
-    RGBColor,
-    RGBColorValue,
-    undefined_color,
-)
-from pixel_battle.entities.pixel import (
+from pixel_battle.entities.core.chunk import Chunk
+from pixel_battle.entities.core.pixel import (
     Pixel,
     default_pixel_at,
     recolored_by,
 )
-from pixel_battle.entities.position import Position
-from pixel_battle.entities.time import Time
-from pixel_battle.entities.user import User, new_user_when
+from pixel_battle.entities.core.user import User, new_user_when
+from pixel_battle.entities.quantities.color import (
+    RGBColor,
+    RGBColorValue,
+    unknown_color,
+)
+from pixel_battle.entities.quantities.position import Position
+from pixel_battle.entities.quantities.time import Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -57,7 +57,7 @@ class RecolorPixel:
         )
 
         pixel_position = Position(x=pixel_position_x, y=pixel_position_y)
-        pixel = Pixel(position=pixel_position, color=undefined_color)
+        pixel = Pixel(position=pixel_position, color=unknown_color)
 
         new_pixel_color = RGBColor(
             red=RGBColorValue(number=new_color_red_value_number),

@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 from uuid import UUID, uuid4
 
-from pixel_battle.entities.chunk import Chunk
-from pixel_battle.entities.time import Time
+from pixel_battle.entities.core.chunk import Chunk
+from pixel_battle.entities.quantities.time import Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -37,4 +37,4 @@ def temporarily_without_right_to_recolor(
 
 
 def has_right_to_recolor(user: User, *, current_time: Time) -> bool:
-    return user.time_of_obtaining_recoloring_right >= current_time
+    return user.time_of_obtaining_recoloring_right <= current_time
