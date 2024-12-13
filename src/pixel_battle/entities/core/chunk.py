@@ -15,6 +15,6 @@ class Chunk:
 
 
 def chunk_where(position: Position) -> Chunk:
-    chunk_number = ChunkNumber(x=position.x // 100, y=position.y // 100)
+    chunk_number = ChunkNumber(x=position.x // 250, y=position.y // 250)
 
     return Chunk(number=chunk_number)

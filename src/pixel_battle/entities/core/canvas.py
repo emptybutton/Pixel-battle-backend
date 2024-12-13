@@ -11,6 +11,6 @@ class Canvas:
 
 canvas = Canvas(
     area=Rectangle(
-        position1=Position(x=0, y=0), position2=Position(x=1600, y=400)
+        position1=Position(x=0, y=0), position2=Position(x=1000, y=1000)
     )
 )

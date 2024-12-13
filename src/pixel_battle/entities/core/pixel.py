@@ -7,11 +7,7 @@ from pixel_battle.entities.core.user import (
     has_right_to_recolor,
     temporarily_without_right_to_recolor,
 )
-from pixel_battle.entities.quantities.color import (
-    Color,
-    RGBColor,
-    white,
-)
+from pixel_battle.entities.quantities.color import Color, RGBColor
 from pixel_battle.entities.quantities.position import Position
 from pixel_battle.entities.quantities.time import Time
 
@@ -28,16 +24,16 @@ class Pixel[ColorT: Color]:
     color: ColorT
 
     @property
+    def id(self) -> Position:
+        return self.position
+
+    @property
     def chunk(self) -> Chunk:
         return chunk_where(self.position)
 
     def __post_init__(self) -> None:
         if self.position not in canvas.area:
             raise PixelOutOfCanvasError
-
-
-def default_pixel_at(position: Position) -> Pixel[RGBColor]:
-    return Pixel(position=position, color=white)
 
 
 def recolored[ColorT: Color](

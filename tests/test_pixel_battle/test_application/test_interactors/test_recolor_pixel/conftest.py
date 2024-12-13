@@ -10,10 +10,7 @@ from pixel_battle.infrastructure.adapters.pixels import InMemoryPixels
 
 @fixture
 def recolor_pixel() -> RecolorPixel[InMemoryPixels]:
-    return RecolorPixel(
-        chunk=Chunk(number=ChunkNumber(x=0, y=0)),
-        pixels=InMemoryPixels(),
-    )
+    return RecolorPixel(pixels=InMemoryPixels())
 
 
 @fixture
