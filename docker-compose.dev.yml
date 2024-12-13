@@ -1,4 +1,5 @@
-version: "3"
+name: pixel-battle
+
 services:
   pixel-battle:
     build: .
@@ -6,3 +7,68 @@ services:
     restart: "no"
     volumes:
       - .:/pixel-battle
+    networks:
+      - private-network
+    depends_on:
+      - redis1
+      - redis2
+      - redis3
+      - redis4
+
+  redis1:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis1
+    restart: "no"
+    volumes:
+      - redis1-db:/data
+      - ./redis:/mnt
+    networks:
+      - private-network
+    entrypoint: [""]
+    command: redis-server /mnt/redis.conf
+
+  redis2:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis2
+    restart: "no"
+    volumes:
+      - redis2-db:/data
+      - ./redis:/mnt
+    networks:
+      - private-network
+    entrypoint: [""]
+    command: redis-server /mnt/redis.conf
+
+  redis3:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis3
+    restart: "no"
+    volumes:
+      - redis3-db:/data
+      - ./redis:/mnt
+    networks:
+      - private-network
+    entrypoint: [""]
+    command: redis-server /mnt/redis.conf
+
+  redis4:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis4
+    restart: "no"
+    volumes:
+      - redis4-db:/data
+      - ./redis:/mnt
+    networks:
+      - private-network
+    entrypoint: [""]
+    command: redis-server /mnt/redis.conf
+
+volumes:
+  redis1-db: null
+  redis2-db: null
+  redis3-db: null
+  redis4-db: null
+
+networks:
+  private-network:
+    driver: bridge
