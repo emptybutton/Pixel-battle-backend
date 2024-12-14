@@ -10,7 +10,6 @@ from pixel_battle.entities.core.pixel import (
     PixelRecoloringByUser,
     UserHasNoRightToRecolorError,
     UserInDifferentChunkToRecolorError,
-    default_pixel_at,
     recolored,
     recolored_by,
 )
@@ -31,12 +30,6 @@ def test_negative_pixel_position() -> None:
 def test_too_large_pixel_position() -> None:
     with raises(PixelOutOfCanvasError):
         Pixel(position=Position(x=1601, y=400), color=black)
-
-
-def test_default_pixel() -> None:
-    position = Position(x=0, y=0)
-
-    assert default_pixel_at(position) == Pixel(position=position, color=white)
 
 
 @fixture

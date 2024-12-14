@@ -1,9 +1,10 @@
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
-from pixel_battle.infrastructure.adapters.pixels import InMemoryPixels
+from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
+from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
 async def test_result(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     output = await recolor_pixel(
         user_id=None,
@@ -18,11 +19,11 @@ async def test_result(
     )
 
     assert output.pixel is None
-    assert output.user.chunk == recolor_pixel.chunk
+    assert output.user.chunk == Chunk(number=ChunkNumber(x=0, y=0))
 
 
-async def test_stored_pixels(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+async def test_chunk_views(
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     await recolor_pixel(
         user_id=None,
@@ -36,4 +37,4 @@ async def test_stored_pixels(
         new_color_blue_value_number=255,
     )
 
-    assert not recolor_pixel.pixels
+    assert not recolor_pixel.chunk_views

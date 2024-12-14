@@ -5,14 +5,14 @@ from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor, red
 from pixel_battle.entities.quantities.position import zero_position
-from pixel_battle.infrastructure.adapters.pixels import InMemoryPixels
+from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
 excepted_pixel = Pixel(position=zero_position, color=red)
 
 
 async def test_result(
-    recolor_pixel: RecolorPixel[InMemoryPixels],
+    recolor_pixel: RecolorPixel[CollectionChunkView],
     stored_pixel: Pixel[RGBColor]  # noqa: ARG001
 ) -> None:
     datetime_ = datetime(2006, 1, 1, tzinfo=UTC)
@@ -29,11 +29,11 @@ async def test_result(
     )
 
     assert output.pixel == excepted_pixel
-    assert output.user.chunk == recolor_pixel.chunk
+    assert output.user.chunk == excepted_pixel.chunk
 
 
-async def test_stored_pixels(
-    recolor_pixel: RecolorPixel[InMemoryPixels],
+async def test_chunk_views(
+    recolor_pixel: RecolorPixel[CollectionChunkView],
     stored_pixel: Pixel[RGBColor]  # noqa: ARG001
 ) -> None:
     datetime_ = datetime(2006, 1, 1, tzinfo=UTC)
@@ -49,4 +49,10 @@ async def test_stored_pixels(
         new_color_blue_value_number=0,
     )
 
-    assert set(recolor_pixel.pixels) == {excepted_pixel}
+    raw_chunk_views = {
+        chunk: set(view)
+        for chunk, view in recolor_pixel.chunk_views.to_dict().items()
+    }
+    excepted_result = {excepted_pixel.chunk: {excepted_pixel}}
+
+    assert raw_chunk_views == excepted_result

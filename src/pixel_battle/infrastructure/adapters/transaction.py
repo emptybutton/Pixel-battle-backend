@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from types import TracebackType
-from typing import ClassVar, Self, Type
+from typing import Self, Type
 
 from pixel_battle.application.ports.chunk_view import ChunkView
 from pixel_battle.application.ports.transaction import (
@@ -10,17 +10,15 @@ from pixel_battle.application.ports.transaction import (
 from pixel_battle.infrastructure.adapters.chunk_view import InMemoryChunkViews
 
 
-@dataclass(init=False)
-class InMemoryChunkViewsTransaction[ChunkViewT: ChunkView](
-    Transaction
-):
-    _snapshot_views: InMemoryChunkViews[ChunkViewT] | None = None
+class ExitWithoutEnterError(Exception): ...
 
-    def __init__(self, views: InMemoryChunkViews[ChunkViewT]) -> None:
-        self._views = views
+
+@dataclass(frozen=True, slots=True)
+class InMemoryChunkViewsTransaction[ChunkViewT: ChunkView](Transaction):
+    _views: InMemoryChunkViews[ChunkViewT]
 
     async def __aenter__(self) -> Self:
-        self._snapshot_views = InMemoryChunkViews(self._views.to_dict())
+        self._views.begin()
         return self
 
     async def __aexit__(
@@ -29,14 +27,15 @@ class InMemoryChunkViewsTransaction[ChunkViewT: ChunkView](
         error: BaseException | None,
         traceback: TracebackType | None,
     ) -> bool:
-        if error is not None:
-            self._views = self._snapshot_views
-
-        self._snapshot_views = None
+        if error is None:
+            self._views.commit()
+        else:
+            self._views.rollback()
 
         return False
 
 
+@dataclass(kw_only=True, frozen=True, slots=True)
 class InMemoryChunkViewsTransactionOf[ChunkViewT: ChunkView](
     TransactionOf[InMemoryChunkViews[ChunkViewT]]
 ):

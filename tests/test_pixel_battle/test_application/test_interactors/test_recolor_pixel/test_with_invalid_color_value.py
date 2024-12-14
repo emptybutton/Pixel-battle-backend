@@ -8,11 +8,11 @@ from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.quantities.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
-from pixel_battle.infrastructure.adapters.pixels import InMemoryPixels
+from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
 async def test_error_on_too_large_value_number(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         datetime_ = datetime(2006, 1, 1, tzinfo=UTC)
@@ -30,7 +30,7 @@ async def test_error_on_too_large_value_number(
 
 
 async def test_error_on_negative_value_number(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         datetime_ = datetime(2006, 1, 1, tzinfo=UTC)
@@ -47,8 +47,8 @@ async def test_error_on_negative_value_number(
         )
 
 
-async def test_stored_pixels(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+async def test_chunk_views(
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     with suppress(Exception):
         datetime_ = datetime(2006, 1, 1, tzinfo=UTC)
@@ -64,4 +64,4 @@ async def test_stored_pixels(
             new_color_blue_value_number=-1,
         )
 
-    assert not recolor_pixel.pixels
+    assert not recolor_pixel.chunk_views

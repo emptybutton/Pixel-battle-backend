@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from contextlib import AbstractAsyncContextManager
-from typing import Self
+from typing import Any, Self
 
-from pixel_battle.application.ports.chunk_view import ChunkView, ChunkViews
+from pixel_battle.application.ports.chunk_view import ChunkViews
 
 
 class Transaction(AbstractAsyncContextManager["Transaction"]):
@@ -10,6 +10,6 @@ class Transaction(AbstractAsyncContextManager["Transaction"]):
         return self
 
 
-class TransactionOf[ChunkViewsT: ChunkViews[ChunkView]](ABC):
+class TransactionOf[ChunkViewsT: ChunkViews[Any]](ABC):
     @abstractmethod
     def __call__(self, chunk_views: ChunkViewsT) -> Transaction: ...

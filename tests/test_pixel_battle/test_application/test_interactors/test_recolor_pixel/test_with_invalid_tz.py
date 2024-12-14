@@ -6,11 +6,11 @@ from pytest import raises
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.quantities.time import NotUTCTimeError
-from pixel_battle.infrastructure.adapters.pixels import InMemoryPixels
+from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
 async def test_error(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     with raises(NotUTCTimeError):
         await recolor_pixel(
@@ -26,8 +26,8 @@ async def test_error(
         )
 
 
-async def test_stored_pixels(
-    recolor_pixel: RecolorPixel[InMemoryPixels]
+async def test_chunk_views(
+    recolor_pixel: RecolorPixel[CollectionChunkView]
 ) -> None:
     with suppress(Exception):
         await recolor_pixel(
@@ -42,4 +42,4 @@ async def test_stored_pixels(
             new_color_blue_value_number=255,
         )
 
-    assert not recolor_pixel.pixels
+    assert not recolor_pixel.chunk_views
