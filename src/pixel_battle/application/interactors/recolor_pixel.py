@@ -16,8 +16,8 @@ from pixel_battle.entities.quantities.color import (
     RGBColorValue,
     unknown_color,
 )
-from pixel_battle.entities.quantities.position import Position
 from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.quantities.vector import Vector
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -63,7 +63,7 @@ class RecolorPixel[ChunkViewT: ChunkView]:
             chunk=user_chunk,
         )
 
-        pixel_position = Position(x=pixel_position_x, y=pixel_position_y)
+        pixel_position = Vector(x=pixel_position_x, y=pixel_position_y)
         pixel = Pixel(position=pixel_position, color=unknown_color)
 
         new_pixel_color = RGBColor(

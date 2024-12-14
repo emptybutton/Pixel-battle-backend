@@ -24,6 +24,10 @@ services:
       - ./redis:/mnt
     networks:
       - private-network
+    depends_on:
+      - redis2
+      - redis3
+      - redis4
     entrypoint: [""]
     command: redis-server /mnt/redis.conf
 

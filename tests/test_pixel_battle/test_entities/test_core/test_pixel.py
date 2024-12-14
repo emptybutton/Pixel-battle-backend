@@ -18,18 +18,18 @@ from pixel_battle.entities.quantities.color import (
     black,
     white,
 )
-from pixel_battle.entities.quantities.position import Position, zero_position
 from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.quantities.vector import Vector
 
 
 def test_negative_pixel_position() -> None:
     with raises(PixelOutOfCanvasError):
-        Pixel(position=Position(x=-1, y=0), color=black)
+        Pixel(position=Vector(x=-1, y=0), color=black)
 
 
 def test_too_large_pixel_position() -> None:
     with raises(PixelOutOfCanvasError):
-        Pixel(position=Position(x=1601, y=400), color=black)
+        Pixel(position=Vector(x=1601, y=400), color=black)
 
 
 @fixture
@@ -56,12 +56,12 @@ def user_from_other_chunk() -> User:
 
 @fixture
 def original_pixel() -> User:
-    return Pixel(position=zero_position, color=white)
+    return Pixel(position=Vector(), color=white)
 
 
 @fixture
 def recolored_pixel() -> User:
-    return Pixel(position=zero_position, color=black)
+    return Pixel(position=Vector(), color=black)
 
 
 def test_recolored(original_pixel: Pixel, recolored_pixel: Pixel) -> None:

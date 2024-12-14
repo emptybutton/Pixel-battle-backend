@@ -4,11 +4,11 @@ from uuid import UUID
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor, red
-from pixel_battle.entities.quantities.position import zero_position
+from pixel_battle.entities.quantities.vector import Vector
 from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
-excepted_pixel = Pixel(position=zero_position, color=red)
+excepted_pixel = Pixel(position=Vector(), color=red)
 
 
 async def test_result(

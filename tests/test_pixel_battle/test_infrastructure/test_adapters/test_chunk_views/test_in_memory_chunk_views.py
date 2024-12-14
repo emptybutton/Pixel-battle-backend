@@ -3,7 +3,7 @@ from pytest import fixture
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import black
-from pixel_battle.entities.quantities.position import Position
+from pixel_battle.entities.quantities.vector import Vector
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
     InMemoryChunkViews,
@@ -23,18 +23,18 @@ def chunk2() -> Chunk:
 @fixture
 def chunk1_view() -> CollectionChunkView:
     return CollectionChunkView([
-        Pixel(position=Position(x=0, y=0), color=black),
-        Pixel(position=Position(x=50, y=50), color=black),
-        Pixel(position=Position(x=75, y=75), color=black)
+        Pixel(position=Vector(x=0, y=0), color=black),
+        Pixel(position=Vector(x=50, y=50), color=black),
+        Pixel(position=Vector(x=75, y=75), color=black)
     ])
 
 
 @fixture
 def chunk2_view() -> CollectionChunkView:
     return CollectionChunkView([
-        Pixel(position=Position(x=100, y=100), color=black),
-        Pixel(position=Position(x=150, y=150), color=black),
-        Pixel(position=Position(x=175, y=175), color=black)
+        Pixel(position=Vector(x=100, y=100), color=black),
+        Pixel(position=Vector(x=150, y=150), color=black),
+        Pixel(position=Vector(x=175, y=175), color=black)
     ])
 
 

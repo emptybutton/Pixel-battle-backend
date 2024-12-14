@@ -1,43 +1,43 @@
 from pytest import mark
 
-from pixel_battle.entities.quantities.position import Position
 from pixel_battle.entities.quantities.rectangle import Rectangle
+from pixel_battle.entities.quantities.vector import Vector
 
 
 @mark.parametrize(
     "position, rectangle",
     (
         [
-            Position(x=0, y=0),
+            Vector(x=0, y=0),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=0, y=0),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=0, y=0),
             ),
         ],
         [
-            Position(x=100, y=10),
+            Vector(x=100, y=10),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=600, y=600),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=600, y=600),
             ),
         ],
         [
-            Position(x=600, y=600),
+            Vector(x=600, y=600),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=600, y=600),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=600, y=600),
             ),
         ],
         [
-            Position(x=600, y=600),
+            Vector(x=600, y=600),
             Rectangle(
-                position1=Position(x=600, y=600),
-                position2=Position(x=0, y=0),
+                position1=Vector(x=600, y=600),
+                position2=Vector(x=0, y=0),
             ),
         ],
     )
 )
-def test_contains_true(position: Position, rectangle: Rectangle) -> None:
+def test_contains_true(position: Vector, rectangle: Rectangle) -> None:
     assert position in rectangle
 
 
@@ -45,27 +45,27 @@ def test_contains_true(position: Position, rectangle: Rectangle) -> None:
     "position, rectangle",
     (
         [
-            Position(x=1, y=0),
+            Vector(x=1, y=0),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=0, y=0),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=0, y=0),
             ),
         ],
         [
-            Position(x=100, y=-10),
+            Vector(x=100, y=-10),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=600, y=600),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=600, y=600),
             ),
         ],
         [
-            Position(x=600, y=601),
+            Vector(x=600, y=601),
             Rectangle(
-                position1=Position(x=0, y=0),
-                position2=Position(x=600, y=600),
+                position1=Vector(x=0, y=0),
+                position2=Vector(x=600, y=600),
             ),
         ],
     )
 )
-def test_contains_false(position: Position, rectangle: Rectangle) -> None:
+def test_contains_false(position: Vector, rectangle: Rectangle) -> None:
     assert position not in rectangle

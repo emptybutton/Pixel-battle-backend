@@ -8,8 +8,8 @@ from pixel_battle.entities.core.user import (
     temporarily_without_right_to_recolor,
 )
 from pixel_battle.entities.quantities.color import Color, RGBColor
-from pixel_battle.entities.quantities.position import Position
 from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.quantities.vector import Vector
 
 
 class PixelError(Exception): ...
@@ -20,16 +20,20 @@ class PixelOutOfCanvasError(PixelError): ...
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Pixel[ColorT: Color]:
-    position: Position
+    position: Vector
     color: ColorT
 
     @property
-    def id(self) -> Position:
+    def id(self) -> Vector:
         return self.position
 
     @property
     def chunk(self) -> Chunk:
         return chunk_where(self.position)
+
+    @property
+    def position_within_chunk(self) -> Vector:
+        return self.position - self.chunk.area.left_top_position
 
     def __post_init__(self) -> None:
         if self.position not in canvas.area:

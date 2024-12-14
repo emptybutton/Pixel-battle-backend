@@ -2,18 +2,18 @@ from pytest import fixture
 
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import black, white
-from pixel_battle.entities.quantities.position import zero_position
+from pixel_battle.entities.quantities.vector import Vector
 from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
 
 
 @fixture
 def pixel1v() -> Pixel:
-    return Pixel(position=zero_position, color=white)
+    return Pixel(position=Vector(), color=white)
 
 
 @fixture
 def pixel2v() -> Pixel:
-    return Pixel(position=zero_position, color=black)
+    return Pixel(position=Vector(), color=black)
 
 
 async def test_redraw_unstored_pixel(pixel1v: Pixel, pixel2v: Pixel) -> None:
