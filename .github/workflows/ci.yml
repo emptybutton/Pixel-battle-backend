@@ -1,4 +1,4 @@
-name: ci
+name: CI
 
 on: [push, pull_request]
 
@@ -21,5 +21,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: start all docker compose services
+        run: docker compose -f docker-compose.dev.yml up -d
+
+      - name: create redis cluster
+        run: docker exec -it pixel-battle-redis1 ash /mnt/create-cluster.sh
+
       - name: pytest
-        run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests
+        run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests --cov --cov-branch
+
+      - name: upload coverage to codecov
+        uses: codecov/codecov-action@v2
