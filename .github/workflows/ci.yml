@@ -26,7 +26,7 @@ jobs:
         run: docker compose -f docker-compose.dev.yml up -d
 
       - name: create redis cluster
-        run: docker exec -it pixel-battle-redis1 ash /mnt/create-cluster.sh
+        run: docker exec pixel-battle-redis1 ash /mnt/create-cluster.sh
 
       - name: pytest
         run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests --cov --cov-branch
