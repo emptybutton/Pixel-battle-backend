@@ -1,5 +1,4 @@
-from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from io import BytesIO
 from typing import Iterable, Iterator
 
@@ -15,6 +14,7 @@ from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor
 from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.infrastructure.redis_cluster.identity import chunk_key_of
 
 
 @dataclass(init=False)
@@ -55,36 +55,59 @@ class InvalidPNGImageChunkViewSizeError(Exception):
         super().__init__(size)
 
 
-@dataclass(frozen=True, slots=True)
-class PNGImageChunkView(ChunkView):
+@dataclass(frozen=True, slots=True, eq=False, unsafe_hash=False)
+class PNGImageChunkView(ChunkView):  # noqa: PLW1641
     _image: Image
 
+    @classmethod
+    def _image_size(cls) -> tuple[int, int]:
+        size_vector = Chunk.size.to_vector() - Vector(x=1, y=1)
+
+        return (size_vector.x, size_vector.y)
+
     def __post_init__(self) -> None:
-        if self._image.mode != "PNG":
+        if self._image.mode != "RGB":
             raise InvalidPNGImageChunkViewModeError(self._image.mode)
 
-        if self._image.size != (Chunk.width, Chunk.height):
+        if self._image.size != PNGImageChunkView._image_size():
             raise InvalidPNGImageChunkViewSizeError(self._image.size)
 
     @classmethod
     def from_bytes(cls, bytes_: bytes) -> "PNGImageChunkView":
-        with BytesIO(bytes_) as stream:
-            image = open(stream, formats=["png"])
+        image = open(BytesIO(bytes_), formats=["png"])
 
-            return PNGImageChunkView(image)
+        return PNGImageChunkView(image)
 
-    def to_bytes(self) -> bytes:
-        with BytesIO() as stream:
-            self._image.save(stream, format="png")
-            self._image.close()
+    @classmethod
+    def create_default(cls) -> "PNGImageChunkView":
+        image = new(
+            mode="RGB",
+            size=PNGImageChunkView._image_size(),
+            color=(255, 255, 255),
+        )
 
-            return stream.getvalue()
+        return PNGImageChunkView(image)
+
+    def to_stream(self) -> BytesIO:
+        stream = BytesIO()
+        self._image.save(stream, format="png")
+
+        return stream
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PNGImageChunkView):
+            return False
+
+        return self._image.tobytes() == other._image.tobytes()
 
     async def redraw(self, pixel: Pixel[RGBColor]) -> None:
         coordinates = self.__coordinates_of(pixel)
         value = self.__value_of(pixel)
 
         self._image.putpixel(coordinates, value)
+
+    def close(self) -> None:
+        self._image.close()
 
     def __coordinates_of(self, pixel: Pixel[RGBColor]) -> tuple[int, int]:
         position = pixel.position_within_chunk
@@ -99,26 +122,21 @@ class PNGImageChunkView(ChunkView):
         )
 
     def __del__(self) -> None:
-        self._image.close()
+        self.close()
 
 
 class DefaultPNGImageChunkViewOf(DefaultChunkViewOf[PNGImageChunkView]):
-    async def __call__(self, chunk: Chunk) -> PNGImageChunkView:
-        image = new(
-            mode="PNG",
-            size=(chunk.width, chunk.height),
-            color=(255, 255, 255),
-        )
-
-        return PNGImageChunkView(image)
+    async def __call__(self, _: Chunk) -> PNGImageChunkView:
+        return PNGImageChunkView.create_default()
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
-    client: RedisCluster
+    redis_cluster: RedisCluster
+    close_when_putting: bool
 
     async def chunk_view_of(self, chunk: Chunk) -> PNGImageChunkView | None:
-        raw_view = await self.client.get(self.__key_for(chunk))
+        raw_view = await self.redis_cluster.get(chunk_key_of(chunk))
 
         if raw_view is None:
             return None
@@ -126,44 +144,24 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
         return PNGImageChunkView.from_bytes(raw_view)
 
     async def put(self, view: PNGImageChunkView, *, chunk: Chunk) -> None:
-        await self.client.set(self.__key_for(chunk), view.to_bytes())
+        with view.to_stream() as stream:
+            if self.close_when_putting:
+                view.close()
 
-    def __key_for(self, chunk: Chunk) -> str:
-        return f"{chunk.number.x}.{chunk.number.y}"
+            buffer = stream.getbuffer()
+            await self.redis_cluster.set(chunk_key_of(chunk), buffer)
+            buffer.release()
 
 
-class NoTransactionError(Exception): ...
-
-
-@dataclass(init=False)
+@dataclass(frozen=True, slots=True)
 class InMemoryChunkViews[ChunkViewT: ChunkView](ChunkViews[ChunkViewT]):
-    _view_by_chunk: dict[Chunk, ChunkViewT]
-    _snapshot: dict[Chunk, ChunkViewT] | None = None
-
-    def __init__(self, view_by_chunk: dict[Chunk, ChunkViewT] = dict()) -> None:  # noqa: B006
-        self._view_by_chunk = dict(view_by_chunk)
+    _view_by_chunk: dict[Chunk, ChunkViewT] = field(default_factory=dict)
 
     def __bool__(self) -> bool:
         return bool(self._view_by_chunk)
 
     def to_dict(self) -> dict[Chunk, ChunkViewT]:
         return dict(self._view_by_chunk)
-
-    def begin(self) -> None:
-        self._snapshot = deepcopy(self._view_by_chunk)
-
-    def rollback(self) -> None:
-        if self._snapshot is None:
-            raise NoTransactionError
-
-        self._view_by_chunk = self._snapshot
-        self._snapshot = None
-
-    def commit(self) -> None:
-        if self._snapshot is None:
-            raise NoTransactionError
-
-        self._snapshot = None
 
     async def chunk_view_of(self, chunk: Chunk) -> ChunkViewT | None:
         return self._view_by_chunk.get(chunk)

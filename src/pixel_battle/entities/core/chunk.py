@@ -1,7 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from pixel_battle.entities.quantities.rectangle import Rectangle
+from pixel_battle.entities.quantities.rectangle import Rectangle, rectangle_with
+from pixel_battle.entities.quantities.size import Size
 from pixel_battle.entities.quantities.vector import Vector
 
 
@@ -13,29 +14,27 @@ class ChunkNumber:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Chunk:
-    width: ClassVar = 250
-    height: ClassVar = 250
+    size: ClassVar = Size(width=250, height=250)
 
     number: ChunkNumber
 
     @property
     def area(self) -> Rectangle:
-        position1 = Vector(
-            x=self.number.x * self.width,
-            y=self.number.y * self.height,
-        )
-        position2 = Vector(
-            x=(self.number.x + 1) * self.width - 1,
-            y=(self.number.y + 1) * self.height - 1,
+        min_x_min_y_position = Vector(
+            x=self.number.x * self.size.width,
+            y=self.number.y * self.size.height,
         )
 
-        return Rectangle(position1=position1, position2=position2)
+        return rectangle_with(
+            min_x_min_y_position=min_x_min_y_position,
+            size=self.size,
+        )
 
 
 def chunk_where(position: Vector) -> Chunk:
     chunk_number = ChunkNumber(
-        x=position.x // Chunk.width,
-        y=position.y // Chunk.height,
+        x=position.x // Chunk.size.width,
+        y=position.y // Chunk.size.height,
     )
 
     return Chunk(number=chunk_number)

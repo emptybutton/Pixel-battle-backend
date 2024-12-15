@@ -33,7 +33,7 @@ class Pixel[ColorT: Color]:
 
     @property
     def position_within_chunk(self) -> Vector:
-        return self.position - self.chunk.area.left_top_position
+        return self.position - self.chunk.area.min_x_min_y_position
 
     def __post_init__(self) -> None:
         if self.position not in canvas.area:

@@ -14,6 +14,8 @@ services:
       - redis2
       - redis3
       - redis4
+    environment:
+      REDIS_CLUSTER_URL: redis://redis1:6379/0
 
   redis1:
     image: redis:7.4.1-alpine3.20

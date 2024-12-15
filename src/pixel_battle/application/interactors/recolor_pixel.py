@@ -7,7 +7,7 @@ from pixel_battle.application.ports.chunk_view import (
     ChunkViews,
     DefaultChunkViewOf,
 )
-from pixel_battle.application.ports.transaction import TransactionOf
+from pixel_battle.application.ports.lock import Lock
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel, recolored_by
 from pixel_battle.entities.core.user import User, new_user_when
@@ -29,8 +29,8 @@ class Output:
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RecolorPixel[ChunkViewT: ChunkView]:
     chunk_views: ChunkViews[ChunkViewT]
-    transaction_of: TransactionOf[ChunkViews[ChunkViewT]]
     default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
+    lock: Lock
 
     async def __call__(
         self,
@@ -76,7 +76,7 @@ class RecolorPixel[ChunkViewT: ChunkView]:
             user, pixel, new_color=new_pixel_color, current_time=current_time
         )
 
-        async with self.transaction_of(self.chunk_views):
+        async with self.lock(result.pixel.chunk):
             chunk_view = await self.chunk_views.chunk_view_of(
                 result.pixel.chunk
             )

@@ -9,8 +9,8 @@ from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultCollectionChunkViewOf,
     InMemoryChunkViews,
 )
-from pixel_battle.infrastructure.adapters.transaction import (
-    InMemoryChunkViewsTransactionOf,
+from pixel_battle.infrastructure.adapters.lock import (
+    AsyncIOLock,
 )
 
 
@@ -18,8 +18,8 @@ from pixel_battle.infrastructure.adapters.transaction import (
 def recolor_pixel() -> RecolorPixel[CollectionChunkView]:
     return RecolorPixel[CollectionChunkView](
         chunk_views=InMemoryChunkViews(),
-        transaction_of=InMemoryChunkViewsTransactionOf(),
         default_chunk_view_of=DefaultCollectionChunkViewOf(),
+        lock=AsyncIOLock(),
     )
 
 
