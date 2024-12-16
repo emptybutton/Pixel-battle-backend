@@ -10,10 +10,10 @@ from pixel_battle.entities.quantities.vector import Vector
     [
         [Vector(x=0, y=0), ChunkNumber(x=0, y=0)],
         [Vector(x=1, y=0), ChunkNumber(x=0, y=0)],
-        [Vector(x=250, y=150), ChunkNumber(x=1, y=0)],
-        [Vector(x=499, y=500), ChunkNumber(x=1, y=2)],
-        [Vector(x=-249, y=-250), ChunkNumber(x=-1, y=-1)],
-        [Vector(x=-249, y=-251), ChunkNumber(x=-1, y=-2)],
+        [Vector(x=100, y=50), ChunkNumber(x=1, y=0)],
+        [Vector(x=199, y=200), ChunkNumber(x=1, y=2)],
+        [Vector(x=-99, y=-100), ChunkNumber(x=-1, y=-1)],
+        [Vector(x=-99, y=-101), ChunkNumber(x=-1, y=-2)],
     ]
 )
 def test_chunk_where(
@@ -29,35 +29,35 @@ def test_chunk_where(
             ChunkNumber(x=0, y=0),
             Rectangle(
                 position1=Vector(x=0, y=0),
-                position2=Vector(x=249, y=249),
+                position2=Vector(x=99, y=99),
             ),
         ],
         [
             ChunkNumber(x=1, y=0),
             Rectangle(
-                position1=Vector(x=250, y=0),
-                position2=Vector(x=499, y=249),
+                position1=Vector(x=100, y=0),
+                position2=Vector(x=199, y=99),
             ),
         ],
         [
             ChunkNumber(x=3, y=2),
             Rectangle(
-                position1=Vector(x=750, y=500),
-                position2=Vector(x=999, y=749),
+                position1=Vector(x=300, y=200),
+                position2=Vector(x=399, y=299),
             ),
         ],
         [
             ChunkNumber(x=-1, y=0),
             Rectangle(
-                position1=Vector(x=-250, y=249),
+                position1=Vector(x=-100, y=99),
                 position2=Vector(x=-1, y=0),
             ),
         ],
         [
             ChunkNumber(x=-2, y=-1),
             Rectangle(
-                position1=Vector(x=-500, y=-250),
-                position2=Vector(x=-251, y=-1),
+                position1=Vector(x=-200, y=-100),
+                position2=Vector(x=-101, y=-1),
             ),
         ],
     ]

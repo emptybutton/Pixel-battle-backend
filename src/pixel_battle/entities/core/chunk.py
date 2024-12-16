@@ -14,7 +14,7 @@ class ChunkNumber:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Chunk:
-    size: ClassVar = Size(width=250, height=250)
+    size: ClassVar = Size(width=100, height=100)
 
     number: ChunkNumber
 

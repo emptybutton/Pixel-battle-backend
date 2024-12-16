@@ -8,7 +8,7 @@ from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
 
 @mark.parametrize(
     "position",
-    [Vector(x=2, y=1), Vector(x=252, y=251), Vector(x=252, y=1)],
+    [Vector(x=2, y=1), Vector(x=102, y=101), Vector(x=102, y=1)],
 )
 async def test_redraw(
     position: Vector, png_image_chunk_view1: PNGImageChunkView
