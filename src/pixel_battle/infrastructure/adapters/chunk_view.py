@@ -14,7 +14,6 @@ from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor
 from pixel_battle.entities.quantities.vector import Vector
-from pixel_battle.infrastructure.redis_cluster.identity import chunk_key_of
 
 
 @dataclass(init=False)
@@ -36,8 +35,9 @@ class CollectionChunkView(ChunkView):
     def __bool__(self) -> bool:
         return bool(self._pixel_by_position)
 
-    async def redraw(self, pixel: Pixel[RGBColor]) -> None:
-        self._pixel_by_position[pixel.position] = pixel
+    async def redraw_by_pixels(self, pixels: Iterable[Pixel[RGBColor]]) -> None:
+        for pixel in pixels:
+            self._pixel_by_position[pixel.position] = pixel
 
 
 class DefaultCollectionChunkViewOf(DefaultChunkViewOf[CollectionChunkView]):
@@ -100,11 +100,12 @@ class PNGImageChunkView(ChunkView):  # noqa: PLW1641
 
         return self._image.tobytes() == other._image.tobytes()
 
-    async def redraw(self, pixel: Pixel[RGBColor]) -> None:
-        coordinates = self.__coordinates_of(pixel)
-        value = self.__value_of(pixel)
+    async def redraw_by_pixels(self, pixels: Iterable[Pixel[RGBColor]]) -> None:
+        for pixel in pixels:
+            coordinates = self.__coordinates_of(pixel)
+            value = self.__value_of(pixel)
 
-        self._image.putpixel(coordinates, value)
+            self._image.putpixel(coordinates, value)
 
     def close(self) -> None:
         self._image.close()
@@ -136,7 +137,7 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
     close_when_putting: bool
 
     async def chunk_view_of(self, chunk: Chunk) -> PNGImageChunkView | None:
-        raw_view = await self.redis_cluster.get(chunk_key_of(chunk))
+        raw_view = await self.redis_cluster.get(self.__key_by(chunk))
 
         if raw_view is None:
             return None
@@ -149,8 +150,11 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
                 view.close()
 
             buffer = stream.getbuffer()
-            await self.redis_cluster.set(chunk_key_of(chunk), buffer)
+            await self.redis_cluster.set(self.__key_by(chunk), buffer)
             buffer.release()
+
+    def __key_by(self, chunk: Chunk) -> bytes:
+        return bytes([chunk.number.x, chunk.number.y]) + b"view"
 
 
 @dataclass(frozen=True, slots=True)

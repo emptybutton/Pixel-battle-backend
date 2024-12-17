@@ -55,7 +55,7 @@ class PixelRecoloringByUser:
 class UserHasNoRightToRecolorError(Exception): ...
 
 
-class UserInDifferentChunkToRecolorError(Exception): ...
+class DifferentChunkToRecolorError(Exception): ...
 
 
 def recolored_by[ColorT: Color](
@@ -64,12 +64,13 @@ def recolored_by[ColorT: Color](
     *,
     new_color: RGBColor,
     current_time: Time,
+    chunk: Chunk,
 ) -> PixelRecoloringByUser:
     if not has_right_to_recolor(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
 
-    if user.chunk != pixel.chunk:
-        raise UserInDifferentChunkToRecolorError
+    if chunk != pixel.chunk:
+        raise DifferentChunkToRecolorError
 
     pixel = recolored(pixel, new_color=new_color)
     user = temporarily_without_right_to_recolor(user, current_time=current_time)
