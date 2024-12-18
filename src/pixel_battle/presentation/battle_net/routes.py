@@ -10,9 +10,9 @@ from pydantic import BaseModel, Field, ValidationError
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.application.ports.chunk_view import ChunkView
 from pixel_battle.entities.core.pixel import (
+    DifferentChunkToRecolorError,
     PixelOutOfCanvasError,
     UserHasNoRightToRecolorError,
-    DifferentChunkToRecolorError,
 )
 from pixel_battle.entities.quantities.color import (
     RGBColorValueNumberInInvalidRangeError,
@@ -82,6 +82,8 @@ async def chunk_channel(
     group_id = (chunk_number_x, chunk_number_y)
     current_connection_group = connection_group_by_group_id[group_id]
     current_connection_group.add(current_connection)
+
+    output_model: BaseModel
 
     jsons = texts_and_then_disconnect_of(
         current_connection, its_group=current_connection_group

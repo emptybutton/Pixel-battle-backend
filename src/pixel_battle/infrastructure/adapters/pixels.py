@@ -1,7 +1,7 @@
 from collections import defaultdict
 from dataclasses import dataclass
 from functools import reduce
-from itertools import flatten
+from itertools import chain
 from operator import add
 from typing import Iterable, Iterator, Sequence
 
@@ -25,7 +25,7 @@ class InMemoryPixels(Pixels):
             self.__pixels_by_chunk[pixel.chunk].append(pixel)
 
     def __iter__(self) -> Iterator[Pixel[RGBColor]]:
-        return iter(flatten(self.__pixels_by_chunk.values()))
+        return iter(chain.from_iterable(self.__pixels_by_chunk.values()))
 
     def __len__(self) -> int:
         return reduce(add, map(len, self.__pixels_by_chunk.values()))
@@ -54,11 +54,11 @@ class InRedisClusterPixels(Pixels):
         key = self.__key_by(pixel.chunk)
         value = self.__bytes_of(pixel)
 
-        await self.redis_cluster.rpush(key, value)
+        await self.redis_cluster.rpush(key, value)  # type: ignore[misc]
 
     async def pixels_of_chunk(self, chunk: Chunk) -> Sequence[Pixel[RGBColor]]:
         key = self.__key_by(chunk)
-        arrays = await self.redis_cluster.lrange(key, 0, -1)
+        arrays = await self.redis_cluster.lrange(key, 0, -1)  # type: ignore[misc]
 
         return tuple(self.__pixel_of(bytes_, chunk=chunk) for bytes_ in arrays)
 
@@ -66,7 +66,7 @@ class InRedisClusterPixels(Pixels):
         self, chunk: Chunk, *, amount: int
     ) -> None:
         key = self.__key_by(chunk)
-        await self.redis_cluster.lpop(key, count=amount)
+        await self.redis_cluster.lpop(key, count=amount)  # type: ignore[misc]
 
     def __key_by(self, chunk: Chunk) -> str:
         raw_key = bytes([chunk.number.x, chunk.number.y]) + b"pixels"
