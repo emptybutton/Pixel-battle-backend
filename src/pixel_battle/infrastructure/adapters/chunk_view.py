@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from io import BytesIO
-from typing import Iterable, Iterator
+from typing import ClassVar, Iterable, Iterator
 
 from PIL.Image import Image, new, open
 from redis.asyncio.cluster import RedisCluster
@@ -14,6 +14,7 @@ from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor
 from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.infrastructure.redis_cluster.keys import chunk_key_of
 
 
 @dataclass(init=False)
@@ -135,9 +136,11 @@ class DefaultPNGImageChunkViewOf(DefaultChunkViewOf[PNGImageChunkView]):
 class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
     redis_cluster: RedisCluster
     close_when_putting: bool
+    _field: ClassVar = "view"
 
     async def chunk_view_of(self, chunk: Chunk) -> PNGImageChunkView | None:
-        raw_view = await self.redis_cluster.get(self.__key_by(chunk))
+        key = chunk_key_of(chunk).decode()
+        raw_view = await self.redis_cluster.hget(key, self._field)
 
         if raw_view is None:
             return None
@@ -150,11 +153,9 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
                 view.close()
 
             buffer = stream.getbuffer()
-            await self.redis_cluster.set(self.__key_by(chunk), buffer)
+            key = chunk_key_of(chunk).decode()
+            await self.redis_cluster.hset(key, self._field, buffer)
             buffer.release()
-
-    def __key_by(self, chunk: Chunk) -> bytes:
-        return bytes([chunk.number.x, chunk.number.y]) + b"view"
 
 
 @dataclass(frozen=True, slots=True)

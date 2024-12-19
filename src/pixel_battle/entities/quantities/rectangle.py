@@ -37,6 +37,10 @@ class Rectangle:
 
         return range(min_y, max_y + 1)
 
+    @property
+    def size(self) -> Size:
+        return Size(width=len(self.x_range), height=len(self.y_range))
+
     def __contains__(self, position: Vector) -> bool:
         return position.x in self.x_range and position.y in self.y_range
 
@@ -51,7 +55,7 @@ class Rectangle:
 
 
 def rectangle_with(*, size: Size, min_x_min_y_position: Vector) -> Rectangle:
-    position2_offset = size.to_vector() + Vector(x=-1, y=-1)
+    position2_offset = size.to_number_set_vector()
 
     return Rectangle(
         position1=min_x_min_y_position,

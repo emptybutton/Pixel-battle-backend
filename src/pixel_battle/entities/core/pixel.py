@@ -40,6 +40,17 @@ class Pixel[ColorT: Color]:
             raise PixelOutOfCanvasError
 
 
+def pixel_in(
+    chunk: Chunk,
+    *,
+    position_within_chunk: Vector,
+    color: RGBColor
+) -> Pixel[RGBColor]:
+    position = chunk.area.min_x_min_y_position + position_within_chunk
+
+    return Pixel(color=color, position=position)
+
+
 def recolored[ColorT: Color](
     pixel: Pixel[ColorT], *, new_color: RGBColor
 ) -> Pixel[RGBColor]:
@@ -55,22 +66,15 @@ class PixelRecoloringByUser:
 class UserHasNoRightToRecolorError(Exception): ...
 
 
-class DifferentChunkToRecolorError(Exception): ...
-
-
 def recolored_by[ColorT: Color](
     user: User,
     pixel: Pixel[ColorT],
     *,
     new_color: RGBColor,
     current_time: Time,
-    chunk: Chunk,
 ) -> PixelRecoloringByUser:
     if not has_right_to_recolor(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
-
-    if chunk != pixel.chunk:
-        raise DifferentChunkToRecolorError
 
     pixel = recolored(pixel, new_color=new_color)
     user = temporarily_without_right_to_recolor(user, current_time=current_time)

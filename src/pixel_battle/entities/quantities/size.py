@@ -17,6 +17,9 @@ class Size:
     def to_vector(self) -> Vector:
         return Vector(x=self.width, y=self.height)
 
+    def to_number_set_vector(self) -> Vector:
+        return Vector(x=self.width - 1, y=self.height - 1)
+
     def __post_init__(self) -> None:
         if self.width <= 0 or self.height <= 0:
             raise InvalidSizeError

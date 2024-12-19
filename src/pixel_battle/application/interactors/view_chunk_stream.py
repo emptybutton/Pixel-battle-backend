@@ -1,0 +1,26 @@
+from dataclasses import dataclass
+from typing import Sequence
+
+from pixel_battle.application.ports.broker import Broker
+from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
+from pixel_battle.entities.core.pixel import Pixel
+from pixel_battle.entities.quantities.color import RGBColor
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class Output:
+    new_pixels: Sequence[Pixel[RGBColor]]
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class ViewChunkStream:
+    broker: Broker
+
+    async def __call__(
+        self, chunk_number_x: int, chunk_number_y: int
+    ) -> Output:
+        chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
+
+        async with self.broker.new_events_of(chunk) as new_events:
+            new_pixels = tuple(event.pixel for event in new_events)
+            return Output(new_pixels=new_pixels)

@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from uuid import uuid4
 
 from pytest import fixture
 
@@ -19,7 +18,6 @@ def user() -> User:
     time = Time(datetime=datetime(2006, 1, 1, tzinfo=UTC))
 
     return User(
-        id=uuid4(),
         time_of_obtaining_recoloring_right=time,
         chunk=Chunk(number=ChunkNumber(x=0, y=0)),
     )

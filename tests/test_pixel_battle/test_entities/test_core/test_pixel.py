@@ -10,6 +10,7 @@ from pixel_battle.entities.core.pixel import (
     PixelRecoloringByUser,
     UserHasNoRightToRecolorError,
     UserInDifferentChunkToRecolorError,
+    pixel_in,
     recolored,
     recolored_by,
 )
@@ -118,3 +119,14 @@ def test_recolored_from_other_chunk(
             new_color=new_color,
             current_time=current_time,
         )
+
+
+def test_pixel_in() -> None:
+    chunk = Chunk(number=ChunkNumber(x=1, y=2))
+    position_within_chunk = Vector(x=51, y=99)
+
+    pixel = pixel_in(
+        chunk, color=white, position_within_chunk=position_within_chunk
+    )
+
+    assert pixel == Pixel(color=white, position=Vector(x=151, y=299))

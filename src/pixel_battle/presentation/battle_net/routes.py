@@ -44,7 +44,6 @@ class ErrorListSchema(BaseModel):
 
 
 class RecolorPixelSchema(BaseModel):
-    user_id: UUID | None = Field(alias="userID")
     pixel_position: tuple[int, int] = Field(alias="pixelPosition")
     new_pixel_color: tuple[int, int, int] = Field(alias="newPixelColor")
 
@@ -66,6 +65,20 @@ class NotRecoloredPixelSchema(BaseModel):
         "invalidColorValueRange",
         "notUTCDatetimeOfUserObtainingRecoloringRight",
     ]
+
+
+@router.patch("/chunk/{chunk_number_x}/{chunk_number_y}")
+@inject
+async def recolor_pixel(
+    connection_group_by_group_id: FromDishka[ConnectionGroupByGroupID],
+    recolor_pixel: FromDishka[RecolorPixel[ChunkView]],
+    chunk_number_x: int,
+    chunk_number_y: int,
+    user_id: Annotated[UUID | None, Cookie()],
+    datetime_of_obtaining_recoloring_right: Annotated[datetime | None, Cookie()],
+    body_model: RecolorPixelSchema,
+) -> JSONResponse:
+    
 
 
 @router.websocket("/chunk/{chunk_number_x}/{chunk_number_y}")
