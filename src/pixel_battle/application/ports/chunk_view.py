@@ -12,14 +12,6 @@ class ChunkView(ABC):
         ...
 
 
-class ChunkViews[ChunkViewT: ChunkView](ABC):
-    @abstractmethod
-    async def chunk_view_of(self, chunk: Chunk) -> ChunkViewT | None: ...
-
-    @abstractmethod
-    async def put(self, view: ChunkViewT, *, chunk: Chunk) -> None: ...
-
-
 class DefaultChunkViewOf[ChunkViewT: ChunkView](ABC):
     @abstractmethod
     async def __call__(self, chunk: Chunk) -> ChunkViewT: ...

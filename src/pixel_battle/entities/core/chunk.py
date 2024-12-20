@@ -56,10 +56,3 @@ def chunk_where(position: Vector) -> Chunk:
     )
 
     return Chunk(number=chunk_number)
-
-
-all_chunks = frozenset({
-    Chunk(number=ChunkNumber(x=x, y=y))
-    for x in range(ChunkNumber.max_x + 1)
-    for y in range(ChunkNumber.max_y + 1)
-})

@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from uuid import uuid4
 
 from pytest import fixture, raises
 
@@ -9,7 +8,6 @@ from pixel_battle.entities.core.pixel import (
     PixelOutOfCanvasError,
     PixelRecoloringByUser,
     UserHasNoRightToRecolorError,
-    UserInDifferentChunkToRecolorError,
     pixel_in,
     recolored,
     recolored_by,
@@ -36,23 +34,7 @@ def test_too_large_pixel_position() -> None:
 @fixture
 def user() -> User:
     time = Time(datetime=datetime(2006, 1, 1, tzinfo=UTC))
-
-    return User(
-        id=uuid4(),
-        time_of_obtaining_recoloring_right=time,
-        chunk=Chunk(number=ChunkNumber(x=0, y=0)),
-    )
-
-
-@fixture
-def user_from_other_chunk() -> User:
-    time = Time(datetime=datetime(2006, 1, 1, tzinfo=UTC))
-
-    return User(
-        id=uuid4(),
-        time_of_obtaining_recoloring_right=time,
-        chunk=Chunk(number=ChunkNumber(x=1, y=1)),
-    )
+    return User(time_of_obtaining_recoloring_right=time)
 
 
 @fixture
@@ -82,11 +64,7 @@ def test_recolored_by(
     )
 
     excepted_user_time = Time(datetime=datetime(2006, 1, 1, 0, 1, tzinfo=UTC))
-    excepted_user = User(
-        id=user.id,
-        time_of_obtaining_recoloring_right=excepted_user_time,
-        chunk=user.chunk,
-    )
+    excepted_user = User(time_of_obtaining_recoloring_right=excepted_user_time)
     excepted_result = PixelRecoloringByUser(
         user=excepted_user, pixel=recolored_pixel
     )
@@ -103,21 +81,6 @@ def test_recolored_by_without_right(
     with raises(UserHasNoRightToRecolorError):
         recolored_by(
             user, original_pixel, new_color=new_color, current_time=current_time
-        )
-
-
-def test_recolored_from_other_chunk(
-    user_from_other_chunk: User, original_pixel: Pixel, recolored_pixel: Pixel
-) -> None:
-    new_color = recolored_pixel.color
-    current_time = user_from_other_chunk.time_of_obtaining_recoloring_right
-
-    with raises(UserInDifferentChunkToRecolorError):
-        recolored_by(
-            user_from_other_chunk,
-            original_pixel,
-            new_color=new_color,
-            current_time=current_time,
         )
 
 

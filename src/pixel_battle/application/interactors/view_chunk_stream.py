@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Any, Sequence
 
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
@@ -14,7 +14,7 @@ class Output:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class ViewChunkStream:
-    broker: Broker
+    broker: Broker[Any]
 
     async def __call__(
         self, chunk_number_x: int, chunk_number_y: int

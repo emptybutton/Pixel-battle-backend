@@ -3,15 +3,19 @@ from dataclasses import dataclass
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
-    ChunkViews,
     DefaultChunkViewOf,
 )
+from pixel_battle.application.ports.chunk_views import ChunkViews
+from pixel_battle.application.ports.lock import Lock
+from pixel_battle.application.ports.offsets import Offsets
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UpdateChunkView[ChunkViewT: ChunkView]:
-    broker: Broker
+class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
+    broker: Broker[OffsetT]
+    compacted_event_offsets: Offsets[OffsetT]
+    lock: Lock
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
 
@@ -19,21 +23,29 @@ class UpdateChunkView[ChunkViewT: ChunkView]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
         async with self.lock(chunk):
-            offset = await self.chunk_view_offsets.offset_for(chunk)
-            new_events = self.broker.events_from(offset, chunk=chunk)
+            offset = await self.compacted_event_offsets.offset_for(chunk)
 
-            if len(new_events) == 0:
-                return
+            if offset is not None:
+                not_compacted_events = await self.broker.events_after(
+                    offset, chunk=chunk
+                )
+
+                if len(not_compacted_events) == 0:
+                    return
+            else:
+                not_compacted_events = await self.broker.events_of(chunk)
 
             chunk_view = await self.chunk_views.chunk_view_of(chunk)
 
             if chunk_view is None:
                 chunk_view = await self.default_chunk_view_of(chunk)
 
-            new_pixels = (event.pixel for event in new_events)
-            await chunk_view.redraw_by_pixels(new_pixels)
+            pixels = (event.pixel for event in not_compacted_events)
+            await chunk_view.redraw_by_pixels(pixels)
 
             await self.chunk_views.put(chunk_view, chunk=chunk)
 
-            last_event = new_events[-1]
-            await self.chunk_view_offsets.put(last_event.offset, chunk=chunk)
+            last_compacted_event = not_compacted_events[-1]
+            await self.compacted_event_offsets.put(
+                last_compacted_event.offset, chunk=chunk
+            )

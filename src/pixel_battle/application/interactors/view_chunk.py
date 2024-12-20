@@ -4,9 +4,9 @@ from typing import Sequence
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
-    ChunkViews,
     DefaultChunkViewOf,
 )
+from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.offsets import Offsets
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
@@ -20,9 +20,9 @@ class Output[ChunkViewT: ChunkView]:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class ViewChunk[ChunkViewT: ChunkView]:
-    broker: Broker
-    chunk_view_offsets: Offsets
+class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
+    broker: Broker[OffsetT]
+    compacted_event_offsets: Offsets[OffsetT]
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
 
@@ -32,14 +32,12 @@ class ViewChunk[ChunkViewT: ChunkView]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
         chunk_view = await self.chunk_views.chunk_view_of(chunk)
-        chunk_view_offset = await self.chunk_view_offsets.offset_for(chunk)
+        offset = await self.compacted_event_offsets.offset_for(chunk)
 
-        if chunk_view_offset is not None:
-            events = await self.broker.events_from(
-                chunk_view_offset, chunk=chunk
-            )
+        if offset is not None:
+            events = await self.broker.events_after(offset, chunk=chunk)
         else:
-            events = tuple()
+            events = await self.broker.events_of(chunk)
 
         if chunk_view is None:
             chunk_view = await self.default_chunk_view_of(chunk)

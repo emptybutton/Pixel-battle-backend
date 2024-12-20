@@ -2,9 +2,9 @@ from pytest import fixture
 from redis.asyncio.cluster import RedisCluster
 
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
-from pixel_battle.infrastructure.adapters.chunk_view import (
+from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
+from pixel_battle.infrastructure.adapters.chunk_views import (
     InRedisClusterPNGImageChunkViews,
-    PNGImageChunkView,
 )
 
 
@@ -20,7 +20,7 @@ async def test_all_view_life_cycle(
     views: InRedisClusterPNGImageChunkViews,
     png_image_chunk_view1: PNGImageChunkView,
 ) -> None:
-    chunk = Chunk(number=ChunkNumber(x=156, y=-5))
+    chunk = Chunk(number=ChunkNumber(x=9, y=0))
 
     await views.put(png_image_chunk_view1, chunk=chunk)
     result_chunk_view = await views.chunk_view_of(chunk)
@@ -34,6 +34,6 @@ async def test_chunk_view_of_without_view(
 ) -> None:
     await redis_cluster.flushdb()
 
-    chunk = Chunk(number=ChunkNumber(x=156, y=-5))
+    chunk = Chunk(number=ChunkNumber(x=9, y=0))
 
     assert await views.chunk_view_of(chunk) is None

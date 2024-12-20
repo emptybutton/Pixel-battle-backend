@@ -7,7 +7,7 @@ from redis.asyncio.lock import Lock as _RedisLock
 
 from pixel_battle.application.ports.lock import Lock
 from pixel_battle.entities.core.chunk import Chunk
-from pixel_battle.infrastructure.redis_cluster.keys import chunk_key_of
+from pixel_battle.infrastructure.redis.keys import chunk_key_of
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -27,5 +27,5 @@ class InRedisClusterLock(Lock):
 @dataclass(kw_only=True, frozen=True, slots=True)
 class FakeLock(Lock):
     @asynccontextmanager
-    def __call__(self, _: Chunk) -> AsyncIterator[None]:
+    async def __call__(self, _: Chunk) -> AsyncIterator[None]:
         yield

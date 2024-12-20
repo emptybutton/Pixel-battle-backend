@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from typing import Any
 
 from pixel_battle.application.ports.broker import Broker
-from pixel_battle.application.ports.chunk_view import ChunkView
 from pixel_battle.entities.core.pixel import Pixel, recolored_by
-from pixel_battle.entities.core.user import User, new_user_when
+from pixel_battle.entities.core.user import (
+    User,
+    user_temporarily_without_recoloring_right_when,
+)
 from pixel_battle.entities.quantities.color import (
     RGBColor,
     RGBColorValue,
@@ -21,8 +24,8 @@ class Output:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RecolorPixel[ChunkViewT: ChunkView]:
-    broker: Broker
+class RecolorPixel:
+    broker: Broker[Any]
 
     async def __call__(
         self,
@@ -36,7 +39,9 @@ class RecolorPixel[ChunkViewT: ChunkView]:
         current_time = Time(datetime=datetime.now(UTC))
 
         if datetime_of_obtaining_recoloring_right is None:
-            user = new_user_when(current_time=current_time)
+            user = user_temporarily_without_recoloring_right_when(
+                current_time=current_time
+            )
             return Output(user=user, pixel=None)
 
         time = Time(datetime=datetime_of_obtaining_recoloring_right)

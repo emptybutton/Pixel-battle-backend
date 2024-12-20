@@ -4,8 +4,8 @@ from pixel_battle.entities.core.canvas import canvas
 from pixel_battle.entities.core.chunk import Chunk, chunk_where
 from pixel_battle.entities.core.user import (
     User,
-    has_right_to_recolor,
-    temporarily_without_right_to_recolor,
+    has_recoloring_right,
+    user_temporarily_without_recoloring_right_when,
 )
 from pixel_battle.entities.quantities.color import Color, RGBColor
 from pixel_battle.entities.quantities.time import Time
@@ -73,10 +73,12 @@ def recolored_by[ColorT: Color](
     new_color: RGBColor,
     current_time: Time,
 ) -> PixelRecoloringByUser:
-    if not has_right_to_recolor(user, current_time=current_time):
+    if not has_recoloring_right(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
 
     pixel = recolored(pixel, new_color=new_color)
-    user = temporarily_without_right_to_recolor(user, current_time=current_time)
+    user = user_temporarily_without_recoloring_right_when(
+        current_time=current_time
+    )
 
     return PixelRecoloringByUser(pixel=pixel, user=user)

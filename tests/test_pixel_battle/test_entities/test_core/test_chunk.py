@@ -12,8 +12,6 @@ from pixel_battle.entities.quantities.vector import Vector
         [Vector(x=1, y=0), ChunkNumber(x=0, y=0)],
         [Vector(x=100, y=50), ChunkNumber(x=1, y=0)],
         [Vector(x=199, y=200), ChunkNumber(x=1, y=2)],
-        [Vector(x=-99, y=-100), ChunkNumber(x=-1, y=-1)],
-        [Vector(x=-99, y=-101), ChunkNumber(x=-1, y=-2)],
     ]
 )
 def test_chunk_where(
@@ -44,20 +42,6 @@ def test_chunk_where(
             Rectangle(
                 position1=Vector(x=300, y=200),
                 position2=Vector(x=399, y=299),
-            ),
-        ],
-        [
-            ChunkNumber(x=-1, y=0),
-            Rectangle(
-                position1=Vector(x=-100, y=99),
-                position2=Vector(x=-1, y=0),
-            ),
-        ],
-        [
-            ChunkNumber(x=-2, y=-1),
-            Rectangle(
-                position1=Vector(x=-200, y=-100),
-                position2=Vector(x=-101, y=-1),
             ),
         ],
     ]

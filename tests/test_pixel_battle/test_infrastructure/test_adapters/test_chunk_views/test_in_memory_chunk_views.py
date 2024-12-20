@@ -4,10 +4,8 @@ from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import black
 from pixel_battle.entities.quantities.vector import Vector
-from pixel_battle.infrastructure.adapters.chunk_view import (
-    CollectionChunkView,
-    InMemoryChunkViews,
-)
+from pixel_battle.infrastructure.adapters.chunk_view import CollectionChunkView
+from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
 
 
 @fixture
