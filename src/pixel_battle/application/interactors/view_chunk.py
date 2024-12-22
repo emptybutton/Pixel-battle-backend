@@ -31,10 +31,10 @@ class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
     ) -> Output[ChunkViewT]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
-        chunk_view = await self.chunk_views.chunk_view_of(chunk)
         offset = await self.offsets_of_latest_compressed_events.offset_for(
             chunk
         )
+        chunk_view = await self.chunk_views.chunk_view_of(chunk)
 
         if offset is not None:
             events = await self.broker.events_after(offset, chunk=chunk)
