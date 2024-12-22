@@ -14,7 +14,7 @@ from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 @dataclass(kw_only=True, frozen=True, slots=True)
 class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
     broker: Broker[OffsetT]
-    compacted_event_offsets: Offsets[OffsetT]
+    offsets_of_latest_compressed_events: Offsets[OffsetT]
     lock: Lock
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
@@ -23,7 +23,9 @@ class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
         async with self.lock(chunk):
-            offset = await self.compacted_event_offsets.offset_for(chunk)
+            offset = await self.offsets_of_latest_compressed_events.offset_for(
+                chunk
+            )
 
             if offset is not None:
                 not_compacted_events = await self.broker.events_after(
@@ -46,6 +48,6 @@ class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
             await self.chunk_views.put(chunk_view, chunk=chunk)
 
             last_compacted_event = not_compacted_events[-1]
-            await self.compacted_event_offsets.put(
+            await self.offsets_of_latest_compressed_events.put(
                 last_compacted_event.offset, chunk=chunk
             )

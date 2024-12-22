@@ -22,7 +22,7 @@ class Output[ChunkViewT: ChunkView]:
 @dataclass(kw_only=True, frozen=True, slots=True)
 class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
     broker: Broker[OffsetT]
-    compacted_event_offsets: Offsets[OffsetT]
+    offsets_of_latest_compressed_events: Offsets[OffsetT]
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
 
@@ -32,7 +32,9 @@ class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
         chunk_view = await self.chunk_views.chunk_view_of(chunk)
-        offset = await self.compacted_event_offsets.offset_for(chunk)
+        offset = await self.offsets_of_latest_compressed_events.offset_for(
+            chunk
+        )
 
         if offset is not None:
             events = await self.broker.events_after(offset, chunk=chunk)
