@@ -3,15 +3,17 @@ from typing import Annotated
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, Query, WebSocket
 
-from pixel_battle.presentation.chunk_streaming.streaming import Streaming
+from pixel_battle.presentation.web.streaming import Streaming
 
 
-router = APIRouter()
+chunk_streaming_router = APIRouter()
 
 
-@router.websocket("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
+@chunk_streaming_router.websocket(
+    "/canvas/chunk/{chunk_number_x}/{chunk_number_y}"
+)
 @inject
-async def chunk_streaming(
+async def stream_chunk(
     websocket: WebSocket,
     streaming: FromDishka[Streaming],
     chunk_number_x: Annotated[

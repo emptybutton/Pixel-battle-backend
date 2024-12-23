@@ -14,12 +14,12 @@ from pixel_battle.entities.core.pixel import (
 from pixel_battle.entities.quantities.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
-from pixel_battle.presentation.chunk_writing.cookies import (
+from pixel_battle.presentation.web.cookies import (
     DatetimeOfObtainingRecoloringRightCookie,
 )
 
 
-router = APIRouter()
+pixel_recoloring_router = APIRouter()
 
 
 class RecolorPixelSchema(BaseModel):
@@ -48,7 +48,7 @@ class NoRightSchema(ErrorSchema):
     type: Literal["noRight"] = "noRight"
 
 
-@router.patch(
+@pixel_recoloring_router.patch(
     "/canvas",
     status_code=status.HTTP_200_OK,
     responses={
