@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Literal, Self
+from typing import Literal
 
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, status
@@ -17,6 +17,7 @@ from pixel_battle.entities.quantities.color import (
 from pixel_battle.presentation.web.cookies import (
     DatetimeOfObtainingRecoloringRightCookie,
 )
+from pixel_battle.presentation.web.schemas import ErrorListSchema, ErrorSchema
 
 
 pixel_recoloring_router = APIRouter()
@@ -25,15 +26,6 @@ pixel_recoloring_router = APIRouter()
 class RecolorPixelSchema(BaseModel):
     pixel_position: tuple[int, int] = Field(alias="pixelPosition")
     new_pixel_color: tuple[int, int, int] = Field(alias="newPixelColor")
-
-
-class ErrorListSchema[ErrorSchemaT](BaseModel):
-    error_models: tuple[ErrorSchemaT] = Field(alias="errors")
-
-
-class ErrorSchema(BaseModel):
-    def to_list(self) -> ErrorListSchema[Self]:
-        return ErrorListSchema(errors=(self, ))
 
 
 class InvalidColorValueRangeSchema(ErrorSchema):

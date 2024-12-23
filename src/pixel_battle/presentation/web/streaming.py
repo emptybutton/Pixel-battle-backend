@@ -5,43 +5,11 @@ from dataclasses import dataclass
 from typing import AsyncIterator, Iterable
 
 from fastapi import WebSocket, status
-from pydantic import BaseModel, Field
 
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
-from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
-
-
-class RecoloredPixelSchema(BaseModel):
-    pixel_position: tuple[int, int] | None = Field(alias="pixelPosition")
-    new_pixel_color: tuple[int, int, int] | None = Field(alias="newPixelColor")
-
-    @classmethod
-    def of(cls, pixel: Pixel[RGBColor]) -> "RecoloredPixelSchema":
-        pixel_position = (pixel.position.x, pixel.position.y)
-        new_pixel_color = (
-            pixel.color.red.number,
-            pixel.color.green.number,
-            pixel.color.blue.number,
-        )
-
-        return RecoloredPixelSchema(
-            pixelPosition=pixel_position, newPixelColor=new_pixel_color
-        )
-
-
-class RecoloredPixelListSchema(BaseModel):
-    pixels: list[RecoloredPixelSchema]
-
-    @classmethod
-    def of(
-        cls, pixels: Iterable[Pixel[RGBColor]]
-    ) -> "RecoloredPixelListSchema":
-        pixels = list(map(RecoloredPixelSchema.of, pixels))
-
-        return RecoloredPixelListSchema(pixels=pixels)
+from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
 
 
 type WebsocketGroup = set[WebSocket]

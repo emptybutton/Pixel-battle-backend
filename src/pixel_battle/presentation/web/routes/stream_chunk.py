@@ -1,8 +1,7 @@
-from typing import Annotated
-
 from dishka.integrations.fastapi import FromDishka, inject
-from fastapi import APIRouter, Query, WebSocket
+from fastapi import APIRouter, WebSocket
 
+from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.streaming import Streaming
 
 
@@ -16,12 +15,8 @@ chunk_streaming_router = APIRouter()
 async def stream_chunk(
     websocket: WebSocket,
     streaming: FromDishka[Streaming],
-    chunk_number_x: Annotated[
-        int, Query(alias="chunkNumberX", min_length=0, max_length=9)
-    ],
-    chunk_number_y: Annotated[
-        int, Query(alias="chunkNumberY", min_length=0, max_length=9)
-    ],
+    chunk_number_x: ChunkNumberX,
+    chunk_number_y: ChunkNumberY,
 ) -> None:
     await websocket.accept()
 
