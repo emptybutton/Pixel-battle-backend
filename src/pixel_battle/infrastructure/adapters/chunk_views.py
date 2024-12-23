@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import ClassVar
+from typing import ClassVar, Iterator
 
 from redis.asyncio.cluster import RedisCluster
 
@@ -17,8 +17,8 @@ class InMemoryChunkViews[ChunkViewT: ChunkView](ChunkViews[ChunkViewT]):
     def __bool__(self) -> bool:
         return bool(self._view_by_chunk)
 
-    def to_dict(self) -> dict[Chunk, ChunkViewT]:
-        return dict(self._view_by_chunk)
+    def __iter__(self) -> Iterator[tuple[Chunk, ChunkViewT]]:
+        return iter(self._view_by_chunk.items())
 
     async def chunk_view_of(self, chunk: Chunk) -> ChunkViewT | None:
         return self._view_by_chunk.get(chunk)

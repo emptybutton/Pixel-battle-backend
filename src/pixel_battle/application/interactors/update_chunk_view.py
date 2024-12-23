@@ -28,26 +28,26 @@ class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
             )
 
             if offset is not None:
-                not_compacted_events = await self.broker.events_after(
+                not_compressed_events = await self.broker.events_after(
                     offset, chunk=chunk
                 )
-
-                if len(not_compacted_events) == 0:
-                    return
             else:
-                not_compacted_events = await self.broker.events_of(chunk)
+                not_compressed_events = await self.broker.events_of(chunk)
+
+            if len(not_compressed_events) == 0:
+                return
 
             chunk_view = await self.chunk_views.chunk_view_of(chunk)
 
             if chunk_view is None:
                 chunk_view = await self.default_chunk_view_of(chunk)
 
-            pixels = (event.pixel for event in not_compacted_events)
+            pixels = (event.pixel for event in not_compressed_events)
             await chunk_view.redraw_by_pixels(pixels)
 
             await self.chunk_views.put(chunk_view, chunk=chunk)
 
-            last_compacted_event = not_compacted_events[-1]
+            last_compacted_event = not_compressed_events[-1]
             await self.offsets_of_latest_compressed_events.put(
                 last_compacted_event.offset, chunk=chunk
             )

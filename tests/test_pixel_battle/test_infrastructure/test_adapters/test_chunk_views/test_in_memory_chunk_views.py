@@ -64,7 +64,7 @@ async def test_put_with_stored_chunk(
 
     await views.put(chunk2_view, chunk=chunk1)
 
-    assert views.to_dict() == {chunk1: chunk2_view}
+    assert dict(views) == {chunk1: chunk2_view}
 
 
 async def test_put_without_stored_chunk(
@@ -77,4 +77,4 @@ async def test_put_without_stored_chunk(
 
     await views.put(chunk2_view, chunk=chunk2)
 
-    assert views.to_dict() == {chunk1: chunk1_view, chunk2: chunk2_view}
+    assert dict(views) == {chunk1: chunk1_view, chunk2: chunk2_view}
