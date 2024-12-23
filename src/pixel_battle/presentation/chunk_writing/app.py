@@ -35,6 +35,9 @@ def app_with(container: AsyncContainer) -> FastAPI:
             "name": "Apache 2.0",
             "url": f"{repo_url}/blob/main/LICENSE",
         },
+        openapi_url="/chunk-writing/openapi.json",
+        docs_url="/chunk-writing/docs",
+        redoc_url="/chunk-writing/redoc",
         lifespan=lifespan,
     )
 
