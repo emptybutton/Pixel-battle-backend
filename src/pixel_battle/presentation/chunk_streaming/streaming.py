@@ -2,7 +2,6 @@ from asyncio import gather
 from collections import defaultdict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from itertools import cycle, product
 from typing import AsyncIterator, Iterable
 
 from fastapi import WebSocket, status
@@ -72,8 +71,13 @@ class Streaming:
     ) -> None:
         self.__websocket_group_by_group_id[group_id].add(websocket)
 
-    async def __call__(self) -> None:
-        for x, y in cycle(product(range(10), repeat=2)):
+    @property
+    def __group_id_cycle(self) -> Iterable[WebsocketGroupID]:
+        while True:
+            yield from tuple(self.__websocket_group_by_group_id.keys())
+
+    async def start(self) -> None:
+        for x, y in self.__group_id_cycle:
             result = await self.__view_chunk_stream(x, y)
 
             response_model = RecoloredPixelListSchema.of(result.new_pixels)
