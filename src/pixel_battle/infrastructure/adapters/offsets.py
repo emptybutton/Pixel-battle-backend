@@ -22,7 +22,7 @@ class InMemoryOffsets[OffsetT](Offsets[OffsetT]):
     async def put(self, offset: OffsetT, *, chunk: Chunk) -> None:
         self._offsets_by_chunk[chunk] = offset
 
-    async def offset_for(self, chunk: Chunk) -> OffsetT | None:
+    async def offset_where(self, *, chunk: Chunk) -> OffsetT | None:
         return self._offsets_by_chunk.get(chunk)
 
 
@@ -35,7 +35,7 @@ class InRedisClusterRedisStreamOffsets(Offsets[RedisStreamOffset]):
         key = chunk_key_of(chunk)
         await self.redis_cluster.hset(key, self._field, offset)  # type: ignore[misc, arg-type]
 
-    async def offset_for(self, chunk: Chunk) -> RedisStreamOffset | None:
+    async def offset_where(self, *, chunk: Chunk) -> RedisStreamOffset | None:
         key = chunk_key_of(chunk)
         offset: bytes | None = await self.redis_cluster.hget(key, self._field)  # type: ignore[misc, arg-type]
 

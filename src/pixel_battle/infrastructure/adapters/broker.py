@@ -10,7 +10,7 @@ from typing import (
 
 from redis.asyncio.cluster import RedisCluster
 
-from pixel_battle.application.ports.broker import Broker, NewPixelStateEvent
+from pixel_battle.application.ports.broker import Broker, NewPixelColorEvent
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.quantities.color import RGBColor
@@ -56,18 +56,18 @@ class InMemoryBroker(Broker[int]):
     def __bool__(self) -> bool:
         return bool(self.__pixels_by_chunk)
 
-    async def publish_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
+    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
         self.__pixels_by_chunk[pixel.chunk].append(pixel)
 
     async def events_after(
         self, offset: int, *, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[int], ...]:
+    ) -> tuple[NewPixelColorEvent[int], ...]:
         return self.__events_from(offset + 1, chunk=chunk)
 
     @asynccontextmanager
-    async def new_events_of(
-        self, chunk: Chunk
-    ) -> AsyncIterator[tuple[NewPixelStateEvent[int], ...]]:
+    async def pulled_events_where(
+        self, *, chunk: Chunk
+    ) -> AsyncIterator[tuple[NewPixelColorEvent[int], ...]]:
         unread_event_offset = self.__first_unread_event_offset_by_chunk.get(
             chunk
         )
@@ -85,21 +85,21 @@ class InMemoryBroker(Broker[int]):
             new_unread_event_offset
         )
 
-    async def events_of(
-        self, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[int], ...]:
+    async def all_events_where(
+        self, *, chunk: Chunk
+    ) -> tuple[NewPixelColorEvent[int], ...]:
         return tuple(
-            NewPixelStateEvent(pixel=pixel, offset=offset)
+            NewPixelColorEvent(pixel=pixel, offset=offset)
             for offset, pixel in enumerate(self.__pixels_by_chunk[chunk])
         )
 
     def __events_from(
         self, offset: int, *, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[int], ...]:
+    ) -> tuple[NewPixelColorEvent[int], ...]:
         pixels = self.__pixels_by_chunk[chunk][offset:]
 
         return tuple(
-            NewPixelStateEvent(pixel=pixel, offset=index + offset)
+            NewPixelColorEvent(pixel=pixel, offset=index + offset)
             for index, pixel in enumerate(pixels)
         )
 
@@ -110,7 +110,7 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
     last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset]
     last_readed_event_offset_by_chunk = field(default_factory=dict)
 
-    async def publish_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
+    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
         key = self.__key_by(pixel.chunk)
         body = self.__event_body_of(pixel)
 
@@ -118,7 +118,7 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
 
     async def events_after(
         self, offset: RedisStreamOffset, *, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[RedisStreamOffset], ...]:
+    ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
         key = self.__key_by(chunk)
 
         results: RedisStreamResults
@@ -126,18 +126,18 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
 
         return self.__result_list_events_of(results, chunk=chunk)
 
-    async def events_of(
-        self, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[RedisStreamOffset], ...]:
+    async def all_events_where(
+        self, *, chunk: Chunk
+    ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
         key = self.__key_by(chunk)
         events: RedisStreamEvents = await self.redis_cluster.xrange(key)
 
         return self.__events_of(events, chunk=chunk)
 
     @asynccontextmanager
-    async def new_events_of(
-        self, chunk: Chunk
-    ) -> AsyncIterator[tuple[NewPixelStateEvent[RedisStreamOffset], ...]]:
+    async def pulled_events_where(
+        self, *, chunk: Chunk
+    ) -> AsyncIterator[tuple[NewPixelColorEvent[RedisStreamOffset], ...]]:
         offset = self.last_readed_event_offset_by_chunk.get(chunk) or b"$"
         key = self.__key_by(chunk)
 
@@ -158,7 +158,7 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
 
     def __result_list_events_of(
         self, results: RedisStreamResults, *, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[RedisStreamOffset], ...]:
+    ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
         if not results:
             return tuple()
 
@@ -169,15 +169,15 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
 
     def __events_of(
         self, raw_events: RedisStreamEvents, *, chunk: Chunk
-    ) -> tuple[NewPixelStateEvent[RedisStreamOffset], ...]:
+    ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
         return tuple(
             self.__event_of(raw_event, chunk=chunk) for raw_event in raw_events
         )
 
     def __event_of(
         self, raw_event: RedisStreamEvent, *, chunk: Chunk
-    ) -> NewPixelStateEvent[RedisStreamOffset]:
-        return NewPixelStateEvent(
+    ) -> NewPixelColorEvent[RedisStreamOffset]:
+        return NewPixelColorEvent(
             pixel=self.__raw_event_pixel_of(raw_event, chunk=chunk),
             offset=raw_event[0],
         )

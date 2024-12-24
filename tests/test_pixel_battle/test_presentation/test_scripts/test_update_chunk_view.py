@@ -8,7 +8,7 @@ from pixel_battle.application.interactors.update_chunk_view import (
 )
 from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
-    DefaultCollectionChunkViewOf,
+    DefaultCollectionChunkViewWhere,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
 from pixel_battle.infrastructure.adapters.lock import FakeLock
@@ -26,7 +26,7 @@ def script() -> Script:
     interactor = Interactor(
         broker=InMemoryBroker(),
         lock=FakeLock(),
-        default_chunk_view_of=DefaultCollectionChunkViewOf(),
+        default_chunk_view_where=DefaultCollectionChunkViewWhere(),
         chunk_views=InMemoryChunkViews(),
         offsets_of_latest_compressed_events=InMemoryOffsets(),
     )

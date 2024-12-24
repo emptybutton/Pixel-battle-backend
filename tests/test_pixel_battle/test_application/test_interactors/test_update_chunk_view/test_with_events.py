@@ -18,9 +18,9 @@ async def stored_data(
     pixel1_2: Pixel[RGBColor],
     pixel2_1: Pixel[RGBColor],
 ) -> None:
-    await update_chunk_view.broker.publish_event_with(pixel=pixel1_1)
-    await update_chunk_view.broker.publish_event_with(pixel=pixel1_2)
-    await update_chunk_view.broker.publish_event_with(pixel=pixel2_1)
+    await update_chunk_view.broker.push_new_event_with(pixel=pixel1_1)
+    await update_chunk_view.broker.push_new_event_with(pixel=pixel1_2)
+    await update_chunk_view.broker.push_new_event_with(pixel=pixel2_1)
 
 
 async def test_offsets(

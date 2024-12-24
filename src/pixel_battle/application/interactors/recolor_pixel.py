@@ -63,6 +63,6 @@ class RecolorPixel:
             current_time=current_time,
         )
 
-        await self.broker.publish_event_with(pixel=result.pixel)
+        await self.broker.push_new_event_with(pixel=result.pixel)
 
         return Output(user=result.user, pixel=result.pixel)

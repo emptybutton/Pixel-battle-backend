@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
-    DefaultChunkViewOf,
+    DefaultChunkViewWhere,
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.lock import Lock
@@ -17,37 +17,42 @@ class UpdateChunkView[ChunkViewT: ChunkView, OffsetT]:
     offsets_of_latest_compressed_events: Offsets[OffsetT]
     lock: Lock
     chunk_views: ChunkViews[ChunkViewT]
-    default_chunk_view_of: DefaultChunkViewOf[ChunkViewT]
+    default_chunk_view_where: DefaultChunkViewWhere[ChunkViewT]
 
     async def __call__(self, chunk_number_x: int, chunk_number_y: int) -> None:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
         async with self.lock(chunk):
-            offset = await self.offsets_of_latest_compressed_events.offset_for(
-                chunk
+            last_compressed_event_offset = (
+                await self
+                .offsets_of_latest_compressed_events
+                .offset_where(chunk=chunk)
             )
 
-            if offset is not None:
+            if last_compressed_event_offset is not None:
                 not_compressed_events = await self.broker.events_after(
-                    offset, chunk=chunk
+                    last_compressed_event_offset, chunk=chunk
                 )
             else:
-                not_compressed_events = await self.broker.events_of(chunk)
+                not_compressed_events = await self.broker.all_events_where(
+                    chunk=chunk
+                )
 
             if len(not_compressed_events) == 0:
                 return
 
-            chunk_view = await self.chunk_views.chunk_view_of(chunk)
+            chunk_view = await self.chunk_views.chunk_view_where(chunk=chunk)
 
             if chunk_view is None:
-                chunk_view = await self.default_chunk_view_of(chunk)
+                chunk_view = await self.default_chunk_view_where(chunk=chunk)
 
             pixels = (event.pixel for event in not_compressed_events)
             await chunk_view.redraw_by_pixels(pixels)
 
             await self.chunk_views.put(chunk_view, chunk=chunk)
 
-            last_compacted_event = not_compressed_events[-1]
+            last_compressed_event = not_compressed_events[-1]
+
             await self.offsets_of_latest_compressed_events.put(
-                last_compacted_event.offset, chunk=chunk
+                last_compressed_event.offset, chunk=chunk
             )

@@ -39,7 +39,7 @@ def stream_key() -> bytes:
     return b"{" + bytes([0]) + b"}stream"
 
 
-async def test_publish_event_with(
+async def test_push_new_event_with(
     broker: RedisCluster,
     redis_cluster: RedisCluster,
     stream_key: bytes,
@@ -47,7 +47,7 @@ async def test_publish_event_with(
 ) -> None:
     await redis_cluster.flushdb()
 
-    await broker.publish_event_with(pixel=pixel1)
+    await broker.push_new_event_with(pixel=pixel1)
 
     events = await redis_cluster.xrange(stream_key)
     pixels = [
@@ -77,7 +77,7 @@ async def test_events_after(
     assert pixels == [pixel2, pixel3]
 
 
-async def test_new_events(
+async def test_pulled_events_where(
     broker: RedisCluster,
     redis_cluster: RedisCluster,
     stream_key: bytes,
@@ -86,7 +86,7 @@ async def test_new_events(
     pixel3: Pixel[RGBColor],
 ) -> None:
     async def pull_pixels() -> list[Pixel[RGBColor]]:
-        async with broker.new_events_of(pixel1.chunk) as events:
+        async with broker.pulled_events_where(chunk=pixel1.chunk) as events:
             return [event.pixel for event in events]
 
     await redis_cluster.flushdb()
@@ -110,7 +110,7 @@ async def test_new_events(
     assert pixels == [pixel3]
 
 
-async def test_events_of(
+async def test_all_events_where(
     broker: RedisCluster,
     redis_cluster: RedisCluster,
     stream_key: bytes,
@@ -124,7 +124,7 @@ async def test_events_of(
     await redis_cluster.xadd(stream_key, {bytes(0): encoded(pixel2)})
     await redis_cluster.xadd(stream_key, {bytes(0): encoded(pixel3)})
 
-    events = await broker.events_of(pixel1.chunk)
+    events = await broker.all_events_where(chunk=pixel1.chunk)
     pixels = [event.pixel for event in events]
 
     assert pixels == [pixel1, pixel2, pixel3]

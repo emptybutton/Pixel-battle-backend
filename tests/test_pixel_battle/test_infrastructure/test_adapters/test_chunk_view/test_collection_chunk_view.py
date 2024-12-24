@@ -6,7 +6,7 @@ from pixel_battle.entities.quantities.color import black, white
 from pixel_battle.entities.quantities.vector import Vector
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
-    DefaultCollectionChunkViewOf,
+    DefaultCollectionChunkViewWhere,
 )
 
 
@@ -35,7 +35,9 @@ async def test_put_stored_pixel(pixel1v: Pixel, pixel2v: Pixel) -> None:
 
 
 async def test_default_of() -> None:
-    view_of = DefaultCollectionChunkViewOf()
-    view = await view_of(Chunk(number=ChunkNumber(x=0, y=0)))
+    chunk_view_where = DefaultCollectionChunkViewWhere()
 
-    assert view == CollectionChunkView()
+    chunk = Chunk(number=ChunkNumber(x=0, y=0))
+    chunk_view = await chunk_view_where(chunk=chunk)
+
+    assert chunk_view == CollectionChunkView()

@@ -20,8 +20,8 @@ async def stored_data(
     pixel2_2: Pixel[RGBColor],
 ) -> None:
     await update_chunk_view.chunk_views.put(view1_2_and_2_1, chunk=chunk)
-    await update_chunk_view.broker.publish_event_with(pixel=pixel1_1)
-    await update_chunk_view.broker.publish_event_with(pixel=pixel2_2)
+    await update_chunk_view.broker.push_new_event_with(pixel=pixel1_1)
+    await update_chunk_view.broker.push_new_event_with(pixel=pixel2_2)
 
     offsets = update_chunk_view.offsets_of_latest_compressed_events
     await offsets.put(0, chunk=chunk)

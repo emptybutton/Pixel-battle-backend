@@ -8,28 +8,28 @@ from pixel_battle.entities.quantities.color import RGBColor
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class NewPixelStateEvent[OffsetT]:
+class NewPixelColorEvent[OffsetT]:
     offset: OffsetT
     pixel: Pixel[RGBColor]
 
 
 class Broker[OffsetT](ABC):
     @abstractmethod
-    async def publish_event_with(self, *, pixel: Pixel[RGBColor]) -> None: ...
+    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None: ...
 
     @abstractmethod
     async def events_after(
         self, offset: OffsetT, *, chunk: Chunk
-    ) -> Sequence[NewPixelStateEvent[OffsetT]]:
+    ) -> Sequence[NewPixelColorEvent[OffsetT]]:
         ...
 
     @abstractmethod
-    async def events_of(
-        self, chunk: Chunk
-    ) -> Sequence[NewPixelStateEvent[OffsetT]]: ...
+    async def all_events_where(
+        self, *, chunk: Chunk
+    ) -> Sequence[NewPixelColorEvent[OffsetT]]: ...
 
     @abstractmethod
-    def new_events_of(
-        self, chunk: Chunk
-    ) -> AsyncContextManager[Sequence[NewPixelStateEvent[OffsetT]]]:
+    def pulled_events_where(
+        self, *, chunk: Chunk
+    ) -> AsyncContextManager[Sequence[NewPixelColorEvent[OffsetT]]]:
         ...

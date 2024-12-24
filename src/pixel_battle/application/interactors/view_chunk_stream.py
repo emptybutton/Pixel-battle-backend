@@ -21,6 +21,6 @@ class ViewChunkStream:
     ) -> Output:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
-        async with self.broker.new_events_of(chunk) as new_events:
+        async with self.broker.pulled_events_where(chunk=chunk) as new_events:
             new_pixels = tuple(event.pixel for event in new_events)
             return Output(new_pixels=new_pixels)

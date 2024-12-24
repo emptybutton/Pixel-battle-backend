@@ -22,17 +22,17 @@ async def test_put(chunk: Chunk, offset: int) -> None:
     assert dict(offsets) == {chunk: offset}
 
 
-async def test_offset_for_without_offset(chunk: Chunk, offset: int) -> None:
+async def test_offset_where_without_offset(chunk: Chunk, offset: int) -> None:
     offsets = InMemoryOffsets()
 
-    offset = await offsets.offset_for(chunk=chunk)
+    offset = await offsets.offset_where(chunk=chunk)
 
     assert offset is None
 
 
-async def test_offset_for_with_offset(chunk: Chunk, offset: int) -> None:
+async def test_offset_where_with_offset(chunk: Chunk, offset: int) -> None:
     offsets = InMemoryOffsets({chunk: offset})
 
-    offset = await offsets.offset_for(chunk=chunk)
+    offset = await offsets.offset_where(chunk=chunk)
 
     assert offset == offset

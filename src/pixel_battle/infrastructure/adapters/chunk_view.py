@@ -6,7 +6,7 @@ from PIL.Image import Image, new, open
 
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
-    DefaultChunkViewOf,
+    DefaultChunkViewWhere,
 )
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
@@ -38,8 +38,10 @@ class CollectionChunkView(ChunkView):
             self._pixel_by_position[pixel.position] = pixel
 
 
-class DefaultCollectionChunkViewOf(DefaultChunkViewOf[CollectionChunkView]):
-    async def __call__(self, _: Chunk) -> CollectionChunkView:
+class DefaultCollectionChunkViewWhere(
+    DefaultChunkViewWhere[CollectionChunkView]
+):
+    async def __call__(self, *, chunk: Chunk) -> CollectionChunkView:  # noqa: ARG002
         return CollectionChunkView()
 
 
@@ -124,6 +126,6 @@ class PNGImageChunkView(ChunkView):  # noqa: PLW1641
         self.close()
 
 
-class DefaultPNGImageChunkViewOf(DefaultChunkViewOf[PNGImageChunkView]):
-    async def __call__(self, _: Chunk) -> PNGImageChunkView:
+class DefaultPNGImageChunkViewWhere(DefaultChunkViewWhere[PNGImageChunkView]):
+    async def __call__(self, *, chunk: Chunk) -> PNGImageChunkView:  # noqa: ARG002
         return PNGImageChunkView.create_default()

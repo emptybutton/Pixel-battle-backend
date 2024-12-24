@@ -36,15 +36,15 @@ def chunk2_view() -> CollectionChunkView:
     ])
 
 
-async def test_chunk_view_of_without_stored_chunk(
+async def test_chunk_view_where_without_stored_chunk(
     chunk1: Chunk, chunk1_view: CollectionChunkView, chunk2: Chunk
 ) -> None:
     views = InMemoryChunkViews({chunk1: chunk1_view})
 
-    assert await views.chunk_view_of(chunk2) is None
+    assert await views.chunk_view_where(chunk=chunk2) is None
 
 
-async def test_chunk_view_of_with_stored_chunk(
+async def test_chunk_view_where_with_stored_chunk(
     chunk1: Chunk,
     chunk1_view: CollectionChunkView,
     chunk2: Chunk,
@@ -52,7 +52,7 @@ async def test_chunk_view_of_with_stored_chunk(
 ) -> None:
     views = InMemoryChunkViews({chunk1: chunk1_view, chunk2: chunk2_view})
 
-    assert await views.chunk_view_of(chunk2) is chunk2_view
+    assert await views.chunk_view_where(chunk=chunk2) is chunk2_view
 
 
 async def test_put_with_stored_chunk(

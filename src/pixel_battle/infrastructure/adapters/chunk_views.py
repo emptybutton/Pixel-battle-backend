@@ -20,7 +20,7 @@ class InMemoryChunkViews[ChunkViewT: ChunkView](ChunkViews[ChunkViewT]):
     def __iter__(self) -> Iterator[tuple[Chunk, ChunkViewT]]:
         return iter(self._view_by_chunk.items())
 
-    async def chunk_view_of(self, chunk: Chunk) -> ChunkViewT | None:
+    async def chunk_view_where(self, *, chunk: Chunk) -> ChunkViewT | None:
         return self._view_by_chunk.get(chunk)
 
     async def put(self, view: ChunkViewT, *, chunk: Chunk) -> None:
@@ -33,7 +33,9 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
     close_when_putting: bool
     _field: ClassVar = b"view"
 
-    async def chunk_view_of(self, chunk: Chunk) -> PNGImageChunkView | None:
+    async def chunk_view_where(
+        self, *, chunk: Chunk
+    ) -> PNGImageChunkView | None:
         key = chunk_key_of(chunk)
         raw_view = await self.redis_cluster.hget(key, self._field)  # type: ignore[arg-type, misc]
 
