@@ -4,9 +4,9 @@ from pydantic import Field
 
 
 ChunkNumberX = Annotated[
-    int, Field(alias="chunkNumberX", min_length=0, max_length=9)
+    int, Field(alias="chunkNumberX", ge=0, lt=10)
 ]
 
 ChunkNumberY = Annotated[
-    int, Field(alias="chunkNumberY", min_length=0, max_length=9)
+    int, Field(alias="chunkNumberY", ge=0, lt=10)
 ]
