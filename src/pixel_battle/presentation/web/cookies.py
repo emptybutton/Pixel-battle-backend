@@ -1,21 +1,21 @@
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Annotated, ClassVar
 
 from fastapi import Cookie, Depends, Response
 
 
 @dataclass(frozen=True, slots=True)
-class DatetimeOfObtainingRecoloringRightCookie:
-    __name: ClassVar = "timeOfObtainingRecoloringRight"
-    IsoTimeOrNone: ClassVar = Annotated[str | None, Depends(Cookie())]
+class UserDataCookie:
+    __name: ClassVar = "userData"
+    StrOrNone: ClassVar = Annotated[str | None, Depends(Cookie(alias=__name))]
 
     response: Response
 
-    def set(self, time: datetime) -> None:
+    def set(self, user_data: str) -> None:
         self.response.set_cookie(
             self.__name,
-            str(time),
+            user_data,
             httponly=True,
             max_age=int(timedelta(days=365 * 5).total_seconds()),
         )

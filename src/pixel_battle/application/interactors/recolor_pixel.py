@@ -3,9 +3,9 @@ from datetime import UTC, datetime
 from typing import Any
 
 from pixel_battle.application.ports.broker import Broker
+from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.core.pixel import Pixel, recolored_by
 from pixel_battle.entities.core.user import (
-    User,
     user_temporarily_without_recoloring_right_when,
 )
 from pixel_battle.entities.quantities.color import (
@@ -18,34 +18,42 @@ from pixel_battle.entities.quantities.vector import Vector
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Output:
-    user: User
+class Output[SignedUserDataT]:
+    signed_user_data: SignedUserDataT
     pixel: Pixel[RGBColor] | None
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RecolorPixel:
+class RecolorPixel[SignedUserDataT]:
     broker: Broker[Any]
+    user_data_signing: UserDataSigning[SignedUserDataT]
 
     async def __call__(
         self,
-        datetime_of_obtaining_recoloring_right: datetime | None,
+        signed_user_data: SignedUserDataT | None,
         pixel_position_x: int,
         pixel_position_y: int,
         new_color_red_value_number: int,
         new_color_green_value_number: int,
         new_color_blue_value_number: int,
-    ) -> Output:
+    ) -> Output[SignedUserDataT]:
         current_time = Time(datetime=datetime.now(UTC))
 
-        if datetime_of_obtaining_recoloring_right is None:
+        if signed_user_data is not None:
+            user = await self.user_data_signing.user_when(
+                signed_user_data=signed_user_data
+            )
+        else:
+            user = None
+
+        if user is None:
             user = user_temporarily_without_recoloring_right_when(
                 current_time=current_time
             )
-            return Output(user=user, pixel=None)
-
-        time = Time(datetime=datetime_of_obtaining_recoloring_right)
-        user = User(time_of_obtaining_recoloring_right=time)
+            signed_user_data = await (
+                self.user_data_signing.signed_user_data_when(user=user)
+            )
+            return Output(signed_user_data=signed_user_data, pixel=None)
 
         pixel_position = Vector(x=pixel_position_x, y=pixel_position_y)
         pixel = Pixel(position=pixel_position, color=unknown_color)
@@ -65,4 +73,7 @@ class RecolorPixel:
 
         await self.broker.push_new_event_with(pixel=result.pixel)
 
-        return Output(user=result.user, pixel=result.pixel)
+        signed_user_data = await self.user_data_signing.signed_user_data_when(
+            user=result.user
+        )
+        return Output(signed_user_data=signed_user_data, pixel=result.pixel)

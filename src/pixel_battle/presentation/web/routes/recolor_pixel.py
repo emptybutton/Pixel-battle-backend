@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Literal
 
 from dishka.integrations.fastapi import FromDishka, inject
@@ -14,9 +13,7 @@ from pixel_battle.entities.core.pixel import (
 from pixel_battle.entities.quantities.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
-from pixel_battle.presentation.web.cookies import (
-    DatetimeOfObtainingRecoloringRightCookie,
-)
+from pixel_battle.presentation.web.cookies import UserDataCookie
 from pixel_battle.presentation.web.schemas import ErrorListSchema, ErrorSchema
 
 
@@ -56,15 +53,13 @@ class NoRightSchema(ErrorSchema):
 )
 @inject
 async def recolor_pixel(
-    recolor_pixel: FromDishka[RecolorPixel],
+    recolor_pixel: FromDishka[RecolorPixel[str]],
     body_model: RecolorPixelSchema,
-    iso_time: DatetimeOfObtainingRecoloringRightCookie.IsoTimeOrNone = None,
+    user_data: UserDataCookie.StrOrNone = None,
 ) -> JSONResponse:
-    datetime_ = None if iso_time is None else datetime.fromisoformat(iso_time)
-
     try:
         result = await recolor_pixel(
-            datetime_of_obtaining_recoloring_right=datetime_,
+            signed_user_data=user_data,
             pixel_position_x=body_model.pixel_position[0],
             pixel_position_y=body_model.pixel_position[1],
             new_color_red_value_number=body_model.new_pixel_color[0],
@@ -86,7 +81,7 @@ async def recolor_pixel(
 
     response = JSONResponse({}, status_code=status.HTTP_200_OK)
 
-    cookie = DatetimeOfObtainingRecoloringRightCookie(response)
-    cookie.set(result.user.time_of_obtaining_recoloring_right.datetime)
+    cookie = UserDataCookie(response)
+    cookie.set(result.signed_user_data)
 
     return response

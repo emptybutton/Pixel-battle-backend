@@ -16,6 +16,7 @@ services:
       - redis4
     environment:
       REDIS_CLUSTER_URL: redis://redis1:6379/0
+      JWT_SECRET: super-secret-secret
 
   redis1:
     image: redis:7.4.1-alpine3.20

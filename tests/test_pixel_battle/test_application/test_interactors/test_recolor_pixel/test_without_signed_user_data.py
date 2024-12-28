@@ -5,7 +5,7 @@ async def test_result(
     recolor_pixel: RecolorPixel
 ) -> None:
     output = await recolor_pixel(
-        datetime_of_obtaining_recoloring_right=None,
+        signed_user_data=None,
         pixel_position_x=0,
         pixel_position_y=0,
         new_color_red_value_number=255,
@@ -20,7 +20,7 @@ async def test_broker(
     recolor_pixel: RecolorPixel
 ) -> None:
     await recolor_pixel(
-        datetime_of_obtaining_recoloring_right=None,
+        signed_user_data=None,
         pixel_position_x=0,
         pixel_position_y=0,
         new_color_red_value_number=255,
