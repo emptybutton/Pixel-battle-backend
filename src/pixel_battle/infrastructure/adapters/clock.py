@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
+from redis.asyncio import RedisCluster
+
 from pixel_battle.application.ports.clock import Clock
 from pixel_battle.entities.quantities.time import Time
 
@@ -14,6 +16,15 @@ class StoppedClock(Clock):
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class LocalClock(Clock):
+class RedisClusterRandomNodeClock(Clock):
+    redis_cluster: RedisCluster
+
     async def get_current_time(self) -> Time:
-        return Time(datetime=datetime.now(UTC))
+        rounded_timestamp, microseconds = await self.redis_cluster.time(
+            target_nodes=RedisCluster.RANDOM
+        )
+
+        timestamp = rounded_timestamp + microseconds / 1_000_000
+        datetime_ = datetime.fromtimestamp(timestamp, tz=UTC)
+
+        return Time(datetime=datetime_)
