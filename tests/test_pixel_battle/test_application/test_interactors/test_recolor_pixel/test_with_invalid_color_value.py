@@ -10,11 +10,11 @@ from pixel_battle.entities.quantities.color import (
 
 
 async def test_error_on_too_large_value_number(
-    recolor_pixel: RecolorPixel, signed_user_data: User
+    recolor_pixel: RecolorPixel, input_signed_user_data: User
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         await recolor_pixel(
-            signed_user_data=signed_user_data,
+            signed_user_data=input_signed_user_data,
             pixel_position_x=0,
             pixel_position_y=0,
             new_color_red_value_number=100_000_000,
@@ -24,11 +24,11 @@ async def test_error_on_too_large_value_number(
 
 
 async def test_error_on_negative_value_number(
-    recolor_pixel: RecolorPixel, signed_user_data: User
+    recolor_pixel: RecolorPixel, input_signed_user_data: User
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         await recolor_pixel(
-            signed_user_data=signed_user_data,
+            signed_user_data=input_signed_user_data,
             pixel_position_x=0,
             pixel_position_y=0,
             new_color_red_value_number=255,
@@ -38,11 +38,11 @@ async def test_error_on_negative_value_number(
 
 
 async def test_broker(
-    recolor_pixel: RecolorPixel, signed_user_data: User
+    recolor_pixel: RecolorPixel, input_signed_user_data: User
 ) -> None:
     with suppress(Exception):
         await recolor_pixel(
-            signed_user_data=signed_user_data,
+            signed_user_data=input_signed_user_data,
             pixel_position_x=0,
             pixel_position_y=0,
             new_color_red_value_number=255,

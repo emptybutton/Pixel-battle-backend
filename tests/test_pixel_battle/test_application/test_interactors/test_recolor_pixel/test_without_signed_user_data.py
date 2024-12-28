@@ -1,8 +1,13 @@
-from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
+from pixel_battle.application.interactors.recolor_pixel import (
+    Output,
+    RecolorPixel,
+)
+from pixel_battle.entities.core.user import User
 
 
 async def test_result(
-    recolor_pixel: RecolorPixel
+    recolor_pixel: RecolorPixel,
+    output_signed_user_data: User,
 ) -> None:
     output = await recolor_pixel(
         signed_user_data=None,
@@ -13,7 +18,11 @@ async def test_result(
         new_color_blue_value_number=255,
     )
 
-    assert output.pixel is None
+    expected_result = Output(
+        pixel=None, signed_user_data=output_signed_user_data
+    )
+
+    assert output == expected_result
 
 
 async def test_broker(

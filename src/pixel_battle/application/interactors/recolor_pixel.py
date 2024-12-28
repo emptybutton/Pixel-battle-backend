@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from datetime import UTC, datetime
 from typing import Any
 
 from pixel_battle.application.ports.broker import Broker
+from pixel_battle.application.ports.clock import Clock
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.core.pixel import Pixel, recolored_by
 from pixel_battle.entities.core.user import (
@@ -13,7 +13,6 @@ from pixel_battle.entities.quantities.color import (
     RGBColorValue,
     unknown_color,
 )
-from pixel_battle.entities.quantities.time import Time
 from pixel_battle.entities.quantities.vector import Vector
 
 
@@ -27,6 +26,7 @@ class Output[SignedUserDataT]:
 class RecolorPixel[SignedUserDataT]:
     broker: Broker[Any]
     user_data_signing: UserDataSigning[SignedUserDataT]
+    clock: Clock
 
     async def __call__(
         self,
@@ -37,7 +37,7 @@ class RecolorPixel[SignedUserDataT]:
         new_color_green_value_number: int,
         new_color_blue_value_number: int,
     ) -> Output[SignedUserDataT]:
-        current_time = Time(datetime=datetime.now(UTC))
+        current_time = await self.clock.get_current_time()
 
         if signed_user_data is not None:
             user = await self.user_data_signing.user_when(
