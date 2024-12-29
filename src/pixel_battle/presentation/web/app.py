@@ -12,7 +12,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await app.state.dishka_container.close()
 
 
-def app_with(
+def app_when(
     *,
     container: AsyncContainer,
     routers: Iterable[APIRouter],
