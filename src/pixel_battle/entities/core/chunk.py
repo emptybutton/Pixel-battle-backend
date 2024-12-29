@@ -46,7 +46,7 @@ class ChunkNumber:
         is_y_valid = 0 <= self.y <= ChunkNumber.max_y
 
         if not is_x_valid or not is_y_valid:
-            raise ExtremeChunkNumberValuesError(self)
+            raise ExtremeChunkNumberValuesError
 
 
 def chunk_where(position: Vector) -> Chunk:
