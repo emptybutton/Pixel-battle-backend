@@ -29,7 +29,7 @@ jobs:
         run: docker exec pixel-battle-redis1 ash /mnt/create-cluster.sh
 
       - name: pytest
-        run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests --cov --cov-report=xml --cov-branch
+        run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests --cov --cov-report=xml
 
       - name: upload coverage reports to codecov
         uses: codecov/codecov-action@v5
