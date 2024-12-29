@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from pixel_battle.entities.quantities.rectangle import Rectangle, rectangle_with
-from pixel_battle.entities.quantities.size import Size
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.rectangle import Rectangle, rectangle_with
+from pixel_battle.entities.geometry.size import Size
+from pixel_battle.entities.geometry.vector import Vector
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

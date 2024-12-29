@@ -1,8 +1,8 @@
 from pytest import mark
 
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import blue
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import blue
 from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
 
 

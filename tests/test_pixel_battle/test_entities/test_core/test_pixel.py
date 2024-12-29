@@ -6,19 +6,19 @@ from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import (
     Pixel,
     PixelOutOfCanvasError,
-    PixelRecoloringByUser,
+    RecoloredPixelByUser,
     UserHasNoRightToRecolorError,
     pixel_in,
     recolored,
-    recolored_by,
+    recolored_by_user,
 )
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.color import (
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import (
     black,
     white,
 )
-from pixel_battle.entities.quantities.time import Time
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.space.time import Time
 
 
 def test_negative_pixel_position() -> None:
@@ -53,34 +53,40 @@ def test_recolored(original_pixel: Pixel, recolored_pixel: Pixel) -> None:
     assert recolored(original_pixel, new_color=new_color) == recolored_pixel
 
 
-def test_recolored_by(
+def test_recolored_by_user(
     user: User, original_pixel: Pixel, recolored_pixel: Pixel
 ) -> None:
     new_color = recolored_pixel.color
     current_time = user.time_of_obtaining_recoloring_right
 
-    result = recolored_by(
-        user, original_pixel, new_color=new_color, current_time=current_time
+    result = recolored_by_user(
+        original_pixel,
+        user=user,
+        new_color=new_color,
+        current_time=current_time,
     )
 
     excepted_user_time = Time(datetime=datetime(2006, 1, 1, 0, 1, tzinfo=UTC))
     excepted_user = User(time_of_obtaining_recoloring_right=excepted_user_time)
-    excepted_result = PixelRecoloringByUser(
+    excepted_result = RecoloredPixelByUser(
         user=excepted_user, pixel=recolored_pixel
     )
 
     assert result == excepted_result
 
 
-def test_recolored_by_without_right(
+def test_recolored_by_user_without_right(
     user: User, original_pixel: Pixel, recolored_pixel: Pixel
 ) -> None:
     new_color = recolored_pixel.color
     current_time = Time(datetime=datetime(2000, 1, 1, tzinfo=UTC))
 
     with raises(UserHasNoRightToRecolorError):
-        recolored_by(
-            user, original_pixel, new_color=new_color, current_time=current_time
+        recolored_by_user(
+            original_pixel,
+            user=user,
+            new_color=new_color,
+            current_time=current_time,
         )
 
 

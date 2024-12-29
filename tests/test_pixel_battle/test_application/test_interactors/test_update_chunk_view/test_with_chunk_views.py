@@ -5,7 +5,7 @@ from pixel_battle.application.interactors.update_chunk_view import (
 )
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
 )

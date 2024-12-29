@@ -4,7 +4,7 @@ from typing import AsyncContextManager, Sequence
 
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -15,7 +15,7 @@ class NewPixelColorEvent[OffsetT]:
 
 class Broker[OffsetT](ABC):
     @abstractmethod
-    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None: ...
+    async def push_event_with(self, *, pixel: Pixel[RGBColor]) -> None: ...
 
     @abstractmethod
     async def events_after(
@@ -24,12 +24,12 @@ class Broker[OffsetT](ABC):
         ...
 
     @abstractmethod
-    async def all_events_where(
+    async def events_when(
         self, *, chunk: Chunk
     ) -> Sequence[NewPixelColorEvent[OffsetT]]: ...
 
     @abstractmethod
-    def pulled_events_where(
+    def pulled_events_when(
         self, *, chunk: Chunk
     ) -> AsyncContextManager[Sequence[NewPixelColorEvent[OffsetT]]]:
         ...

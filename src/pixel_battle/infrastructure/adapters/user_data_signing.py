@@ -5,7 +5,7 @@ import jwt
 
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

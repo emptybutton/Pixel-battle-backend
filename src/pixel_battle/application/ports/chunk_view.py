@@ -3,7 +3,7 @@ from typing import Iterable
 
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 
 
 class ChunkView(ABC):
@@ -12,6 +12,6 @@ class ChunkView(ABC):
         ...
 
 
-class DefaultChunkViewWhere[ChunkViewT: ChunkView](ABC):
+class DefaultChunkViewWhen[ChunkViewT: ChunkView](ABC):
     @abstractmethod
     async def __call__(self, *, chunk: Chunk) -> ChunkViewT: ...

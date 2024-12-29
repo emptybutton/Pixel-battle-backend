@@ -10,7 +10,7 @@ from pixel_battle.entities.core.pixel import (
     PixelOutOfCanvasError,
     UserHasNoRightToRecolorError,
 )
-from pixel_battle.entities.quantities.color import (
+from pixel_battle.entities.space.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
 from pixel_battle.presentation.web.cookies import UserDataCookie

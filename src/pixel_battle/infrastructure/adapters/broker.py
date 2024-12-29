@@ -13,9 +13,9 @@ from redis.asyncio.cluster import RedisCluster
 from pixel_battle.application.ports.broker import Broker, NewPixelColorEvent
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 from pixel_battle.infrastructure.encoding import decoded, encoded
-from pixel_battle.infrastructure.redis.keys import chunk_key_of
+from pixel_battle.infrastructure.redis.keys import chunk_key_when
 from pixel_battle.infrastructure.redis.types import (
     RedisStreamEvent,
     RedisStreamEventBody,
@@ -56,7 +56,7 @@ class InMemoryBroker(Broker[int]):
     def __bool__(self) -> bool:
         return bool(self.__pixels_by_chunk)
 
-    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
+    async def push_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
         self.__pixels_by_chunk[pixel.chunk].append(pixel)
 
     async def events_after(
@@ -65,7 +65,7 @@ class InMemoryBroker(Broker[int]):
         return self.__events_from(offset + 1, chunk=chunk)
 
     @asynccontextmanager
-    async def pulled_events_where(
+    async def pulled_events_when(
         self, *, chunk: Chunk
     ) -> AsyncIterator[tuple[NewPixelColorEvent[int], ...]]:
         unread_event_offset = self.__first_unread_event_offset_by_chunk.get(
@@ -85,7 +85,7 @@ class InMemoryBroker(Broker[int]):
             new_unread_event_offset
         )
 
-    async def all_events_where(
+    async def events_when(
         self, *, chunk: Chunk
     ) -> tuple[NewPixelColorEvent[int], ...]:
         return tuple(
@@ -110,8 +110,8 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
     last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset]
     last_readed_event_offset_by_chunk = field(default_factory=dict)
 
-    async def push_new_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
-        key = self.__key_by(pixel.chunk)
+    async def push_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
+        key = self.__key_when(chunk=pixel.chunk)
         body = self.__event_body_of(pixel)
 
         await self.redis_cluster.xadd(key, body, maxlen=5_000_000)  # type: ignore[arg-type]
@@ -119,27 +119,27 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
     async def events_after(
         self, offset: RedisStreamOffset, *, chunk: Chunk
     ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
-        key = self.__key_by(chunk)
+        key = self.__key_when(chunk=chunk)
 
         results: RedisStreamResults
         results = await self.redis_cluster.xread({key: offset})
 
         return self.__result_list_events_of(results, chunk=chunk)
 
-    async def all_events_where(
+    async def events_when(
         self, *, chunk: Chunk
     ) -> tuple[NewPixelColorEvent[RedisStreamOffset], ...]:
-        key = self.__key_by(chunk)
+        key = self.__key_when(chunk=chunk)
         events: RedisStreamEvents = await self.redis_cluster.xrange(key)
 
         return self.__events_of(events, chunk=chunk)
 
     @asynccontextmanager
-    async def pulled_events_where(
+    async def pulled_events_when(
         self, *, chunk: Chunk
     ) -> AsyncIterator[tuple[NewPixelColorEvent[RedisStreamOffset], ...]]:
         offset = self.last_readed_event_offset_by_chunk.get(chunk) or b"$"
-        key = self.__key_by(chunk)
+        key = self.__key_when(chunk=chunk)
 
         results: RedisStreamResults
         results = await self.redis_cluster.xread({key: offset}, block=3_000)
@@ -153,8 +153,8 @@ class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
         last_readed_event = events[-1]
         self.last_readed_event_offset_by_chunk[chunk] = last_readed_event.offset
 
-    def __key_by(self, chunk: Chunk) -> bytes:
-        return chunk_key_of(chunk) + b"stream"
+    def __key_when(self, *, chunk: Chunk) -> bytes:
+        return chunk_key_when(chunk=chunk) + b"stream"
 
     def __result_list_events_of(
         self, results: RedisStreamResults, *, chunk: Chunk

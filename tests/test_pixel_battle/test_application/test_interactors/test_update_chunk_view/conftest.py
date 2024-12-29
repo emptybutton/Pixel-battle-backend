@@ -5,12 +5,12 @@ from pixel_battle.application.interactors.update_chunk_view import (
 )
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor, black, red, white
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import RGBColor, black, red, white
 from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
-    DefaultCollectionChunkViewWhere,
+    DefaultCollectionChunkViewWhen,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
 from pixel_battle.infrastructure.adapters.lock import FakeLock
@@ -22,7 +22,7 @@ def update_chunk_view() -> UpdateChunkView[CollectionChunkView, int]:
     return UpdateChunkView(
         broker=InMemoryBroker(),
         lock=FakeLock(),
-        default_chunk_view_where=DefaultCollectionChunkViewWhere(),
+        default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),
         offsets_of_latest_compressed_events=InMemoryOffsets(),
     )

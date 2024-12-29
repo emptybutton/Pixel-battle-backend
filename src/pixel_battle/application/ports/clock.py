@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 class Clock(ABC):

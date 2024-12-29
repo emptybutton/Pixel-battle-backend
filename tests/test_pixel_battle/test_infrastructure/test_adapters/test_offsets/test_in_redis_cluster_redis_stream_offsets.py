@@ -49,7 +49,7 @@ async def test_put(
     assert stored_offset == offset
 
 
-async def test_offset_where_without_offset(
+async def test_offset_when_without_offset(
     chunk: Chunk,
     redis_cluster: RedisCluster,
     offsets: InRedisClusterRedisStreamOffsets,
@@ -57,12 +57,12 @@ async def test_offset_where_without_offset(
 ) -> None:
     await redis_cluster.flushdb()
 
-    offset = await offsets.offset_where(chunk=chunk)
+    offset = await offsets.offset_when(chunk=chunk)
 
     assert offset is None
 
 
-async def test_offset_where_with_offset(
+async def test_offset_when_with_offset(
     chunk: Chunk,
     redis_cluster: RedisCluster,
     offsets: InRedisClusterRedisStreamOffsets,
@@ -73,6 +73,6 @@ async def test_offset_where_with_offset(
     await redis_cluster.flushdb()
     await redis_cluster.hset(key, field, offset)
 
-    stored_offset = await offsets.offset_where(chunk=chunk)
+    stored_offset = await offsets.offset_when(chunk=chunk)
 
     assert stored_offset == offset

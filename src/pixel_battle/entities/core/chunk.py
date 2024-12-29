@@ -3,9 +3,9 @@ from math import ceil
 from typing import ClassVar
 
 from pixel_battle.entities.core.canvas import canvas
-from pixel_battle.entities.quantities.rectangle import Rectangle, rectangle_with
-from pixel_battle.entities.quantities.size import Size
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.rectangle import Rectangle, rectangle_with
+from pixel_battle.entities.geometry.size import Size
+from pixel_battle.entities.geometry.vector import Vector
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -46,7 +46,7 @@ class ChunkNumber:
         is_y_valid = 0 <= self.y <= ChunkNumber.max_y
 
         if not is_x_valid or not is_y_valid:
-            raise ExtremeChunkNumberValuesError
+            raise ExtremeChunkNumberValuesError(self)
 
 
 def chunk_where(position: Vector) -> Chunk:

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
 
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
 
 
 class SizeError(Exception): ...
 
 
-class InvalidSizeError(Exception): ...
+class NegativeSizeValuesError(SizeError): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -22,4 +22,4 @@ class Size:
 
     def __post_init__(self) -> None:
         if self.width <= 0 or self.height <= 0:
-            raise InvalidSizeError
+            raise NegativeSizeValuesError

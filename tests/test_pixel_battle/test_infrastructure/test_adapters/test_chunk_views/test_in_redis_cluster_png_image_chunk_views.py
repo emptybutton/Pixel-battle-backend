@@ -23,12 +23,12 @@ async def test_all_view_life_cycle(
     chunk = Chunk(number=ChunkNumber(x=9, y=0))
 
     await views.put(png_image_chunk_view1, chunk=chunk)
-    result_chunk_view = await views.chunk_view_where(chunk=chunk)
+    result_chunk_view = await views.chunk_view_when(chunk=chunk)
 
     assert result_chunk_view == png_image_chunk_view1
 
 
-async def test_chunk_view_where_without_view(
+async def test_chunk_view_when_without_view(
     views: InRedisClusterPNGImageChunkViews,
     redis_cluster: RedisCluster,
 ) -> None:
@@ -36,4 +36,4 @@ async def test_chunk_view_where_without_view(
 
     chunk = Chunk(number=ChunkNumber(x=9, y=0))
 
-    assert await views.chunk_view_where(chunk=chunk) is None
+    assert await views.chunk_view_when(chunk=chunk) is None

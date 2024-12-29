@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import timedelta
 
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

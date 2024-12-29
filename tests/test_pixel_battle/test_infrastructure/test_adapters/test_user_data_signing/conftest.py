@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from pytest import fixture
 
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 @fixture

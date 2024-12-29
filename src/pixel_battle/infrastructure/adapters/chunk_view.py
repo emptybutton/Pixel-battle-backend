@@ -6,12 +6,12 @@ from PIL.Image import Image, new, open
 
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
-    DefaultChunkViewWhere,
+    DefaultChunkViewWhen,
 )
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import RGBColor
 
 
 @dataclass(init=False)
@@ -38,8 +38,8 @@ class CollectionChunkView(ChunkView):
             self._pixel_by_position[pixel.position] = pixel
 
 
-class DefaultCollectionChunkViewWhere(
-    DefaultChunkViewWhere[CollectionChunkView]
+class DefaultCollectionChunkViewWhen(
+    DefaultChunkViewWhen[CollectionChunkView]
 ):
     async def __call__(self, *, chunk: Chunk) -> CollectionChunkView:  # noqa: ARG002
         return CollectionChunkView()
@@ -117,15 +117,15 @@ class PNGImageChunkView(ChunkView):  # noqa: PLW1641
 
     def __value_of(self, pixel: Pixel[RGBColor]) -> tuple[int, int, int]:
         return (
-            pixel.color.red.number,
-            pixel.color.green.number,
-            pixel.color.blue.number,
+            pixel.color.red_value.number,
+            pixel.color.green_value.number,
+            pixel.color.blue_value.number,
         )
 
     def __del__(self) -> None:
         self.close()
 
 
-class DefaultPNGImageChunkViewWhere(DefaultChunkViewWhere[PNGImageChunkView]):
+class DefaultPNGImageChunkViewWhen(DefaultChunkViewWhen[PNGImageChunkView]):
     async def __call__(self, *, chunk: Chunk) -> PNGImageChunkView:  # noqa: ARG002
         return PNGImageChunkView.create_default()

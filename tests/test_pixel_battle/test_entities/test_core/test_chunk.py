@@ -1,8 +1,8 @@
 from pytest import mark
 
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber, chunk_where
-from pixel_battle.entities.quantities.rectangle import Rectangle
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.rectangle import Rectangle
+from pixel_battle.entities.geometry.vector import Vector
 
 
 @mark.parametrize(

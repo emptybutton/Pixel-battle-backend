@@ -24,9 +24,9 @@ class RGBColorValue:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RGBColor(Color):
-    red: RGBColorValue
-    green: RGBColorValue
-    blue: RGBColorValue
+    red_value: RGBColorValue
+    green_value: RGBColorValue
+    blue_value: RGBColorValue
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -36,31 +36,31 @@ class UnknownColor(Color): ...
 unknown_color = UnknownColor()
 
 white = RGBColor(
-    red=RGBColorValue(number=255),
-    green=RGBColorValue(number=255),
-    blue=RGBColorValue(number=255),
+    red_value=RGBColorValue(number=255),
+    green_value=RGBColorValue(number=255),
+    blue_value=RGBColorValue(number=255),
 )
 
 black = RGBColor(
-    red=RGBColorValue(number=0),
-    green=RGBColorValue(number=0),
-    blue=RGBColorValue(number=0),
+    red_value=RGBColorValue(number=0),
+    green_value=RGBColorValue(number=0),
+    blue_value=RGBColorValue(number=0),
 )
 
 red = RGBColor(
-    red=RGBColorValue(number=255),
-    green=RGBColorValue(number=0),
-    blue=RGBColorValue(number=0),
+    red_value=RGBColorValue(number=255),
+    green_value=RGBColorValue(number=0),
+    blue_value=RGBColorValue(number=0),
 )
 
 green = RGBColor(
-    red=RGBColorValue(number=0),
-    green=RGBColorValue(number=255),
-    blue=RGBColorValue(number=0),
+    red_value=RGBColorValue(number=0),
+    green_value=RGBColorValue(number=255),
+    blue_value=RGBColorValue(number=0),
 )
 
 blue = RGBColor(
-    red=RGBColorValue(number=0),
-    green=RGBColorValue(number=0),
-    blue=RGBColorValue(number=255),
+    red_value=RGBColorValue(number=0),
+    green_value=RGBColorValue(number=0),
+    blue_value=RGBColorValue(number=255),
 )

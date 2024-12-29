@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from pixel_battle.entities.core.canvas import canvas
 from pixel_battle.entities.core.chunk import Chunk, chunk_where
@@ -7,9 +7,9 @@ from pixel_battle.entities.core.user import (
     has_recoloring_right,
     user_temporarily_without_recoloring_right_when,
 )
-from pixel_battle.entities.quantities.color import Color, RGBColor
-from pixel_battle.entities.quantities.time import Time
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import Color, RGBColor
+from pixel_battle.entities.space.time import Time
 
 
 class PixelError(Exception): ...
@@ -22,10 +22,6 @@ class PixelOutOfCanvasError(PixelError): ...
 class Pixel[ColorT: Color]:
     position: Vector
     color: ColorT
-
-    @property
-    def id(self) -> Vector:
-        return self.position
 
     @property
     def chunk(self) -> Chunk:
@@ -58,21 +54,21 @@ def recolored[ColorT: Color](
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class PixelRecoloringByUser:
-    pixel: Pixel[RGBColor]
+class RecoloredPixelByUser:
+    pixel: Pixel[RGBColor] = field(kw_only=False)
     user: User
 
 
 class UserHasNoRightToRecolorError(Exception): ...
 
 
-def recolored_by[ColorT: Color](
-    user: User,
+def recolored_by_user[ColorT: Color](
     pixel: Pixel[ColorT],
     *,
+    user: User,
     new_color: RGBColor,
     current_time: Time,
-) -> PixelRecoloringByUser:
+) -> RecoloredPixelByUser:
     if not has_recoloring_right(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
 
@@ -81,4 +77,4 @@ def recolored_by[ColorT: Color](
         current_time=current_time
     )
 
-    return PixelRecoloringByUser(pixel=pixel, user=user)
+    return RecoloredPixelByUser(pixel, user=user)

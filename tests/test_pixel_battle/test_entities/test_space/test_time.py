@@ -2,7 +2,7 @@ from datetime import UTC, datetime, timedelta
 
 from pytest import fixture, raises
 
-from pixel_battle.entities.quantities.time import NotUTCTimeError, Time
+from pixel_battle.entities.space.time import NotUTCTimeError, Time
 
 
 def test_creation_with_not_utc_datetime() -> None:

@@ -1,6 +1,6 @@
 from pytest import raises
 
-from pixel_battle.entities.quantities.color import (
+from pixel_battle.entities.space.color import (
     RGBColorValue,
     RGBColorValueNumberInInvalidRangeError,
 )

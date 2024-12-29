@@ -4,7 +4,7 @@ from pytest import raises
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.color import (
+from pixel_battle.entities.space.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
 

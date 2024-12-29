@@ -4,7 +4,7 @@ from typing import Any, Sequence
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -21,6 +21,6 @@ class ViewChunkStream:
     ) -> Output:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
-        async with self.broker.pulled_events_where(chunk=chunk) as new_events:
-            new_pixels = tuple(event.pixel for event in new_events)
+        async with self.broker.pulled_events_when(chunk=chunk) as events:
+            new_pixels = tuple(event.pixel for event in events)
             return Output(new_pixels=new_pixels)

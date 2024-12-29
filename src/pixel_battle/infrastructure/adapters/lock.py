@@ -7,7 +7,7 @@ from redis.asyncio.lock import Lock as _RedisLock
 
 from pixel_battle.application.ports.lock import Lock
 from pixel_battle.entities.core.chunk import Chunk
-from pixel_battle.infrastructure.redis.keys import chunk_key_of
+from pixel_battle.infrastructure.redis.keys import chunk_key_when
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -16,7 +16,7 @@ class InRedisClusterLock(Lock):
 
     def __call__(self, chunk: Chunk) -> _RedisLock:
         return _RedisLock(
-            name=chunk_key_of(chunk) + b"lock",
+            name=chunk_key_when(chunk=chunk) + b"lock",
             redis=self.redis_cluster,
             timeout=5,
             blocking_timeout=15,

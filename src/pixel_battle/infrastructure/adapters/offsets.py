@@ -5,7 +5,7 @@ from redis.asyncio.cluster import RedisCluster
 
 from pixel_battle.application.ports.offsets import Offsets
 from pixel_battle.entities.core.chunk import Chunk
-from pixel_battle.infrastructure.redis.keys import chunk_key_of
+from pixel_battle.infrastructure.redis.keys import chunk_key_when
 from pixel_battle.infrastructure.redis.types import RedisStreamOffset
 
 
@@ -22,7 +22,7 @@ class InMemoryOffsets[OffsetT](Offsets[OffsetT]):
     async def put(self, offset: OffsetT, *, chunk: Chunk) -> None:
         self._offsets_by_chunk[chunk] = offset
 
-    async def offset_where(self, *, chunk: Chunk) -> OffsetT | None:
+    async def offset_when(self, *, chunk: Chunk) -> OffsetT | None:
         return self._offsets_by_chunk.get(chunk)
 
 
@@ -32,11 +32,11 @@ class InRedisClusterRedisStreamOffsets(Offsets[RedisStreamOffset]):
     redis_cluster: RedisCluster
 
     async def put(self, offset: RedisStreamOffset, *, chunk: Chunk) -> None:
-        key = chunk_key_of(chunk)
+        key = chunk_key_when(chunk=chunk)
         await self.redis_cluster.hset(key, self._field, offset)  # type: ignore[misc, arg-type]
 
-    async def offset_where(self, *, chunk: Chunk) -> RedisStreamOffset | None:
-        key = chunk_key_of(chunk)
+    async def offset_when(self, *, chunk: Chunk) -> RedisStreamOffset | None:
+        key = chunk_key_when(chunk=chunk)
         offset: bytes | None = await self.redis_cluster.hget(key, self._field)  # type: ignore[misc, arg-type]
 
         return offset

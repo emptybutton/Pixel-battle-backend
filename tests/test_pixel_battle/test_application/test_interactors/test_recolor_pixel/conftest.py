@@ -4,7 +4,7 @@ from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
 from pixel_battle.infrastructure.adapters.user_data_signing import (

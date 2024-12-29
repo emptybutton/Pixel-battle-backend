@@ -4,16 +4,16 @@ from typing import Any
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.clock import Clock
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
-from pixel_battle.entities.core.pixel import Pixel, recolored_by
+from pixel_battle.entities.core.pixel import Pixel, recolored_by_user
 from pixel_battle.entities.core.user import (
     user_temporarily_without_recoloring_right_when,
 )
-from pixel_battle.entities.quantities.color import (
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import (
     RGBColor,
     RGBColorValue,
     unknown_color,
 )
-from pixel_battle.entities.quantities.vector import Vector
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -59,19 +59,19 @@ class RecolorPixel[SignedUserDataT]:
         pixel = Pixel(position=pixel_position, color=unknown_color)
 
         new_pixel_color = RGBColor(
-            red=RGBColorValue(number=new_color_red_value_number),
-            green=RGBColorValue(number=new_color_green_value_number),
-            blue=RGBColorValue(number=new_color_blue_value_number),
+            red_value=RGBColorValue(number=new_color_red_value_number),
+            green_value=RGBColorValue(number=new_color_green_value_number),
+            blue_value=RGBColorValue(number=new_color_blue_value_number),
         )
 
-        result = recolored_by(
-            user,
+        result = recolored_by_user(
             pixel,
+            user=user,
             new_color=new_pixel_color,
             current_time=current_time,
         )
 
-        await self.broker.push_new_event_with(pixel=result.pixel)
+        await self.broker.push_event_with(pixel=result.pixel)
 
         signed_user_data = await self.user_data_signing.signed_user_data_when(
             user=result.user

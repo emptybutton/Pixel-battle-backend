@@ -3,7 +3,7 @@ from typing import Iterable, Self
 from pydantic import BaseModel, Field
 
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 
 
 class ErrorListSchema[ErrorSchemaT](BaseModel):
@@ -23,9 +23,9 @@ class RecoloredPixelSchema(BaseModel):
     def of(cls, pixel: Pixel[RGBColor]) -> "RecoloredPixelSchema":
         pixel_position = (pixel.position.x, pixel.position.y)
         new_pixel_color = (
-            pixel.color.red.number,
-            pixel.color.green.number,
-            pixel.color.blue.number,
+            pixel.color.red_value.number,
+            pixel.color.green_value.number,
+            pixel.color.blue_value.number,
         )
 
         return RecoloredPixelSchema(

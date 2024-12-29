@@ -6,7 +6,7 @@ from pytest import fixture, raises
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.pixel import UserHasNoRightToRecolorError
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 @fixture

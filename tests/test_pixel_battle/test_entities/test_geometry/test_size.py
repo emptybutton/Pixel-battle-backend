@@ -1,7 +1,7 @@
 from pytest import raises
 
-from pixel_battle.entities.quantities.size import InvalidSizeError, Size
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.size import NegativeSizeValuesError, Size
+from pixel_battle.entities.geometry.vector import Vector
 
 
 def test_to_vector() -> None:
@@ -11,10 +11,10 @@ def test_to_vector() -> None:
 
 
 def test_negative_size() -> None:
-    with raises(InvalidSizeError):
+    with raises(NegativeSizeValuesError):
         Size(width=-1, height=10)
 
 
 def test_zero_size() -> None:
-    with raises(InvalidSizeError):
+    with raises(NegativeSizeValuesError):
         Size(width=0, height=10)

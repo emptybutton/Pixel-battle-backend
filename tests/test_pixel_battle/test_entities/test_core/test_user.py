@@ -8,7 +8,7 @@ from pixel_battle.entities.core.user import (
     time_of_obtaining_recoloring_right_when,
     user_temporarily_without_recoloring_right_when,
 )
-from pixel_battle.entities.quantities.time import Time
+from pixel_battle.entities.space.time import Time
 
 
 @fixture

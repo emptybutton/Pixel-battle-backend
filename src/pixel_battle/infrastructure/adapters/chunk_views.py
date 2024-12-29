@@ -7,7 +7,7 @@ from pixel_battle.application.ports.chunk_view import ChunkView
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
-from pixel_battle.infrastructure.redis.keys import chunk_key_of
+from pixel_battle.infrastructure.redis.keys import chunk_key_when
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,7 +20,7 @@ class InMemoryChunkViews[ChunkViewT: ChunkView](ChunkViews[ChunkViewT]):
     def __iter__(self) -> Iterator[tuple[Chunk, ChunkViewT]]:
         return iter(self._view_by_chunk.items())
 
-    async def chunk_view_where(self, *, chunk: Chunk) -> ChunkViewT | None:
+    async def chunk_view_when(self, *, chunk: Chunk) -> ChunkViewT | None:
         return self._view_by_chunk.get(chunk)
 
     async def put(self, view: ChunkViewT, *, chunk: Chunk) -> None:
@@ -33,10 +33,10 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
     close_when_putting: bool
     _field: ClassVar = b"view"
 
-    async def chunk_view_where(
+    async def chunk_view_when(
         self, *, chunk: Chunk
     ) -> PNGImageChunkView | None:
-        key = chunk_key_of(chunk)
+        key = chunk_key_when(chunk=chunk)
         raw_view = await self.redis_cluster.hget(key, self._field)  # type: ignore[arg-type, misc]
 
         if raw_view is None:
@@ -50,6 +50,6 @@ class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
                 view.close()
 
             buffer = stream.getbuffer()
-            key = chunk_key_of(chunk)
+            key = chunk_key_when(chunk=chunk)
             await self.redis_cluster.hset(key, self._field, buffer)  # type: ignore[arg-type, misc]
             buffer.release()

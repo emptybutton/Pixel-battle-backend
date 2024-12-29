@@ -2,11 +2,11 @@ from pytest import fixture
 
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import black, white
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import black, white
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
-    DefaultCollectionChunkViewWhere,
+    DefaultCollectionChunkViewWhen,
 )
 
 
@@ -34,10 +34,10 @@ async def test_put_stored_pixel(pixel1v: Pixel, pixel2v: Pixel) -> None:
     assert set(view) == {pixel2v}
 
 
-async def test_default_of() -> None:
-    chunk_view_where = DefaultCollectionChunkViewWhere()
+async def test_default_collection_chunk_view_when() -> None:
+    chunk_view_when = DefaultCollectionChunkViewWhen()
 
     chunk = Chunk(number=ChunkNumber(x=0, y=0))
-    chunk_view = await chunk_view_where(chunk=chunk)
+    chunk_view = await chunk_view_when(chunk=chunk)
 
     assert chunk_view == CollectionChunkView()

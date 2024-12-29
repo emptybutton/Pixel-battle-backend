@@ -5,7 +5,7 @@ from pixel_battle.application.interactors.update_chunk_view import (
 )
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.quantities.color import RGBColor
+from pixel_battle.entities.space.color import RGBColor
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
 )
@@ -20,8 +20,8 @@ async def stored_data(
     pixel2_2: Pixel[RGBColor],
 ) -> None:
     await update_chunk_view.chunk_views.put(view1_2_and_2_1, chunk=chunk)
-    await update_chunk_view.broker.push_new_event_with(pixel=pixel1_1)
-    await update_chunk_view.broker.push_new_event_with(pixel=pixel2_2)
+    await update_chunk_view.broker.push_event_with(pixel=pixel1_1)
+    await update_chunk_view.broker.push_event_with(pixel=pixel2_2)
 
     offsets = update_chunk_view.offsets_of_latest_compressed_events
     await offsets.put(0, chunk=chunk)

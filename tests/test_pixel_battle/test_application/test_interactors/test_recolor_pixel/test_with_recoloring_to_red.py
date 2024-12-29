@@ -6,8 +6,8 @@ from pixel_battle.application.interactors.recolor_pixel import (
 )
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.core.user import User
-from pixel_battle.entities.quantities.color import RGBColor, red
-from pixel_battle.entities.quantities.vector import Vector
+from pixel_battle.entities.geometry.vector import Vector
+from pixel_battle.entities.space.color import RGBColor, red
 
 
 @fixture
