@@ -10,10 +10,10 @@ from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
 
 
-chunk_viewing_router = APIRouter()
+router = APIRouter()
 
 
-@chunk_viewing_router.get("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
+@router.get("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
 @inject
 async def stream_chunk(
     view_chunk: FromDishka[ViewChunk[PNGImageChunkView, Any]],

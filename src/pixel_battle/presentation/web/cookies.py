@@ -2,13 +2,13 @@ from dataclasses import dataclass
 from datetime import timedelta
 from typing import Annotated, ClassVar
 
-from fastapi import Cookie, Depends, Response
+from fastapi import Cookie, Response
 
 
 @dataclass(frozen=True, slots=True)
 class UserDataCookie:
     __name: ClassVar = "userData"
-    StrOrNone: ClassVar = Annotated[str | None, Depends(Cookie(alias=__name))]
+    StrOrNone: ClassVar = Annotated[str | None, Cookie(alias=__name)]
 
     response: Response
 

@@ -5,12 +5,10 @@ from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.streaming import Streaming
 
 
-chunk_streaming_router = APIRouter()
+router = APIRouter()
 
 
-@chunk_streaming_router.websocket(
-    "/canvas/chunk/{chunk_number_x}/{chunk_number_y}"
-)
+@router.websocket("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
 @inject
 async def stream_chunk(
     websocket: WebSocket,

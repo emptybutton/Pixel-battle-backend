@@ -17,7 +17,7 @@ from pixel_battle.presentation.web.cookies import UserDataCookie
 from pixel_battle.presentation.web.schemas import ErrorListSchema, ErrorSchema
 
 
-pixel_recoloring_router = APIRouter()
+router = APIRouter()
 
 
 class RecolorPixelSchema(BaseModel):
@@ -37,7 +37,7 @@ class NoRightSchema(ErrorSchema):
     type: Literal["noRight"] = "noRight"
 
 
-@pixel_recoloring_router.patch(
+@router.patch(
     "/canvas",
     status_code=status.HTTP_200_OK,
     responses={
@@ -67,16 +67,18 @@ async def recolor_pixel(
             new_color_blue_value_number=body_model.new_pixel_color[2],
         )
 
-    except PixelOutOfCanvasError:
-        json = PixelOutOfCanvasSchema().model_dump()
+    except RGBColorValueNumberInInvalidRangeError:
+        json = InvalidColorValueRangeSchema().to_list().model_dump(
+            by_alias=True
+        )
         return JSONResponse(json, status_code=status.HTTP_400_BAD_REQUEST)
 
-    except RGBColorValueNumberInInvalidRangeError:
-        json = InvalidColorValueRangeSchema().model_dump()
+    except PixelOutOfCanvasError:
+        json = PixelOutOfCanvasSchema().to_list().model_dump(by_alias=True)
         return JSONResponse(json, status_code=status.HTTP_400_BAD_REQUEST)
 
     except UserHasNoRightToRecolorError:
-        json = NoRightSchema().model_dump()
+        json = NoRightSchema().to_list().model_dump(by_alias=True)
         return JSONResponse(json, status_code=status.HTTP_403_FORBIDDEN)
 
     response = JSONResponse({}, status_code=status.HTTP_200_OK)
