@@ -15,18 +15,20 @@ router = APIRouter()
 
 @router.get("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
 @inject
-async def stream_chunk(
+async def view_chunk(
     view_chunk: FromDishka[ViewChunk[PNGImageChunkView, Any]],
     chunk_number_x: ChunkNumberX,
     chunk_number_y: ChunkNumberY,
 ) -> Response:
     result = await view_chunk(chunk_number_x, chunk_number_y)
 
+    extension_model = RecoloredPixelListSchema.of(result.pixels)
+    extension = extension_model.model_dump_json(by_alias=True)
+
+    headers = {"extension": extension}
+
     image_stream = result.chunk_view.to_stream()
+    content = image_stream.getvalue()
+    image_stream.close()
 
-    extention_model = RecoloredPixelListSchema.of(result.pixels)
-    extention = extention_model.model_dump_json()
-
-    headers = {"extention": extention}
-
-    return Response(image_stream, media_type="image/png", headers=headers)
+    return Response(content, media_type="image/png", headers=headers)

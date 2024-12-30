@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import AsyncIterator
+from typing import Any, AsyncIterator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container
 from dishka.integrations.fastapi import setup_dishka
@@ -9,6 +9,9 @@ from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
+)
+from pixel_battle.application.interactors.view_chunk import (
+    ViewChunk,
 )
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import DefaultChunkViewWhen
@@ -20,7 +23,8 @@ from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.space.time import Time
 from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
-    DefaultCollectionChunkViewWhen,
+    DefaultPNGImageChunkViewWhen,
+    PNGImageChunkView,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import (
     InMemoryChunkViews,
@@ -58,14 +62,21 @@ def container() -> AsyncContainer:
         provides=UserDataSigning[str],
     )
     provider.provide(
-        DefaultCollectionChunkViewWhen, provides=DefaultChunkViewWhen
+        DefaultPNGImageChunkViewWhen,
+        provides=DefaultChunkViewWhen[PNGImageChunkView],
     )
+    provider.provide(
+        lambda: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]
+    )
+    provider.provide(lambda: InMemoryOffsets(), provides=Offsets[int])
     provider.provide(lambda: InMemoryBroker(), provides=Broker)
-    provider.provide(lambda: InMemoryChunkViews(), provides=ChunkViews)
-    provider.provide(lambda: InMemoryOffsets(), provides=Offsets)
     provider.provide(StoppedClock, provides=Clock)
     provider.provide(FakeLock, provides=Lock)
     provider.provide(RecolorPixel[str])
+    provider.provide(
+        ViewChunk[PNGImageChunkView, int],
+        provides=ViewChunk[PNGImageChunkView, Any]
+    )
 
     return make_async_container(provider)
 

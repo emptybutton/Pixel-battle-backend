@@ -48,6 +48,9 @@ class Streaming:
         for x, y in self.__group_id_cycle:
             result = await self.__view_chunk_stream(x, y)
 
+            if len(result.new_pixels) == 0:
+                continue
+
             response_model = RecoloredPixelListSchema.of(result.new_pixels)
             response = response_model.model_dump_json()
 
