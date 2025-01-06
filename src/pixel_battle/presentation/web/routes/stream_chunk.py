@@ -2,7 +2,7 @@ from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, WebSocket
 
 from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
-from pixel_battle.presentation.web.streaming import Streaming
+from pixel_battle.presentation.web.streaming import Streaming, StreamingClient
 
 
 router = APIRouter()
@@ -19,4 +19,6 @@ async def stream_chunk(
     await websocket.accept()
 
     group_id = (chunk_number_x, chunk_number_y)
-    streaming.add_client(websocket=websocket, group_id=group_id)
+
+    client = StreamingClient(websocket=websocket, group_id=group_id)
+    streaming.add_client(client)

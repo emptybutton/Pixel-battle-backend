@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from types import TracebackType
 from typing import Iterable, Self, Type
 
-from fastapi import WebSocket, status
+from fastapi import WebSocket, WebSocketDisconnect, status
 
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
@@ -12,18 +12,25 @@ from pixel_battle.application.interactors.view_chunk_stream import (
 from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
 
 
-type WebsocketGroup = set[WebSocket]
-type WebsocketGroupID = tuple[int, int]
+type StreamingClientGroupID = tuple[int, int]
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
+class StreamingClient:
+    websocket: WebSocket
+    group_id: StreamingClientGroupID
 
 
 @dataclass(init=False)
 class Streaming:
     __view_chunk_stream: ViewChunkStream
-    __websocket_group_by_group_id: dict[WebsocketGroupID, WebsocketGroup]
+    __client_group_by_group_id: dict[
+        StreamingClientGroupID, set[StreamingClient]
+    ]
 
     def __init__(self, view_chunk_stream: ViewChunkStream) -> None:
         self.__view_chunk_stream = view_chunk_stream
-        self.__websocket_group_by_group_id = defaultdict(set)
+        self.__client_group_by_group_id = defaultdict(set)
 
     async def __aenter__(self) -> Self:
         return self
@@ -36,10 +43,8 @@ class Streaming:
     ) -> None:
         await self.stop(panic=error is not None)
 
-    def add_client(
-        self, *, websocket: WebSocket, group_id: WebsocketGroupID
-    ) -> None:
-        self.__websocket_group_by_group_id[group_id].add(websocket)
+    def add_client(self, client: StreamingClient) -> None:
+        self.__client_group_by_group_id[client.group_id].add(client)
 
     async def start(self) -> None:
         for x, y in self.__group_id_cycle:
@@ -51,36 +56,42 @@ class Streaming:
             response_model = RecoloredPixelListSchema.of(result.new_pixels)
             response = response_model.model_dump_json()
 
-            websockets = self.__websocket_group_by_group_id[x, y]
+            client_group = self.__client_group_by_group_id[x, y]
 
             await gather(*(
-                websocket.send_text(response)
-                for websocket in websockets
+                self.__send(response, client=client)
+                for client in client_group
             ))
 
     async def stop(self, *, panic: bool) -> None:
         await gather(*(
-            self.__remove_client(
-                websocket=websocket, group_id=group_id, panic=panic
-            )
-            for group_id, group in self.__websocket_group_by_group_id.items()
-            for websocket in group
+            self.__disconnect_client(client, panic=panic)
+            for group_id, group in self.__client_group_by_group_id.items()
+            for client in group
         ))
 
-    @property
-    def __group_id_cycle(self) -> Iterable[WebsocketGroupID]:
-        while True:
-            yield from tuple(self.__websocket_group_by_group_id.keys())
+    async def __send(self, response: str, *, client: StreamingClient) -> None:
+        try:
+            await client.websocket.send_text(response)
+        except WebSocketDisconnect:
+            self.__remove_client(client)
 
-    async def __remove_client(
-        self, *, websocket: WebSocket, group_id: WebsocketGroupID, panic: bool
+    @property
+    def __group_id_cycle(self) -> Iterable[StreamingClientGroupID]:
+        while True:
+            yield from tuple(self.__client_group_by_group_id.keys())
+
+    async def __disconnect_client(
+        self, client: StreamingClient, panic: bool
     ) -> None:
-        self.__websocket_group_by_group_id[group_id].remove(websocket)
+        self.__remove_client(client)
 
         code = (
             status.WS_1011_INTERNAL_ERROR
             if panic
             else status.WS_1000_NORMAL_CLOSURE
         )
+        await client.websocket.close(code)
 
-        await websocket.close(code)
+    def __remove_client(self, client: StreamingClient) -> None:
+        self.__client_group_by_group_id[client.group_id].remove(client)
