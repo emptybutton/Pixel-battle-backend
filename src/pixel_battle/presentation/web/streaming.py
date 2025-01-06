@@ -1,8 +1,8 @@
 from asyncio import gather
 from collections import defaultdict
-from contextlib import asynccontextmanager
 from dataclasses import dataclass
-from typing import AsyncIterator, Iterable
+from types import TracebackType
+from typing import Iterable, Self, Type
 
 from fastapi import WebSocket, status
 
@@ -25,24 +25,21 @@ class Streaming:
         self.__view_chunk_stream = view_chunk_stream
         self.__websocket_group_by_group_id = defaultdict(set)
 
-    @asynccontextmanager
-    async def __enter__(self) -> AsyncIterator["Streaming"]:
-        try:
-            yield self
-        except Exception:
-            await self.stop(panic=True)
-        else:
-            await self.stop(panic=False)
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(
+        self,
+        error_type: Type[BaseException] | None,
+        error: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
+        await self.stop(panic=error is not None)
 
     def add_client(
         self, *, websocket: WebSocket, group_id: WebsocketGroupID
     ) -> None:
         self.__websocket_group_by_group_id[group_id].add(websocket)
-
-    @property
-    def __group_id_cycle(self) -> Iterable[WebsocketGroupID]:
-        while True:
-            yield from tuple(self.__websocket_group_by_group_id.keys())
 
     async def start(self) -> None:
         for x, y in self.__group_id_cycle:
@@ -69,6 +66,11 @@ class Streaming:
             for group_id, group in self.__websocket_group_by_group_id.items()
             for websocket in group
         ))
+
+    @property
+    def __group_id_cycle(self) -> Iterable[WebsocketGroupID]:
+        while True:
+            yield from tuple(self.__websocket_group_by_group_id.keys())
 
     async def __remove_client(
         self, *, websocket: WebSocket, group_id: WebsocketGroupID, panic: bool

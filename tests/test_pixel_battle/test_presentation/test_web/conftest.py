@@ -1,10 +1,12 @@
 from datetime import UTC, datetime
+from functools import partial
 from typing import Any, AsyncIterator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import APIRouter, FastAPI
-from httpx import ASGITransport, AsyncClient
+from httpx import AsyncClient
+from httpx_ws.transport import ASGIWebSocketTransport
 from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import (
@@ -12,6 +14,9 @@ from pixel_battle.application.interactors.recolor_pixel import (
 )
 from pixel_battle.application.interactors.view_chunk import (
     ViewChunk,
+)
+from pixel_battle.application.interactors.view_chunk_stream import (
+    ViewChunkStream,
 )
 from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import DefaultChunkViewWhen
@@ -42,6 +47,7 @@ from pixel_battle.infrastructure.adapters.user_data_signing import (
 from pixel_battle.presentation.web.routes.recolor_pixel import router as router1
 from pixel_battle.presentation.web.routes.stream_chunk import router as router2
 from pixel_battle.presentation.web.routes.view_chunk import router as router3
+from pixel_battle.presentation.web.streaming import Streaming
 
 
 @fixture
@@ -77,6 +83,14 @@ def container() -> AsyncContainer:
         ViewChunk[PNGImageChunkView, int],
         provides=ViewChunk[PNGImageChunkView, Any]
     )
+    provider.provide(ViewChunkStream)
+
+    @partial(provider.provide, provides=Streaming)
+    async def get_streaming(
+        view_chunk_stream: ViewChunkStream
+    ) -> AsyncIterator[Streaming]:
+        async with Streaming(view_chunk_stream=view_chunk_stream) as streaming:
+            yield streaming
 
     return make_async_container(provider)
 
@@ -94,10 +108,7 @@ def app(container: AsyncContainer, routers: tuple[APIRouter, ...]) -> FastAPI:
 
 
 @fixture
-async def client(app: FastAPI) -> AsyncIterator[AsyncClient]:
-    client_ = AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://localhost"
-    )
+def client(app: FastAPI) -> AsyncClient:
+    transport = ASGIWebSocketTransport(app=app)
 
-    async with client_:
-        yield client_
+    return AsyncClient(transport=transport, base_url="http://localhost")
