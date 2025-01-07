@@ -4,7 +4,7 @@ from sys import argv
 from pytest import fixture, mark
 
 from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView as Interactor,
+    UpdateChunkView,
 )
 from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
@@ -14,8 +14,11 @@ from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
 from pixel_battle.infrastructure.adapters.lock import FakeLock
 from pixel_battle.infrastructure.adapters.offsets import InMemoryOffsets
 from pixel_battle.presentation.scripts.update_chunk_view import (
-    UpdateChunkView as Script,
+    UpdateChunkViewScript,
 )
+
+
+type Script = UpdateChunkViewScript
 
 
 @fixture
@@ -23,7 +26,7 @@ def script() -> Script:
     ok_file = StringIO()
     error_file = StringIO()
 
-    interactor = Interactor(
+    update_chunk_view = UpdateChunkView(
         broker=InMemoryBroker(),
         lock=FakeLock(),
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
@@ -31,7 +34,11 @@ def script() -> Script:
         offsets_of_latest_compressed_events=InMemoryOffsets(),
     )
 
-    return Script(ok_file=ok_file, error_file=error_file, interactor=interactor)
+    return UpdateChunkViewScript(
+        ok_file=ok_file,
+        error_file=error_file,
+        update_chunk_view=update_chunk_view,
+    )
 
 
 async def test_ok(script: Script) -> None:

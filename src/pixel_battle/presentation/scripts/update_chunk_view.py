@@ -5,7 +5,7 @@ from io import TextIOBase
 from typing import Any, cast
 
 from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView as Interactor,
+    UpdateChunkView,
 )
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
@@ -13,8 +13,8 @@ from pixel_battle.application.ports.chunk_view import (
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UpdateChunkView:
-    interactor: Interactor[ChunkView, Any]
+class UpdateChunkViewScript:
+    update_chunk_view: UpdateChunkView[ChunkView, Any]
     ok_file: TextIOBase = cast(TextIOBase, sys.stdout)
     error_file: TextIOBase = cast(TextIOBase, sys.stderr)
 
@@ -32,7 +32,7 @@ class UpdateChunkView:
         self.__print("Updating...")
         start_time = datetime.now()
 
-        await self.interactor(chunk_number_x, chunk_number_y)
+        await self.update_chunk_view(chunk_number_x, chunk_number_y)
 
         end_time = datetime.now()
         time_delta = end_time - start_time

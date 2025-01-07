@@ -11,7 +11,7 @@ from typing import (
 from redis.asyncio import RedisCluster
 
 from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView as Interactor,
+    UpdateChunkView,
 )
 
 
@@ -45,8 +45,8 @@ class UpdateChunkViewCommand:
 
 @dataclass(kw_only=True, frozen=True)
 class UpdateChunkViewTask:
+    update_chunk_view: UpdateChunkView[Any, Any]
     redis_cluster: RedisCluster
-    interactor: Interactor[Any, Any]
     __queue_key: ClassVar = b"update_chunk_view"
     __loop_tasks: ClassVar = set()
 
@@ -72,7 +72,9 @@ class UpdateChunkViewTask:
         await self.redis_cluster.zadd(self.__queue_key, self.__mapping_to_push)
 
     async def __execute(self, command: UpdateChunkViewCommand) -> None:
-        await self.interactor(command.chunk_number_x, command.chunk_number_y)
+        await self.update_chunk_view(
+            command.chunk_number_x, command.chunk_number_y
+        )
 
     @cached_property
     def __mapping_to_push(self) -> dict[bytes, int]:
