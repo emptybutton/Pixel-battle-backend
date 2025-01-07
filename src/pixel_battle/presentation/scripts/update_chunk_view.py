@@ -40,7 +40,10 @@ class UpdateChunkView:
         self.__print(f"The chunk view was updated. (Finished in {time_delta})")
 
     def __is_help(self) -> bool:
-        return len(sys.argv) == 2 and sys.argv[1] == "--help"  # noqa: PLR2004
+        has_flag = len(sys.argv) == 2 and sys.argv[1] == "--help"  # noqa: PLR2004
+        has_args = len(sys.argv) > 1
+
+        return has_flag or not has_args
 
     def __parse_args(self) -> tuple[int, int] | None:
         if len(sys.argv) != 3:  # noqa: PLR2004
