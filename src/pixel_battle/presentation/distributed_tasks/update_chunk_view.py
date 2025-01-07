@@ -1,10 +1,10 @@
-from asyncio import get_event_loop, sleep
+from asyncio import sleep
 from dataclasses import dataclass
+from functools import cached_property
 from itertools import product
 from typing import (
     Any,
     ClassVar,
-    Iterable,
     NoReturn,
 )
 
@@ -43,7 +43,7 @@ class UpdateChunkViewCommand:
         )
 
 
-@dataclass(kw_only=True, frozen=True, slots=True)
+@dataclass(kw_only=True, frozen=True)
 class UpdateChunkViewTask:
     redis_cluster: RedisCluster
     interactor: Interactor[Any, Any]
@@ -52,25 +52,13 @@ class UpdateChunkViewTask:
 
     async def push(self) -> NoReturn:
         while True:
-            await self.__send_for_execution(self.__commands_to_push)
             await sleep(2)
+            await self.__push_commands()
 
     async def pull(self) -> NoReturn:
-        loop = get_event_loop()
-
         while True:
             command = await self.__pull_one_command()
-
-            task = loop.create_task(self.__execute(command))
-            task.add_done_callback(self.__loop_tasks.discard)
-
-    async def __send_for_execution(
-        self, commands: Iterable[UpdateChunkViewCommand]
-    ) -> None:
-        command_list_data = (command.to_bytes() for command in commands)
-        mapping = {data: 0 for data in command_list_data}
-
-        await self.redis_cluster.zadd(self.__queue_key, mapping)
+            await self.__execute(command)
 
     async def __pull_one_command(self) -> UpdateChunkViewCommand:
         result = await self.redis_cluster.bzmpop(  # type: ignore[misc]
@@ -80,12 +68,19 @@ class UpdateChunkViewTask:
 
         return UpdateChunkViewCommand.from_bytes(command_bytes)
 
+    async def __push_commands(self) -> None:
+        await self.redis_cluster.zadd(self.__queue_key, self.__mapping_to_push)
+
     async def __execute(self, command: UpdateChunkViewCommand) -> None:
         await self.interactor(command.chunk_number_x, command.chunk_number_y)
 
-    @property
-    def __commands_to_push(self) -> Iterable[UpdateChunkViewCommand]:
-        for chunk_number_x, chunk_number_y in product(range(10), repeat=2):
-            yield UpdateChunkViewCommand(
+    @cached_property
+    def __mapping_to_push(self) -> dict[bytes, int]:
+        commands = (
+            UpdateChunkViewCommand(
                 chunk_number_x=chunk_number_x, chunk_number_y=chunk_number_y
             )
+            for chunk_number_x, chunk_number_y in product(range(10), repeat=2)
+        )
+
+        return {command.to_bytes(): 0 for command in commands}
