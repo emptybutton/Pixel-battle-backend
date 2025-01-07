@@ -16,6 +16,14 @@ class StoppedClock(Clock):
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
+class LocalClock(Clock):
+    async def get_current_time(self) -> Time:
+        local_datetime = datetime.now(UTC)
+
+        return Time(datetime=local_datetime)
+
+
+@dataclass(kw_only=True, frozen=True, slots=True)
 class RedisClusterRandomNodeClock(Clock):
     redis_cluster: RedisCluster
 
