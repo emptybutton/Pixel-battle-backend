@@ -107,8 +107,9 @@ class InMemoryBroker(Broker[int]):
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RedisClusterStreamBroker(Broker[RedisStreamOffset]):
     redis_cluster: RedisCluster
-    last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset]
-    last_readed_event_offset_by_chunk = field(default_factory=dict)
+    last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset] = (
+        field(default_factory=dict)
+    )
 
     async def push_event_with(self, *, pixel: Pixel[RGBColor]) -> None:
         key = self.__key_when(chunk=pixel.chunk)

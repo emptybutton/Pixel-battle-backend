@@ -12,11 +12,9 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     await app.state.dishka_container.close()
 
 
-def app_when(
-    *,
-    container: AsyncContainer,
-    routers: Iterable[APIRouter],
-) -> FastAPI:
+async def app_from(container: AsyncContainer) -> FastAPI:
+    routers = await container.get(Iterable[APIRouter])
+
     author_url = "https://github.com/emptybutton"
     repo_url = f"{author_url}/Pixel-battle-backend"
 

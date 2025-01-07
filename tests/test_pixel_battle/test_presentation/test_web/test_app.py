@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Iterable
 
 from dishka import Provider, Scope, make_async_container
 from dishka.integrations.fastapi import FromDishka, inject
@@ -6,7 +7,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse, Response
 from httpx import ASGITransport, AsyncClient
 
-from pixel_battle.presentation.web.app import app_when
+from pixel_battle.presentation.web.app import app_from
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -23,12 +24,13 @@ async def endpoint(x: FromDishka[X]) -> Response:
     return JSONResponse({"x": x.x})
 
 
-async def test_app_when() -> None:
-    x_provider = Provider()
-    x_provider.provide(lambda: X(x=4), provides=X, scope=Scope.APP)
-    container = make_async_container(x_provider)
+async def test_app_from() -> None:
+    provider = Provider()
+    provider.provide(lambda: X(x=4), provides=X, scope=Scope.APP)
+    provider.provide(lambda: [router], provides=Iterable[APIRouter])
+    container = make_async_container(provider)
 
-    app = app_when(container=container, routers=[router])
+    app = app_from(container)
 
     client = AsyncClient(
         transport=ASGITransport(app=app), base_url="http://localhost"
