@@ -72,7 +72,7 @@ class InfrastructureProvider(Provider):
 
     @provide()
     def provide_envs(self) -> Envs:
-        return Envs.load
+        return Envs.load()
 
     @provide()
     async def provide_canvas_redis_cluster(

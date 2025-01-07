@@ -25,12 +25,12 @@ async def endpoint(x: FromDishka[X]) -> Response:
 
 
 async def test_app_from() -> None:
-    provider = Provider()
-    provider.provide(lambda: X(x=4), provides=X, scope=Scope.APP)
+    provider = Provider(scope=Scope.APP)
+    provider.provide(lambda: X(x=4), provides=X)
     provider.provide(lambda: [router], provides=Iterable[APIRouter])
     container = make_async_container(provider)
 
-    app = app_from(container)
+    app = await app_from(container)
 
     client = AsyncClient(
         transport=ASGITransport(app=app), base_url="http://localhost"

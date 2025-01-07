@@ -1,6 +1,6 @@
 from dishka import make_async_container
 
-from pixel_battle.entrypoints.common.di.providers import (
+from pixel_battle.deployments.common.di.providers import (
     AdapterProvider,
     ChunkReadingServiceProvider,
     ChunkStreamingServiceProvider,

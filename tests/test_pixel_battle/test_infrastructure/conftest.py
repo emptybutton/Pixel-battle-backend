@@ -5,13 +5,20 @@ from pytest import fixture
 from redis.asyncio.cluster import RedisCluster
 
 from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
-from pixel_battle.infrastructure.env import Env
+from pixel_battle.infrastructure.envs import Envs
 
 
 @fixture(scope="session")
-async def redis_cluster() -> AsyncIterator[RedisCluster]:
-    async with RedisCluster.from_url(Env.redis_cluster_url) as redis_cluster:
-        yield redis_cluster
+async def redis_cluster(envs: Envs) -> AsyncIterator[RedisCluster]:
+    cluster = RedisCluster.from_url(envs.canvas_redis_cluster_url)
+
+    async with cluster:
+        yield cluster
+
+
+@fixture(scope="session")
+def envs() -> Envs:
+    return Envs.load()
 
 
 @fixture(scope="session")
