@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Iterable
 
 from dishka import Provider, Scope, make_async_container
 from dishka.integrations.fastapi import FromDishka, inject
