@@ -2,7 +2,7 @@ import asyncio
 
 import uvicorn
 
-from pixel_battle.deployment.common.di.containers import god_service_container
+from pixel_battle.deployment.god_service.di import god_service_container
 from pixel_battle.presentation.distributed_tasks.update_chunk_view import (
     UpdateChunkViewTask,
 )
@@ -23,9 +23,9 @@ async def main() -> None:
 
     await asyncio.gather(
         run_app(),
-        streaming.start(),
         update_chunk_view_task.pull(),
         update_chunk_view_task.push(),
+        streaming.start(),
     )
 
 
