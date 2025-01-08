@@ -2,7 +2,7 @@ import asyncio
 
 import uvicorn
 
-from pixel_battle.deployments.common.di.containers import god_service_container
+from pixel_battle.deployment.common.di.containers import god_service_container
 from pixel_battle.presentation.distributed_tasks.update_chunk_view import (
     UpdateChunkViewTask,
 )
