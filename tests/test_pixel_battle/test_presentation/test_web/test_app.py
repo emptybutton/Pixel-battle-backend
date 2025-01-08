@@ -7,7 +7,11 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse, Response
 from httpx import ASGITransport, AsyncClient
 
-from pixel_battle.presentation.web.app import app_from
+from pixel_battle.presentation.web.app import (
+    AppCoroutines,
+    AppRouters,
+    app_from,
+)
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -27,7 +31,8 @@ async def endpoint(x: FromDishka[X]) -> Response:
 async def test_app_from() -> None:
     provider = Provider(scope=Scope.APP)
     provider.provide(lambda: X(x=4), provides=X)
-    provider.provide(lambda: [router], provides=Iterable[APIRouter])
+    provider.provide(lambda: [router], provides=AppRouters)
+    provider.provide(lambda: [], provides=AppCoroutines)
     container = make_async_container(provider)
 
     app = await app_from(container)
