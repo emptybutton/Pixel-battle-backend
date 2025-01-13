@@ -1,5 +1,5 @@
 import asyncio
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from typing import Any, AsyncIterator, Coroutine, Iterable, cast
 
 from dishka import AsyncContainer
@@ -13,13 +13,15 @@ type AppRouters = Iterable[APIRouter]
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
-    async with asyncio.TaskGroup() as tasks:
-        for coroutine in cast(AppCoroutines, app.state.coroutines):
-            tasks.create_task(coroutine)
+    with suppress(asyncio.CancelledError):
+        async with asyncio.TaskGroup() as tasks:
+            for coroutine in cast(AppCoroutines, app.state.coroutines):
+                tasks.create_task(coroutine)
 
-        yield
+            yield
 
-        await app.state.dishka_container.close()
+            await app.state.dishka_container.close()
+            raise asyncio.CancelledError
 
 
 async def app_from(container: AsyncContainer) -> FastAPI:

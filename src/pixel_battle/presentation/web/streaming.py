@@ -1,8 +1,8 @@
-from asyncio import gather
+from asyncio import Event, gather
 from collections import defaultdict
 from dataclasses import dataclass
 from types import TracebackType
-from typing import Iterable, Self, Type
+from typing import AsyncIterable, Self, Type
 
 from fastapi import WebSocket, WebSocketDisconnect, status
 
@@ -31,6 +31,7 @@ class Streaming:
     def __init__(self, view_chunk_stream: ViewChunkStream) -> None:
         self.__view_chunk_stream = view_chunk_stream
         self.__client_group_by_group_id = defaultdict(set)
+        self.__client_existence_event = Event()
 
     async def __aenter__(self) -> Self:
         return self
@@ -45,9 +46,10 @@ class Streaming:
 
     def add_client(self, client: StreamingClient) -> None:
         self.__client_group_by_group_id[client.group_id].add(client)
+        self.__client_existence_event.set()
 
     async def start(self) -> None:
-        for x, y in self.__group_id_cycle:
+        async for x, y in self.__group_id_cycle():
             result = await self.__view_chunk_stream(x, y)
 
             if len(result.new_pixels) == 0:
@@ -76,10 +78,12 @@ class Streaming:
         except WebSocketDisconnect:
             self.__remove_client(client)
 
-    @property
-    def __group_id_cycle(self) -> Iterable[StreamingClientGroupID]:
+    async def __group_id_cycle(self) -> AsyncIterable[StreamingClientGroupID]:
         while True:
-            yield from tuple(self.__client_group_by_group_id.keys())
+            await self.__client_existence_event.wait()
+
+            for client_id in self.__client_group_by_group_id:
+                yield client_id
 
     async def __disconnect_client(
         self, client: StreamingClient, panic: bool
@@ -93,5 +97,11 @@ class Streaming:
         )
         await client.websocket.close(code)
 
+    def __has_clients(self) -> bool:
+        return bool(tuple(self.__client_group_by_group_id.values()))
+
     def __remove_client(self, client: StreamingClient) -> None:
         self.__client_group_by_group_id[client.group_id].remove(client)
+
+        if not self.__has_clients():
+            self.__client_existence_event.clear()
