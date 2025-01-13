@@ -1,6 +1,6 @@
 from typing import Any, AsyncIterator
 
-from dishka import Provider, Scope, provide
+from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
 
 from pixel_battle.application.interactors.recolor_pixel import (
@@ -16,7 +16,10 @@ from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
 from pixel_battle.application.ports.broker import Broker
-from pixel_battle.application.ports.chunk_view import DefaultChunkViewWhen
+from pixel_battle.application.ports.chunk_view import (
+    ChunkView,
+    DefaultChunkViewWhen,
+)
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
 from pixel_battle.application.ports.lock import Lock
@@ -160,9 +163,19 @@ class InteractorProvider(Provider):
     scope = Scope.APP
 
     provide_recolor_pixel = provide(RecolorPixel[str])
-    provide_update_chunk_view = provide(UpdateChunkView[PNGImageChunkView, Any])
-    provide_view_chunk = provide(ViewChunk[PNGImageChunkView, Any])
     provide_view_chunk_stream = provide(ViewChunkStream)
+
+    provide_update_chunk_view = provide(UpdateChunkView[PNGImageChunkView, Any])
+    provide_any_update_chunk_view = alias(
+        source=UpdateChunkView[PNGImageChunkView, Any],
+        provides=UpdateChunkView[ChunkView, Any],
+    )
+
+    provide_view_chunk = provide(ViewChunk[PNGImageChunkView, Any])
+    provide_any_view_chunk = alias(
+        source=ViewChunk[PNGImageChunkView, Any],
+        provides=ViewChunk[ChunkView, Any],
+    )
 
 
 class StreamingProvider(Provider):
@@ -179,7 +192,11 @@ class StreamingProvider(Provider):
 class ScriptProvider(Provider):
     scope = Scope.APP
 
-    provide_update_chunk_view_script = provide(UpdateChunkViewScript)
+    @provide
+    def provide_update_chunk_view_script(
+        self, update_chunk_view: UpdateChunkView[ChunkView, Any],
+    ) -> UpdateChunkViewScript:
+        return UpdateChunkViewScript(update_chunk_view=update_chunk_view)
 
 
 class DistributedTaskProvider(Provider):
