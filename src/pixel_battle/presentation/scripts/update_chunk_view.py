@@ -21,6 +21,7 @@ class UpdateChunkViewScript:
     async def __call__(self) -> None:
         if self.__is_help():
             self.__print_help()
+            return
 
         args = self.__parse_args()
 
@@ -29,15 +30,16 @@ class UpdateChunkViewScript:
 
         chunk_number_x, chunk_number_y = args
 
-        self.__print("Updating...")
         start_time = datetime.now()
 
         await self.update_chunk_view(chunk_number_x, chunk_number_y)
 
         end_time = datetime.now()
         time_delta = end_time - start_time
+        delta_seconds = time_delta.total_seconds()
 
-        self.__print(f"The chunk view was updated. (Finished in {time_delta})")
+        time_message = f"(Update lasted {delta_seconds} seconds)"
+        self.__print(f"The chunk view was updated. {time_message}")
 
     def __is_help(self) -> bool:
         has_flag = len(sys.argv) == 2 and sys.argv[1] == "--help"  # noqa: PLR2004

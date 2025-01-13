@@ -48,9 +48,8 @@ async def test_ok(script: Script) -> None:
 
     output = script.ok_file.getvalue().split("\n")
 
-    assert output[0] == "Updating..."
-    assert output[1].startswith("The chunk view was updated. (")
-    assert output[1].endswith(")")
+    assert output[0].startswith("The chunk view was updated. (")
+    assert output[0].endswith(")")
 
 
 @mark.parametrize(
