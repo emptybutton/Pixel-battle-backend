@@ -45,8 +45,8 @@ class GodServiceProvider(Provider):
         update_chunk_view_task: UpdateChunkViewTask,
     ) -> AppCoroutines:
         return [
-            update_chunk_view_task.pull(),
-            update_chunk_view_task.push(),
+            update_chunk_view_task.start_pulling(),
+            update_chunk_view_task.start_pushing(),
             streaming.start(),
         ]
 

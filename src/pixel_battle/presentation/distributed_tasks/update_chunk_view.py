@@ -49,12 +49,12 @@ class UpdateChunkViewTask:
     redis_cluster: RedisCluster
     __queue_key: ClassVar = b"update_chunk_view"
 
-    async def push(self) -> NoReturn:
+    async def start_pushing(self) -> NoReturn:
         while True:
             await sleep(2)
             await self.__push_commands()
 
-    async def pull(self) -> NoReturn:
+    async def start_pulling(self) -> NoReturn:
         while True:
             command = await self.__pull_one_command()
             await self.__execute(command)
