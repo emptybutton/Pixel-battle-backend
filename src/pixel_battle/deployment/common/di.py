@@ -50,7 +50,6 @@ from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
 from pixel_battle.infrastructure.envs import Envs
-from pixel_battle.infrastructure.redis.types import RedisStreamOffset
 from pixel_battle.presentation.distributed_tasks.update_chunk_view import (
     UpdateChunkViewTask,
 )
@@ -141,10 +140,14 @@ class ProcessInfrastructureAdapterProvider(Provider):
     def provide_user_data_signing(self) -> UserDataSigning[str]:
         return UserDataSigningToHS256JWT(secret="super secret secret")  # noqa: S106
 
-    provide_chunk_views = provide(InMemoryChunkViews[PNGImageChunkView])
-    provide_broker = provide(InMemoryBroker, provides=Broker[Any])
+    provide_chunk_views = provide(
+        lambda _: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]
+    )
+    provide_broker = provide(
+        lambda _: InMemoryBroker(), provides=Broker[Any]
+    )
+    provide_offsets = provide(lambda _: InMemoryOffsets, provides=Offsets[Any])
     provide_lock = provide(FakeLock, provides=Lock)
-    provide_offsets = provide(InMemoryOffsets, provides=Offsets[Any])
     provide_clock = provide(LocalClock, provides=Clock)
 
     provide_default_png_image_chunk_view_when = provide(
@@ -157,8 +160,8 @@ class InteractorProvider(Provider):
     scope = Scope.APP
 
     provide_recolor_pixel = provide(RecolorPixel[str])
-    provide_update_chunk_view = provide(UpdateChunkView)
-    provide_view_chunk = provide(ViewChunk)
+    provide_update_chunk_view = provide(UpdateChunkView[PNGImageChunkView, Any])
+    provide_view_chunk = provide(ViewChunk[PNGImageChunkView, Any])
     provide_view_chunk_stream = provide(ViewChunkStream)
 
 
@@ -186,9 +189,7 @@ class DistributedTaskProvider(Provider):
     def provide_update_chunk_view_task(
         self,
         canvas_metadata_redis_cluster: CanvasMetadataRedisCluster,
-        update_chunk_view: UpdateChunkView[
-            PNGImageChunkView, RedisStreamOffset
-        ],
+        update_chunk_view: UpdateChunkView[PNGImageChunkView, Any],
     ) -> UpdateChunkViewTask:
         return UpdateChunkViewTask(
             update_chunk_view=update_chunk_view,
