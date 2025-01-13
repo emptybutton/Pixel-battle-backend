@@ -44,6 +44,7 @@ from pixel_battle.infrastructure.adapters.offsets import (
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
+from pixel_battle.presentation.web.routes.healthchek import router as router0
 from pixel_battle.presentation.web.routes.recolor_pixel import router as router1
 from pixel_battle.presentation.web.routes.stream_chunk import router as router2
 from pixel_battle.presentation.web.routes.view_chunk import router as router3
@@ -52,7 +53,7 @@ from pixel_battle.presentation.web.streaming import Streaming
 
 @fixture
 def routers() -> tuple[APIRouter, ...]:
-    return router1, router2, router3
+    return router0, router1, router2, router3
 
 
 @fixture

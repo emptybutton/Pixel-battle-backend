@@ -7,6 +7,9 @@ from pixel_battle.deployment.common.di import (
     InteractorProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
+from pixel_battle.presentation.web.routes.healthchek import (
+    router as healthchek_router,
+)
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
 )
@@ -17,7 +20,7 @@ class ChunkWritingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return [recolor_pixel_router]
+        return [healthchek_router, recolor_pixel_router]
 
     @provide
     def provide_coroutines(self) -> AppCoroutines:
