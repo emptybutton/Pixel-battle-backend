@@ -36,7 +36,7 @@ class UpdateChunkViewCommand:
     @classmethod
     def from_bytes(cls, bytes_: bytes) -> "UpdateChunkViewCommand":
         chunk_number_x = bytes_[0] // 10
-        chunk_number_y = bytes_[0] - chunk_number_x
+        chunk_number_y = bytes_[0] - chunk_number_x * 10
 
         return UpdateChunkViewCommand(
             chunk_number_x=chunk_number_x, chunk_number_y=chunk_number_y
