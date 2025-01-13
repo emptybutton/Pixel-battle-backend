@@ -14,6 +14,7 @@ from pixel_battle.presentation.web.routes.healthchek import (
 from pixel_battle.presentation.web.routes.stream_chunk import (
     router as stream_chunk_router,
 )
+from pixel_battle.presentation.web.streaming import Streaming
 
 
 class ChunkStreamingServiceProvider(Provider):
@@ -24,8 +25,8 @@ class ChunkStreamingServiceProvider(Provider):
         return [healthchek_router, stream_chunk_router]
 
     @provide
-    def provide_coroutines(self) -> AppCoroutines:
-        return []
+    def provide_coroutines(self, streaming: Streaming) -> AppCoroutines:
+        return [streaming.start()]
 
 
 chunk_streaming_service_container = make_async_container(
