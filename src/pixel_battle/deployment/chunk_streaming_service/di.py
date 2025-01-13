@@ -2,9 +2,9 @@
 from dishka import Provider, Scope, make_async_container, provide
 
 from pixel_battle.deployment.common.di import (
-    AdapterProvider,
-    InfrastructureProvider,
     InteractorProvider,
+    OutOfProcessInfrastructureAdapterProvider,
+    OutOfProcessInfrastructureProvider,
     StreamingProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
@@ -30,8 +30,8 @@ class ChunkStreamingServiceProvider(Provider):
 
 
 chunk_streaming_service_container = make_async_container(
-    InfrastructureProvider(),
-    AdapterProvider(),
+    OutOfProcessInfrastructureProvider(),
+    OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),
     StreamingProvider(),
     ChunkStreamingServiceProvider(),

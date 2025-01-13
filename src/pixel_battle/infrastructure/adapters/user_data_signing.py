@@ -6,6 +6,7 @@ import jwt
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.core.user import User
 from pixel_battle.entities.space.time import Time
+from pixel_battle.infrastructure.types import JWT
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
@@ -18,16 +19,16 @@ class UserDataSigningAsIdentification(UserDataSigning[User]):
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UserDataSigningToHS256JWT(UserDataSigning[str]):
+class UserDataSigningToHS256JWT(UserDataSigning[JWT]):
     secret: str = field(repr=False)
 
-    async def signed_user_data_when(self, *, user: User) -> str:
+    async def signed_user_data_when(self, *, user: User) -> JWT:
         iso_time = str(user.time_of_obtaining_recoloring_right.datetime)
         mapping = {"iso_time_of_obtaining_recoloring_right": iso_time}
 
         return jwt.encode(mapping, self.secret, algorithm="HS256")
 
-    async def user_when(self, *, signed_user_data: str) -> User | None:
+    async def user_when(self, *, signed_user_data: JWT) -> User | None:
         token = signed_user_data
 
         try:

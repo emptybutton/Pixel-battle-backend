@@ -1,6 +1,6 @@
 from typing import Any, AsyncIterator
 
-from dishka import Provider, Scope, alias, provide
+from dishka import Provider, Scope, provide
 from redis.asyncio import RedisCluster
 
 from pixel_battle.application.interactors.recolor_pixel import (
@@ -23,6 +23,7 @@ from pixel_battle.application.ports.lock import Lock
 from pixel_battle.application.ports.offsets import Offsets
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.infrastructure.adapters.broker import (
+    InMemoryBroker,
     RedisClusterStreamBroker,
 )
 from pixel_battle.infrastructure.adapters.chunk_view import (
@@ -30,15 +31,19 @@ from pixel_battle.infrastructure.adapters.chunk_view import (
     PNGImageChunkView,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import (
+    InMemoryChunkViews,
     InRedisClusterPNGImageChunkViews,
 )
 from pixel_battle.infrastructure.adapters.clock import (
+    LocalClock,
     RedisClusterRandomNodeClock,
 )
 from pixel_battle.infrastructure.adapters.lock import (
+    FakeLock,
     InRedisClusterLock,
 )
 from pixel_battle.infrastructure.adapters.offsets import (
+    InMemoryOffsets,
     InRedisClusterRedisStreamOffsets,
 )
 from pixel_battle.infrastructure.adapters.user_data_signing import (
@@ -59,7 +64,7 @@ type CanvasRedisCluster = RedisCluster
 type CanvasMetadataRedisCluster = RedisCluster
 
 
-class InfrastructureProvider(Provider):
+class OutOfProcessInfrastructureProvider(Provider):
     scope = Scope.APP
 
     provide_envs = provide(source=Envs.load)
@@ -83,7 +88,7 @@ class InfrastructureProvider(Provider):
             yield cluster
 
 
-class AdapterProvider(Provider):
+class OutOfProcessInfrastructureAdapterProvider(Provider):
     scope = Scope.APP
 
     @provide
@@ -102,12 +107,8 @@ class AdapterProvider(Provider):
     @provide
     def provide_broker(
         self, canvas_redis_cluster: CanvasRedisCluster
-    ) -> Broker[RedisStreamOffset]:
+    ) -> Broker[Any]:
         return RedisClusterStreamBroker(redis_cluster=canvas_redis_cluster)
-
-    provide_any_broker = alias(
-        source=Broker[RedisStreamOffset], provides=Broker[Any]
-    )
 
     @provide
     def provide_lock(self, canvas_redis_cluster: CanvasRedisCluster) -> Lock:
@@ -116,7 +117,7 @@ class AdapterProvider(Provider):
     @provide
     def provide_offsets(
         self, canvas_redis_cluster: CanvasRedisCluster
-    ) -> Offsets[RedisStreamOffset]:
+    ) -> Offsets[Any]:
         return InRedisClusterRedisStreamOffsets(
             redis_cluster=canvas_redis_cluster
         )
@@ -133,17 +134,31 @@ class AdapterProvider(Provider):
     )
 
 
+class ProcessInfrastructureAdapterProvider(Provider):
+    scope = Scope.APP
+
+    @provide
+    def provide_user_data_signing(self) -> UserDataSigning[str]:
+        return UserDataSigningToHS256JWT(secret="super secret secret")  # noqa: S106
+
+    provide_chunk_views = provide(InMemoryChunkViews[PNGImageChunkView])
+    provide_broker = provide(InMemoryBroker, provides=Broker[Any])
+    provide_lock = provide(FakeLock, provides=Lock)
+    provide_offsets = provide(InMemoryOffsets, provides=Offsets[Any])
+    provide_clock = provide(LocalClock, provides=Clock)
+
+    provide_default_png_image_chunk_view_when = provide(
+        DefaultPNGImageChunkViewWhen,
+        provides=DefaultChunkViewWhen[PNGImageChunkView],
+    )
+
+
 class InteractorProvider(Provider):
     scope = Scope.APP
 
     provide_recolor_pixel = provide(RecolorPixel[str])
-    provide_update_chunk_view = provide(
-        UpdateChunkView[PNGImageChunkView, RedisStreamOffset]
-    )
-    provide_view_chunk = provide(
-        ViewChunk[PNGImageChunkView, RedisStreamOffset],
-        provides=ViewChunk[PNGImageChunkView, Any],
-    )
+    provide_update_chunk_view = provide(UpdateChunkView)
+    provide_view_chunk = provide(ViewChunk)
     provide_view_chunk_stream = provide(ViewChunkStream)
 
 

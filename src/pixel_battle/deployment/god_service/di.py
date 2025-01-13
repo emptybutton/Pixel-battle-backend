@@ -1,10 +1,10 @@
 from dishka import Provider, Scope, make_async_container, provide
 
 from pixel_battle.deployment.common.di import (
-    AdapterProvider,
     DistributedTaskProvider,
-    InfrastructureProvider,
     InteractorProvider,
+    OutOfProcessInfrastructureAdapterProvider,
+    OutOfProcessInfrastructureProvider,
     StreamingProvider,
 )
 from pixel_battle.presentation.distributed_tasks.update_chunk_view import (
@@ -52,8 +52,8 @@ class GodServiceProvider(Provider):
 
 
 god_service_container = make_async_container(
-    InfrastructureProvider(),
-    AdapterProvider(),
+    OutOfProcessInfrastructureProvider(),
+    OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),
     GodServiceProvider(),
     StreamingProvider(),

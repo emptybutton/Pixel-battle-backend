@@ -1,9 +1,9 @@
 from dishka import Provider, Scope, make_async_container, provide
 
 from pixel_battle.deployment.common.di import (
-    AdapterProvider,
-    InfrastructureProvider,
     InteractorProvider,
+    OutOfProcessInfrastructureAdapterProvider,
+    OutOfProcessInfrastructureProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
 from pixel_battle.presentation.web.routes.healthchek import (
@@ -27,8 +27,8 @@ class ChunkReadingServiceProvider(Provider):
 
 
 chunk_reading_service_container = make_async_container(
-    InfrastructureProvider(),
-    AdapterProvider(),
+    OutOfProcessInfrastructureProvider(),
+    OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),
     ChunkReadingServiceProvider(),
 )

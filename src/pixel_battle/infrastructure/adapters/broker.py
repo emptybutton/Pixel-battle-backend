@@ -23,12 +23,13 @@ from pixel_battle.infrastructure.redis.types import (
     RedisStreamOffset,
     RedisStreamResults,
 )
+from pixel_battle.infrastructure.types import Index
 
 
 @dataclass(init=False)
-class InMemoryBroker(Broker[int]):
+class InMemoryBroker(Broker[Index]):
     __pixels_by_chunk: defaultdict[Chunk, list[Pixel[RGBColor]]]
-    __first_unread_event_offset_by_chunk: dict[Chunk, int]
+    __first_unread_event_offset_by_chunk: dict[Chunk, Index]
     __first_pulling_timeout: int
 
     def __init__(
@@ -60,14 +61,14 @@ class InMemoryBroker(Broker[int]):
         self.__pixels_by_chunk[pixel.chunk].append(pixel)
 
     async def events_after(
-        self, offset: int, *, chunk: Chunk
-    ) -> tuple[NewPixelColorEvent[int], ...]:
+        self, offset: Index, *, chunk: Chunk
+    ) -> tuple[NewPixelColorEvent[Index], ...]:
         return self.__events_from(offset + 1, chunk=chunk)
 
     @asynccontextmanager
     async def pulled_events_when(
         self, *, chunk: Chunk
-    ) -> AsyncIterator[tuple[NewPixelColorEvent[int], ...]]:
+    ) -> AsyncIterator[tuple[NewPixelColorEvent[Index], ...]]:
         unread_event_offset = self.__first_unread_event_offset_by_chunk.get(
             chunk
         )
@@ -87,15 +88,15 @@ class InMemoryBroker(Broker[int]):
 
     async def events_when(
         self, *, chunk: Chunk
-    ) -> tuple[NewPixelColorEvent[int], ...]:
+    ) -> tuple[NewPixelColorEvent[Index], ...]:
         return tuple(
             NewPixelColorEvent(pixel=pixel, offset=offset)
             for offset, pixel in enumerate(self.__pixels_by_chunk[chunk])
         )
 
     def __events_from(
-        self, offset: int, *, chunk: Chunk
-    ) -> tuple[NewPixelColorEvent[int], ...]:
+        self, offset: Index, *, chunk: Chunk
+    ) -> tuple[NewPixelColorEvent[Index], ...]:
         pixels = self.__pixels_by_chunk[chunk][offset:]
 
         return tuple(
