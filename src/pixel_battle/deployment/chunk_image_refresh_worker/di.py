@@ -8,7 +8,7 @@ from pixel_battle.deployment.common.di import (
 )
 
 
-chunk_stream_compression_coordination_service_container = make_async_container(
+container = make_async_container(
     OutOfProcessInfrastructureProvider(),
     OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),

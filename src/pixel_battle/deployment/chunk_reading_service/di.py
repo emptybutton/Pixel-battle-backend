@@ -26,7 +26,7 @@ class ChunkReadingServiceProvider(Provider):
         return []
 
 
-chunk_reading_service_container = make_async_container(
+container = make_async_container(
     OutOfProcessInfrastructureProvider(),
     OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),

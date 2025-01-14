@@ -37,7 +37,7 @@ class ShowcaseServiceProvider(Provider):
         return []
 
 
-showcase_service_container = make_async_container(
+container = make_async_container(
     ProcessInfrastructureAdapterProvider(),
     InteractorProvider(),
     ShowcaseServiceProvider(),

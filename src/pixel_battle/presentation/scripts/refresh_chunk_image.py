@@ -2,19 +2,17 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from io import TextIOBase
-from typing import Any, cast
+from typing import cast
 
-from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView,
+from pixel_battle.application.interactors.refresh_chunk_view import (
+    RefreshChunkView,
 )
-from pixel_battle.application.ports.chunk_view import (
-    ChunkView,
-)
+from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UpdateChunkViewScript:
-    update_chunk_view: UpdateChunkView[ChunkView, Any]
+class RefreshChunkImageScript:
+    refresh_chunk_view: RefreshChunkView[PNGImageChunkView]
     ok_file: TextIOBase = cast(TextIOBase, sys.stdout)
     error_file: TextIOBase = cast(TextIOBase, sys.stderr)
 
@@ -32,14 +30,14 @@ class UpdateChunkViewScript:
 
         start_time = datetime.now()
 
-        await self.update_chunk_view(chunk_number_x, chunk_number_y)
+        await self.refresh_chunk_view(chunk_number_x, chunk_number_y)
 
         end_time = datetime.now()
         time_delta = end_time - start_time
         delta_seconds = time_delta.total_seconds()
 
-        time_message = f"(Update lasted {delta_seconds} seconds)"
-        self.__print(f"The chunk view was updated. {time_message}")
+        time_message = f"(Lasted {delta_seconds} seconds)"
+        self.__print(f"The chunk image was refreshed. {time_message}")
 
     def __is_help(self) -> bool:
         has_flag = len(sys.argv) == 2 and sys.argv[1] == "--help"  # noqa: PLR2004

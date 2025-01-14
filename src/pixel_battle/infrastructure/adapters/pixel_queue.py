@@ -41,7 +41,7 @@ class InMemoryPixelQueue(PixelQueue):
         self,
         pixels: Iterable[Pixel[RGBColor]] = tuple(),
         *,
-        pulling_timeout_seconds: int | float,
+        pulling_timeout_seconds: int | float = 0,
     ) -> None:
         self.__pixels_by_chunk = defaultdict(list)
         self.__pulling_timeout_seconds = pulling_timeout_seconds
@@ -250,6 +250,9 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         chunk: Chunk,
         results: RedisStreamResults,
     ) -> None:
+        if not results:
+            return
+
         last_readed_event_offset = results[0][1][-1][0]
 
         if process is None:
