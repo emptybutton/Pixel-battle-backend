@@ -1,13 +1,15 @@
 from dataclasses import dataclass
 from typing import Sequence
 
-from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
     DefaultChunkViewWhen,
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
-from pixel_battle.application.ports.offsets import Offsets
+from pixel_battle.application.ports.pixel_queue import (
+    PixelQueue,
+    PullingProcess,
+)
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.space.color import RGBColor
@@ -20,9 +22,8 @@ class Output[ChunkViewT: ChunkView]:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
-    broker: Broker[OffsetT]
-    offsets_of_latest_compressed_events: Offsets[OffsetT]
+class ViewChunk[ChunkViewT: ChunkView]:
+    pixel_queue: PixelQueue
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_when: DefaultChunkViewWhen[ChunkViewT]
 
@@ -31,18 +32,14 @@ class ViewChunk[ChunkViewT: ChunkView, OffsetT]:
     ) -> Output[ChunkViewT]:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
-        offset = await self.offsets_of_latest_compressed_events.offset_when(
-            chunk=chunk
-        )
         chunk_view = await self.chunk_views.chunk_view_when(chunk=chunk)
 
-        if offset is not None:
-            events = await self.broker.events_after(offset, chunk=chunk)
-        else:
-            events = await self.broker.events_when(chunk=chunk)
+        process = PullingProcess.chunk_view_refresh
+        pixels = await self.pixel_queue.uncommittable_pulled_pixels_when(
+            chunk=chunk, process=process, only_new=False
+        )
 
         if chunk_view is None:
             chunk_view = await self.default_chunk_view_when(chunk=chunk)
 
-        pixels = tuple(event.pixel for event in events)
         return Output(pixels=pixels, chunk_view=chunk_view)
