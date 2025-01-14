@@ -48,4 +48,4 @@ async def test_broker(
             new_color_blue_value_number=255,
         )
 
-    assert not recolor_pixel.broker
+    assert not recolor_pixel.pixel_queue
