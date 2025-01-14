@@ -5,8 +5,8 @@ from pytest import fixture
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.user import User
 from pixel_battle.entities.space.time import Time
-from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
+from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningAsIdentification,
 )
@@ -18,7 +18,7 @@ def recolor_pixel() -> RecolorPixel:
 
     return RecolorPixel(
         user_data_signing=UserDataSigningAsIdentification(),
-        broker=InMemoryBroker(),
+        pixel_queue=InMemoryPixelQueue(pulling_timeout_seconds=0),
         clock=StoppedClock(current_time=current_time),
     )
 

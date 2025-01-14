@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Sequence
 
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
@@ -11,35 +10,27 @@ from pixel_battle.application.ports.pixel_queue import (
     PullingProcess,
 )
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
-from pixel_battle.entities.core.pixel import Pixel
-from pixel_battle.entities.space.color import RGBColor
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class Output[ChunkViewT: ChunkView]:
-    chunk_view: ChunkViewT
-    pixels: Sequence[Pixel[RGBColor]]
-
-
-@dataclass(kw_only=True, frozen=True, slots=True)
-class ViewChunk[ChunkViewT: ChunkView]:
+class RefreshChunkView[ChunkViewT: ChunkView]:
     pixel_queue: PixelQueue
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_when: DefaultChunkViewWhen[ChunkViewT]
 
-    async def __call__(
-        self, chunk_number_x: int, chunk_number_y: int
-    ) -> Output[ChunkViewT]:
+    async def __call__(self, chunk_number_x: int, chunk_number_y: int) -> None:
         chunk = Chunk(number=ChunkNumber(x=chunk_number_x, y=chunk_number_y))
 
-        chunk_view = await self.chunk_views.chunk_view_when(chunk=chunk)
-
         process = PullingProcess.chunk_view_refresh
-        pixels = await self.pixel_queue.uncommittable_pulled_pixels_when(
+        committable_pixels = self.pixel_queue.committable_pulled_pixels_when(
             chunk=chunk, process=process, only_new=False
         )
+        async with committable_pixels as pixels:
+            chunk_view = await self.chunk_views.chunk_view_when(chunk=chunk)
 
-        if chunk_view is None:
-            chunk_view = await self.default_chunk_view_when(chunk=chunk)
+            if chunk_view is None:
+                chunk_view = await self.default_chunk_view_when(chunk=chunk)
 
-        return Output(pixels=pixels, chunk_view=chunk_view)
+            await chunk_view.redraw_by_pixels(pixels)
+
+            await self.chunk_views.put(chunk_view, chunk=chunk)

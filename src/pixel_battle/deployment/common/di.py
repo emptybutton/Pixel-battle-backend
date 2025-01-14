@@ -1,4 +1,4 @@
-from typing import Any, AsyncIterator
+from typing import AsyncIterator
 
 from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
@@ -6,8 +6,8 @@ from redis.asyncio import RedisCluster
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
 )
-from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView,
+from pixel_battle.application.interactors.refresh_chunk_view import (
+    RefreshChunkView,
 )
 from pixel_battle.application.interactors.view_chunk import (
     ViewChunk,
@@ -15,20 +15,14 @@ from pixel_battle.application.interactors.view_chunk import (
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
-from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
     DefaultChunkViewWhen,
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
-from pixel_battle.application.ports.lock import Lock
-from pixel_battle.application.ports.offsets import Offsets
+from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
-from pixel_battle.infrastructure.adapters.broker import (
-    InMemoryBroker,
-    RedisClusterStreamBroker,
-)
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -41,23 +35,19 @@ from pixel_battle.infrastructure.adapters.clock import (
     LocalClock,
     RedisClusterRandomNodeClock,
 )
-from pixel_battle.infrastructure.adapters.lock import (
-    FakeLock,
-    InRedisClusterLock,
-)
-from pixel_battle.infrastructure.adapters.offsets import (
-    InMemoryOffsets,
-    InRedisClusterRedisStreamOffsets,
+from pixel_battle.infrastructure.adapters.pixel_queue import (
+    InMemoryPixelQueue,
+    RedisClusterStreamPixelQueue,
 )
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
 from pixel_battle.infrastructure.envs import Envs
-from pixel_battle.presentation.distributed_tasks.update_chunk_view import (
-    UpdateChunkViewTask,
+from pixel_battle.presentation.distributed_tasks.refresh_chunk_view import (
+    RefreshChunkViewTask,
 )
-from pixel_battle.presentation.scripts.update_chunk_view import (
-    UpdateChunkViewScript,
+from pixel_battle.presentation.scripts.refresh_chunk_image import (
+    RefreshChunkImageScript,
 )
 from pixel_battle.presentation.web.streaming import Streaming
 
@@ -107,22 +97,10 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
         )
 
     @provide
-    def provide_broker(
+    def provide_pixel_queue(
         self, canvas_redis_cluster: CanvasRedisCluster
-    ) -> Broker[Any]:
-        return RedisClusterStreamBroker(redis_cluster=canvas_redis_cluster)
-
-    @provide
-    def provide_lock(self, canvas_redis_cluster: CanvasRedisCluster) -> Lock:
-        return InRedisClusterLock(redis_cluster=canvas_redis_cluster)
-
-    @provide
-    def provide_offsets(
-        self, canvas_redis_cluster: CanvasRedisCluster
-    ) -> Offsets[Any]:
-        return InRedisClusterRedisStreamOffsets(
-            redis_cluster=canvas_redis_cluster
-        )
+    ) -> PixelQueue:
+        return RedisClusterStreamPixelQueue(redis_cluster=canvas_redis_cluster)
 
     @provide
     def provide_clock(self, canvas_redis_cluster: CanvasRedisCluster) -> Clock:
@@ -146,11 +124,9 @@ class ProcessInfrastructureAdapterProvider(Provider):
     provide_chunk_views = provide(
         lambda _: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]
     )
-    provide_broker = provide(
-        lambda _: InMemoryBroker(), provides=Broker[Any]
+    provide_pixel_queue = provide(
+        lambda _: InMemoryPixelQueue(), provides=PixelQueue
     )
-    provide_offsets = provide(lambda _: InMemoryOffsets, provides=Offsets[Any])
-    provide_lock = provide(FakeLock, provides=Lock)
     provide_clock = provide(LocalClock, provides=Clock)
 
     provide_default_png_image_chunk_view_when = provide(
@@ -165,16 +141,16 @@ class InteractorProvider(Provider):
     provide_recolor_pixel = provide(RecolorPixel[str])
     provide_view_chunk_stream = provide(ViewChunkStream)
 
-    provide_update_chunk_view = provide(UpdateChunkView[PNGImageChunkView, Any])
-    provide_any_update_chunk_view = alias(
-        source=UpdateChunkView[PNGImageChunkView, Any],
-        provides=UpdateChunkView[ChunkView, Any],
+    provide_refresh_chunk_view = provide(RefreshChunkView[PNGImageChunkView])
+    provide_any_refresh_chunk_view = alias(
+        source=RefreshChunkView[PNGImageChunkView],
+        provides=RefreshChunkView[ChunkView],
     )
 
-    provide_view_chunk = provide(ViewChunk[PNGImageChunkView, Any])
+    provide_view_chunk = provide(ViewChunk[PNGImageChunkView])
     provide_any_view_chunk = alias(
-        source=ViewChunk[PNGImageChunkView, Any],
-        provides=ViewChunk[ChunkView, Any],
+        source=ViewChunk[PNGImageChunkView],
+        provides=ViewChunk[ChunkView],
     )
 
 
@@ -194,9 +170,9 @@ class ScriptProvider(Provider):
 
     @provide
     def provide_update_chunk_view_script(
-        self, update_chunk_view: UpdateChunkView[ChunkView, Any],
-    ) -> UpdateChunkViewScript:
-        return UpdateChunkViewScript(update_chunk_view=update_chunk_view)
+        self, refresh_chunk_view: RefreshChunkView[PNGImageChunkView],
+    ) -> RefreshChunkImageScript:
+        return RefreshChunkImageScript(refresh_chunk_view=refresh_chunk_view)
 
 
 class DistributedTaskProvider(Provider):
@@ -206,9 +182,9 @@ class DistributedTaskProvider(Provider):
     def provide_update_chunk_view_task(
         self,
         canvas_metadata_redis_cluster: CanvasMetadataRedisCluster,
-        update_chunk_view: UpdateChunkView[PNGImageChunkView, Any],
-    ) -> UpdateChunkViewTask:
-        return UpdateChunkViewTask(
-            update_chunk_view=update_chunk_view,
+        refresh_chunk_view: RefreshChunkView[ChunkView],
+    ) -> RefreshChunkViewTask:
+        return RefreshChunkViewTask(
+            refresh_chunk_view=refresh_chunk_view,
             redis_cluster=canvas_metadata_redis_cluster,
         )

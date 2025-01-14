@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 from functools import partial
-from typing import Any, AsyncIterator
+from typing import AsyncIterator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container
 from dishka.integrations.fastapi import setup_dishka
@@ -18,15 +18,12 @@ from pixel_battle.application.interactors.view_chunk import (
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
-from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.chunk_view import DefaultChunkViewWhen
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
-from pixel_battle.application.ports.lock import Lock
-from pixel_battle.application.ports.offsets import Offsets
+from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.space.time import Time
-from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -35,12 +32,7 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
     InMemoryChunkViews,
 )
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
-from pixel_battle.infrastructure.adapters.lock import (
-    FakeLock,
-)
-from pixel_battle.infrastructure.adapters.offsets import (
-    InMemoryOffsets,
-)
+from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
@@ -75,15 +67,10 @@ def container() -> AsyncContainer:
     provider.provide(
         lambda: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]
     )
-    provider.provide(lambda: InMemoryOffsets(), provides=Offsets[int])
-    provider.provide(lambda: InMemoryBroker(), provides=Broker)
+    provider.provide(lambda: InMemoryPixelQueue(), provides=PixelQueue)
     provider.provide(StoppedClock, provides=Clock)
-    provider.provide(FakeLock, provides=Lock)
     provider.provide(RecolorPixel[str])
-    provider.provide(
-        ViewChunk[PNGImageChunkView, int],
-        provides=ViewChunk[PNGImageChunkView, Any]
-    )
+    provider.provide(ViewChunk[PNGImageChunkView])
     provider.provide(ViewChunkStream)
 
     @partial(provider.provide, provides=Streaming)

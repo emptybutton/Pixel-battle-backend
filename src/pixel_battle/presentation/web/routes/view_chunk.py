@@ -1,5 +1,3 @@
-from typing import Any
-
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter
 from fastapi.responses import Response
@@ -16,7 +14,7 @@ router = APIRouter()
 @router.get("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
 @inject
 async def view_chunk(
-    view_chunk: FromDishka[ViewChunk[PNGImageChunkView, Any]],
+    view_chunk: FromDishka[ViewChunk[PNGImageChunkView]],
     chunk_number_x: ChunkNumberX,
     chunk_number_y: ChunkNumberY,
 ) -> Response:

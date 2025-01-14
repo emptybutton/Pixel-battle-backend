@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Any
 
-from pixel_battle.application.ports.broker import Broker
 from pixel_battle.application.ports.clock import Clock
+from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.core.pixel import Pixel, recolored_by_user
 from pixel_battle.entities.core.user import (
@@ -24,7 +23,7 @@ class Output[SignedUserDataT]:
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RecolorPixel[SignedUserDataT]:
-    broker: Broker[Any]
+    pixel_queue: PixelQueue
     user_data_signing: UserDataSigning[SignedUserDataT]
     clock: Clock
 
@@ -71,7 +70,7 @@ class RecolorPixel[SignedUserDataT]:
             current_time=current_time,
         )
 
-        await self.broker.push_event_with(pixel=result.pixel)
+        await self.pixel_queue.push(result.pixel)
 
         signed_user_data = await self.user_data_signing.signed_user_data_when(
             user=result.user

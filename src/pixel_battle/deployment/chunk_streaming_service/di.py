@@ -29,7 +29,7 @@ class ChunkStreamingServiceProvider(Provider):
         return [streaming.start()]
 
 
-chunk_streaming_service_container = make_async_container(
+container = make_async_container(
     OutOfProcessInfrastructureProvider(),
     OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),

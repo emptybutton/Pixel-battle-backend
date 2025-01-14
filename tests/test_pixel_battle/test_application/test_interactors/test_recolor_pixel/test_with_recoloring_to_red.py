@@ -53,4 +53,4 @@ async def test_broker(
 
     expected_result = {expected_pixel.chunk: [expected_pixel]}
 
-    assert dict(recolor_pixel.broker) == expected_result
+    assert dict(recolor_pixel.pixel_queue) == expected_result

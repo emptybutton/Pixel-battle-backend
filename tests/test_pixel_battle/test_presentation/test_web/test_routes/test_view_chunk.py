@@ -6,7 +6,7 @@ from httpx import AsyncClient
 from PIL.Image import open
 from pytest import mark
 
-from pixel_battle.application.ports.broker import Broker
+from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.geometry.vector import Vector
 from pixel_battle.entities.space.color import black, red
@@ -18,10 +18,10 @@ async def test_ok(
     client: AsyncClient, stage: str, container: AsyncContainer
 ) -> None:
     async with container() as request_container:
-        broker = await request_container.get(Broker[int])
+        queue = await request_container.get(PixelQueue)
 
-    await broker.push_event_with(pixel=Pixel(position=Vector(x=5), color=black))
-    await broker.push_event_with(pixel=Pixel(position=Vector(y=5), color=red))
+    await queue.push(Pixel(position=Vector(x=5), color=black))
+    await queue.push(Pixel(position=Vector(y=5), color=red))
 
     response = await client.get("/canvas/chunk/0/0")
 

@@ -1,30 +1,26 @@
 from pytest import fixture
 
-from pixel_battle.application.interactors.update_chunk_view import (
-    UpdateChunkView,
+from pixel_battle.application.interactors.refresh_chunk_view import (
+    RefreshChunkView,
 )
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.geometry.vector import Vector
 from pixel_battle.entities.space.color import RGBColor, black, red, white
-from pixel_battle.infrastructure.adapters.broker import InMemoryBroker
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
     DefaultCollectionChunkViewWhen,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
-from pixel_battle.infrastructure.adapters.lock import FakeLock
-from pixel_battle.infrastructure.adapters.offsets import InMemoryOffsets
+from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 
 
 @fixture
-def update_chunk_view() -> UpdateChunkView[CollectionChunkView, int]:
-    return UpdateChunkView(
-        broker=InMemoryBroker(),
-        lock=FakeLock(),
+def refresh_chunk_view() -> RefreshChunkView[CollectionChunkView]:
+    return RefreshChunkView(
+        pixel_queue=InMemoryPixelQueue(pulling_timeout_seconds=0),
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),
-        offsets_of_latest_compressed_events=InMemoryOffsets(),
     )
 
 

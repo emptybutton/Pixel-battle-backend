@@ -27,7 +27,7 @@ class ChunkWritingServiceProvider(Provider):
         return []
 
 
-chunk_writing_service_container = make_async_container(
+container = make_async_container(
     OutOfProcessInfrastructureProvider(),
     OutOfProcessInfrastructureAdapterProvider(),
     InteractorProvider(),
