@@ -2,12 +2,7 @@ from asyncio import sleep
 from collections import defaultdict
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import (
-    AsyncIterator,
-    Iterable,
-    Iterator,
-    Sequence,
-)
+from typing import AsyncIterator, Iterable, Iterator, Sequence, cast
 
 from redis.asyncio.cluster import RedisCluster
 from redis.asyncio.lock import Lock as _RedisLock
@@ -177,7 +172,9 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         self, *, key: RedisStreamKey, offset: RedisStreamOffset
     ) -> RedisStreamResults:
         block = int(self.pulling_timeout_seconds * 1000)
-        return await self.redis_cluster.xread({key: offset}, block=block)
+        results = await self.redis_cluster.xread({key: offset}, block=block)
+
+        return cast(RedisStreamResults, results)
 
     def __lock(self, chunk: Chunk) -> _RedisLock:
         return _RedisLock(
@@ -265,8 +262,8 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         offset_field = self.__offset_field_when(process=process)
 
         await self.redis_cluster.hset(
-            key, offset_field, last_readed_event_offset
-        )  # type: ignore[misc, arg-type]
+            key, offset_field, last_readed_event_offset  # type: ignore[misc, arg-type]
+        )
 
     def __default_offset_when(self, *, only_new: bool) -> RedisStreamOffset:
         return b"$" if only_new else b"0"
