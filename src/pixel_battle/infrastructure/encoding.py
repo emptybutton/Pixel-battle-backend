@@ -4,7 +4,7 @@ from pixel_battle.entities.geometry.vector import Vector
 from pixel_battle.entities.space.color import RGBColor, RGBColorValue
 
 
-def encoded(pixel: Pixel[RGBColor]) -> bytes:
+def encoded_pixel_when(*, pixel: Pixel[RGBColor]) -> bytes:
     return bytes([
         pixel.position_within_chunk.x,
         pixel.position_within_chunk.y,
@@ -14,12 +14,14 @@ def encoded(pixel: Pixel[RGBColor]) -> bytes:
     ])
 
 
-def decoded(bytes_: bytes, *, chunk: Chunk) -> Pixel[RGBColor]:
-    position_within_chunk = Vector(x=bytes_[0], y=bytes_[1])
+def decoded_pixel_when(
+    *, encoded_pixel: bytes, chunk: Chunk
+) -> Pixel[RGBColor]:
+    position_within_chunk = Vector(x=encoded_pixel[0], y=encoded_pixel[1])
 
-    red_value = RGBColorValue(number=bytes_[2])
-    green_value = RGBColorValue(number=bytes_[3])
-    blue_value = RGBColorValue(number=bytes_[4])
+    red_value = RGBColorValue(number=encoded_pixel[2])
+    green_value = RGBColorValue(number=encoded_pixel[3])
+    blue_value = RGBColorValue(number=encoded_pixel[4])
     color = RGBColor(
         red_value=red_value, green_value=green_value, blue_value=blue_value
     )

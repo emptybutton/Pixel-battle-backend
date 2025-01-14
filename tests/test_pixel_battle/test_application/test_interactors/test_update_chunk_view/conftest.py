@@ -24,7 +24,7 @@ def update_chunk_view() -> UpdateChunkView[CollectionChunkView, int]:
         lock=FakeLock(),
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),
-        offsets_of_latest_compressed_events=InMemoryOffsets(),
+        chunk_view_refresh_offsets=InMemoryOffsets(),
     )
 
 
