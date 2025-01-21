@@ -13,6 +13,9 @@ from pixel_battle.presentation.web.routes.healthchek import (
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
 )
+from pixel_battle.presentation.web.routes.register_user import (
+    router as register_user_router,
+)
 
 
 class ChunkWritingServiceProvider(Provider):
@@ -20,7 +23,7 @@ class ChunkWritingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return [healthchek_router, recolor_pixel_router]
+        return [healthchek_router, recolor_pixel_router, register_user_router]
 
     @provide
     def provide_coroutines(self) -> AppCoroutines:

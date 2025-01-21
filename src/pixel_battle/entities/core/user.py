@@ -23,3 +23,15 @@ def user_temporarily_without_recoloring_right_when(
 
 def has_recoloring_right(user: User, *, current_time: Time) -> bool:
     return user.time_of_obtaining_recoloring_right <= current_time
+
+
+class UserIsAlreadyRegisteredToRegisterError(Exception): ...
+
+
+def registered_user_when(*, user: User | None, current_time: Time) -> User:
+    if user is not None:
+        raise UserIsAlreadyRegisteredToRegisterError
+
+    return user_temporarily_without_recoloring_right_when(
+        current_time=current_time
+    )

@@ -1,6 +1,6 @@
+from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from functools import partial
-from typing import AsyncIterator
 
 from dishka import AsyncContainer, Provider, Scope, make_async_container
 from dishka.integrations.fastapi import setup_dishka
@@ -11,6 +11,9 @@ from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
+)
+from pixel_battle.application.interactors.register_user import (
+    RegisterUser,
 )
 from pixel_battle.application.interactors.view_chunk import (
     ViewChunk,
@@ -36,16 +39,33 @@ from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
-from pixel_battle.presentation.web.routes.healthchek import router as router0
-from pixel_battle.presentation.web.routes.recolor_pixel import router as router1
-from pixel_battle.presentation.web.routes.stream_chunk import router as router2
-from pixel_battle.presentation.web.routes.view_chunk import router as router3
+from pixel_battle.presentation.web.routes.healthchek import (
+    router as healthchek_router,
+)
+from pixel_battle.presentation.web.routes.recolor_pixel import (
+    router as recolor_pixel_router,
+)
+from pixel_battle.presentation.web.routes.register_user import (
+    router as register_user_router,
+)
+from pixel_battle.presentation.web.routes.stream_chunk import (
+    router as stream_chunk_router,
+)
+from pixel_battle.presentation.web.routes.view_chunk import (
+    router as view_chunk_router,
+)
 from pixel_battle.presentation.web.streaming import Streaming
 
 
 @fixture
 def routers() -> tuple[APIRouter, ...]:
-    return router0, router1, router2, router3
+    return (
+        healthchek_router,
+        recolor_pixel_router,
+        register_user_router,
+        stream_chunk_router,
+        view_chunk_router,
+    )
 
 
 @fixture
@@ -72,6 +92,7 @@ def container() -> AsyncContainer:
     provider.provide(RecolorPixel[str])
     provider.provide(ViewChunk[PNGImageChunkView])
     provider.provide(ViewChunkStream)
+    provider.provide(RegisterUser[str])
 
     @partial(provider.provide, provides=Streaming)
     async def get_streaming(

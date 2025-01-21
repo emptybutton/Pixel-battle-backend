@@ -9,15 +9,19 @@ services:
       - .:/pixel-battle
     networks:
       - private-network
+    ports:
+      - 8000:8000
     depends_on:
       - redis1
       - redis2
       - redis3
       - redis4
     environment:
+      WATCHFILES_FORCE_POLLING: true
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
       CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
       JWT_SECRET: super-secret-secret
+    command: python src/pixel_battle/deployment/god_service
 
   redis1:
     image: redis:7.4.1-alpine3.20

@@ -1,5 +1,6 @@
+from collections.abc import Awaitable, MutableMapping
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable, MutableMapping
+from typing import Any, Callable
 
 
 Scope = MutableMapping[str, Any]

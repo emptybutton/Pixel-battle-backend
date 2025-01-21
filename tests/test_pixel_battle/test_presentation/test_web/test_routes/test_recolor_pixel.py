@@ -1,37 +1,6 @@
-from datetime import UTC, datetime
-
-from dishka import AsyncContainer
 from fastapi import status
 from httpx import AsyncClient, Cookies
-from pytest import fixture, mark
-
-from pixel_battle.application.ports.user_data_signing import UserDataSigning
-from pixel_battle.entities.core.user import User
-from pixel_battle.entities.space.time import Time
-
-
-@fixture
-async def cookies_with_right(container: AsyncContainer) -> Cookies:
-    async with container() as request_conteiner:
-        signing = await request_conteiner.get(UserDataSigning[str])
-        time = Time(datetime=datetime(2000, 1, 1, tzinfo=UTC))
-        user = User(time_of_obtaining_recoloring_right=time)
-
-        return Cookies({
-            "userData": await signing.signed_user_data_when(user=user)
-        })
-
-
-@fixture
-async def cookies_without_right(container: AsyncContainer) -> Cookies:
-    async with container() as request_conteiner:
-        signing = await request_conteiner.get(UserDataSigning[str])
-        time = Time(datetime=datetime(2007, 1, 1, tzinfo=UTC))
-        user = User(time_of_obtaining_recoloring_right=time)
-
-        return Cookies({
-            "userData": await signing.signed_user_data_when(user=user)
-        })
+from pytest import mark
 
 
 @mark.parametrize("stage", ["status_code", "body", "cookies"])
@@ -100,13 +69,12 @@ async def test_invalid_color_value_range(
 
 @mark.parametrize("stage", ["status_code", "body", "cookies"])
 async def test_no_right(
-    client: AsyncClient, stage: str, cookies_without_right: Cookies
+    client: AsyncClient, stage: str
 ) -> None:
     input_json = {
         "pixelPosition": [0, 0],
         "newPixelColor": [255, 0, 0],
     }
-    client.cookies = cookies_without_right
     response = await client.patch("/canvas", json=input_json)
 
     if stage == "status_code":

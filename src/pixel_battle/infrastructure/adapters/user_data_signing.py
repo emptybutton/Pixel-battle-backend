@@ -10,11 +10,11 @@ from pixel_battle.infrastructure.types import JWT
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class UserDataSigningAsIdentification(UserDataSigning[User]):
-    async def signed_user_data_when(self, *, user: User) -> User:
+class UserDataSigningAsIdentification(UserDataSigning[User | None]):
+    async def signed_user_data_when(self, *, user: User) -> User | None:
         return user
 
-    async def user_when(self, *, signed_user_data: User) -> User | None:
+    async def user_when(self, *, signed_user_data: User | None) -> User | None:
         return signed_user_data
 
 

@@ -12,6 +12,9 @@ from pixel_battle.presentation.web.routes.healthchek import (
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
 )
+from pixel_battle.presentation.web.routes.register_user import (
+    router as register_user_router,
+)
 from pixel_battle.presentation.web.routes.stream_chunk import (
     router as stream_chunk_router,
 )
@@ -30,6 +33,7 @@ class ShowcaseServiceProvider(Provider):
             recolor_pixel_router,
             view_chunk_router,
             stream_chunk_router,
+            register_user_router,
         ]
 
     @provide

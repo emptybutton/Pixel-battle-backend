@@ -1,10 +1,12 @@
 from datetime import UTC, datetime
 
-from pytest import fixture
+from pytest import fixture, raises
 
 from pixel_battle.entities.core.user import (
     User,
+    UserIsAlreadyRegisteredToRegisterError,
     has_recoloring_right,
+    registered_user_when,
     time_of_obtaining_recoloring_right_when,
     user_temporarily_without_recoloring_right_when,
 )
@@ -48,3 +50,21 @@ def test_temporarily_without_right_to_recolor(user: User) -> None:
     )
 
     assert user == excepted_user
+
+
+def test_registered_user_when_with_user(user: User) -> None:
+    current_time = Time(datetime=datetime(2000, 1, 1, tzinfo=UTC))
+
+    with raises(UserIsAlreadyRegisteredToRegisterError):
+        registered_user_when(user=user, current_time=current_time)
+
+
+def test_registered_user_when_without_user() -> None:
+    current_time = Time(datetime=datetime(2000, 1, 1, tzinfo=UTC))
+
+    registered_user = registered_user_when(user=None, current_time=current_time)
+
+    time = Time(datetime=datetime(2000, 1, 1, 0, 1, tzinfo=UTC))
+    expected_user = User(time_of_obtaining_recoloring_right=time)
+
+    assert registered_user == expected_user
