@@ -8,8 +8,8 @@ from pixel_battle.deployment.common.di import (
     StreamingProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
-from pixel_battle.presentation.web.routes.healthchek import (
-    router as healthchek_router,
+from pixel_battle.presentation.web.routes.healthcheck import (
+    router as healthcheck_router,
 )
 from pixel_battle.presentation.web.routes.stream_chunk import (
     router as stream_chunk_router,
@@ -22,7 +22,7 @@ class ChunkStreamingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return [healthchek_router, stream_chunk_router]
+        return [healthcheck_router, stream_chunk_router]
 
     @provide
     def provide_coroutines(self, streaming: Streaming) -> AppCoroutines:

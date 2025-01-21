@@ -6,8 +6,8 @@ from pixel_battle.deployment.common.di import (
     StreamingProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
-from pixel_battle.presentation.web.routes.healthchek import (
-    router as healthchek_router,
+from pixel_battle.presentation.web.routes.healthcheck import (
+    router as healthcheck_router,
 )
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
@@ -29,7 +29,7 @@ class ShowcaseServiceProvider(Provider):
     @provide
     def provide_routers(self) -> AppRouters:
         return [
-            healthchek_router,
+            healthcheck_router,
             recolor_pixel_router,
             view_chunk_router,
             stream_chunk_router,

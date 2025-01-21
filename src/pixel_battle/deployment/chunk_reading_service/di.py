@@ -6,8 +6,8 @@ from pixel_battle.deployment.common.di import (
     OutOfProcessInfrastructureProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
-from pixel_battle.presentation.web.routes.healthchek import (
-    router as healthchek_router,
+from pixel_battle.presentation.web.routes.healthcheck import (
+    router as healthcheck_router,
 )
 from pixel_battle.presentation.web.routes.view_chunk import (
     router as view_chunk_router,
@@ -19,7 +19,7 @@ class ChunkReadingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return [healthchek_router, view_chunk_router]
+        return [healthcheck_router, view_chunk_router]
 
     @provide
     def provide_coroutines(self) -> AppCoroutines:

@@ -5,7 +5,7 @@ from pytest import mark
 
 @mark.parametrize("stage", ["status_code", "body"])
 async def test_ok(client: AsyncClient, stage: str) -> None:
-    response = await client.get("/healthchek")
+    response = await client.get("/healthcheck")
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_200_OK

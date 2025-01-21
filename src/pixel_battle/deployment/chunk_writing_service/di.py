@@ -7,8 +7,8 @@ from pixel_battle.deployment.common.di import (
     OutOfProcessInfrastructureProvider,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
-from pixel_battle.presentation.web.routes.healthchek import (
-    router as healthchek_router,
+from pixel_battle.presentation.web.routes.healthcheck import (
+    router as healthcheck_router,
 )
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
@@ -23,7 +23,7 @@ class ChunkWritingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return [healthchek_router, recolor_pixel_router, register_user_router]
+        return [healthcheck_router, recolor_pixel_router, register_user_router]
 
     @provide
     def provide_coroutines(self) -> AppCoroutines:

@@ -7,9 +7,9 @@ router = APIRouter()
 
 
 @router.get(
-    "/healthchek",
+    "/healthcheck",
     responses={status.HTTP_200_OK: {"model": BaseModel}},
     description="Checking if the server can accept requests.",
 )
-def healthchek() -> Response:
+def healthcheck() -> Response:
     return JSONResponse({})

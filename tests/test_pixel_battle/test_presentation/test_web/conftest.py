@@ -39,8 +39,8 @@ from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
-from pixel_battle.presentation.web.routes.healthchek import (
-    router as healthchek_router,
+from pixel_battle.presentation.web.routes.healthcheck import (
+    router as healthcheck_router,
 )
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     router as recolor_pixel_router,
@@ -60,7 +60,7 @@ from pixel_battle.presentation.web.streaming import Streaming
 @fixture
 def routers() -> tuple[APIRouter, ...]:
     return (
-        healthchek_router,
+        healthcheck_router,
         recolor_pixel_router,
         register_user_router,
         stream_chunk_router,
