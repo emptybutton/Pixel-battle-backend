@@ -69,12 +69,13 @@ async def test_invalid_color_value_range(
 
 @mark.parametrize("stage", ["status_code", "body", "cookies"])
 async def test_no_right(
-    client: AsyncClient, stage: str
+    client: AsyncClient, stage: str, cookies_without_right: Cookies
 ) -> None:
     input_json = {
         "pixelPosition": [0, 0],
         "newPixelColor": [255, 0, 0],
     }
+    client.cookies = cookies_without_right
     response = await client.patch("/canvas", json=input_json)
 
     if stage == "status_code":

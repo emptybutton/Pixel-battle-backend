@@ -17,6 +17,10 @@ class ChunkViewResponse(Response):
 
 @router.get(
     "/canvas/chunk/{chunk_number_x}/{chunk_number_y}",
+    description=(
+        "Reading a slightly outdated chunk image (maximum 2-5 seconds) along"
+        " with the delta of changes that bring it up to date."
+    ),
     response_class=Response,
     responses={
         status.HTTP_200_OK: {
@@ -29,7 +33,7 @@ class ChunkViewResponse(Response):
                 },
             },
             "headers": {
-                "extension": {
+                "X-Actualizing-Delta": {
                     **RecoloredPixelListSchema.model_json_schema(by_alias=True),
                 },
             },
@@ -44,10 +48,10 @@ async def view_chunk(
 ) -> ChunkViewResponse:
     result = await view_chunk(chunk_number_x, chunk_number_y)
 
-    extension_model = RecoloredPixelListSchema.of(result.pixels)
-    extension = extension_model.model_dump_json(by_alias=True)
+    actualizing_delta_model = RecoloredPixelListSchema.of(result.pixels)
+    actualizing_delta = actualizing_delta_model.model_dump_json(by_alias=True)
 
-    headers = {"extension": extension}
+    headers = {"X-Actualizing-Delta": actualizing_delta}
 
     image_stream = result.chunk_view.to_stream()
     content = image_stream.getvalue()

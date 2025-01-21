@@ -39,6 +39,10 @@ class NoRightSchema(ErrorSchema):
 
 @router.patch(
     "/canvas",
+    description=(
+        "Recoloring one pixel on the canvas."
+        " After recoloring, the action will be unavailable for one minute."
+    ),
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_400_BAD_REQUEST: {
@@ -55,7 +59,7 @@ class NoRightSchema(ErrorSchema):
 async def recolor_pixel(
     recolor_pixel: FromDishka[RecolorPixel[str]],
     body_model: RecolorPixelSchema,
-    user_data: UserDataCookie.StrOrNone = None,
+    user_data: UserDataCookie.Str,
 ) -> JSONResponse:
     try:
         result = await recolor_pixel(

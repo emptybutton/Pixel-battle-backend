@@ -22,6 +22,11 @@ class AlreadyRegisteredSchema(ErrorSchema):
 
 @router.post(
     "/canvas/user",
+    description=(
+        "Registration to gain access to other actions."
+        " After registration, it is not allowed to"
+        " recolor pixels for one minute."
+    ),
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": BaseModel},

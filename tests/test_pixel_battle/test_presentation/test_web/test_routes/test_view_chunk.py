@@ -35,12 +35,14 @@ async def test_ok(
         assert body == expected_body
 
     if stage == "headers":
-        expected_extension_header = {
+        expected_delta_of_changes_header = {
             "pixels": [
                 {"pixelPosition": [5, 0], "newPixelColor": [0, 0, 0]},
                 {"pixelPosition": [0, 5], "newPixelColor": [255, 0, 0]},
             ]
         }
-        extension_header = json.loads(response.headers["extension"])
+        delta_header = (
+            json.loads(response.headers["X-Actualizing-Delta"])
+        )
 
-        assert extension_header == expected_extension_header
+        assert delta_header == expected_delta_of_changes_header
