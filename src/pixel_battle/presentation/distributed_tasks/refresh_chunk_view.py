@@ -9,6 +9,10 @@ from redis.asyncio import RedisCluster
 from pixel_battle.application.interactors.refresh_chunk_view import (
     RefreshChunkView,
 )
+from pixel_battle.infrastructure.encoding import (
+    decoded_chunk_data_when,
+    encoded_chunk_from_data_when,
+)
 
 
 class RefreshChunkViewCommandError(Exception): ...
@@ -27,16 +31,14 @@ class RefreshChunkViewCommand:
             raise RefreshChunkViewCommandError(str(self))
 
     def to_bytes(self) -> bytes:
-        return bytes([self.chunk_number_x * 10 + self.chunk_number_y])
+        chunk_data = (self.chunk_number_x, self.chunk_number_y)
+        return encoded_chunk_from_data_when(chunk_data=chunk_data)
 
     @classmethod
     def from_bytes(cls, bytes_: bytes) -> "RefreshChunkViewCommand":
-        chunk_number_x = bytes_[0] // 10
-        chunk_number_y = bytes_[0] - chunk_number_x * 10
+        x, y = decoded_chunk_data_when(encoded_chunk=bytes_)
 
-        return RefreshChunkViewCommand(
-            chunk_number_x=chunk_number_x, chunk_number_y=chunk_number_y
-        )
+        return RefreshChunkViewCommand(chunk_number_x=x, chunk_number_y=y)
 
 
 @dataclass(kw_only=True, frozen=True)

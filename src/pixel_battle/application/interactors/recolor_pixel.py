@@ -15,7 +15,7 @@ from pixel_battle.entities.space.color import (
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Output[SignedUserDataT]:
     signed_user_data: SignedUserDataT
-    pixel: Pixel[RGBColor] | None
+    pixel: Pixel[RGBColor]
 
 
 class InvalidSignedUserDataError(Exception): ...
