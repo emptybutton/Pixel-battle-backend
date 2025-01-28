@@ -8,28 +8,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: ruff
-        run: docker compose -f docker-compose.dev.yml run pixel-battle ruff check src tests -n
+        run: docker compose -f deployments/dev/docker-compose.yml run backend ruff check src tests -n
 
   mypy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: mypy
-        run: docker compose -f docker-compose.dev.yml run pixel-battle mypy src
+        run: docker compose -f deployments/dev/docker-compose.yml run backend mypy src
 
   pytest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: start all docker compose services
-        run: docker compose -f docker-compose.dev.yml up -d
-
-      - name: create redis cluster
-        run: docker exec pixel-battle-redis1 ash /mnt/create-cluster.sh
-
       - name: pytest
-        run: docker compose -f docker-compose.dev.yml run pixel-battle pytest tests --cov --cov-report=xml
+        run: docker compose -f deployments/dev/docker-compose.yml run backend pytest tests --cov --cov-report=xml
 
       - name: upload coverage reports to codecov
         uses: codecov/codecov-action@v5

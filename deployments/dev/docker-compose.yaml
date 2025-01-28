@@ -1,12 +1,13 @@
 name: pixel-battle
 
 services:
-  pixel-battle:
-    build: .
-    container_name: pixel-battle
-    restart: "no"
+  backend:
+    build:
+      context: ../../
+      dockerfile: deployments/dev/backend/Dockerfile
+    container_name: pixel-battle-backend
     volumes:
-      - .:/pixel-battle
+      - ../..:/pixel-battle
     networks:
       - private-network
     ports:
@@ -15,7 +16,6 @@ services:
       - redis1
       - redis2
       - redis3
-      - redis4
     environment:
       WATCHFILES_FORCE_POLLING: true
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
@@ -24,9 +24,10 @@ services:
     command: python src/pixel_battle/deployment/god_service
 
   redis1:
-    image: redis:7.4.1-alpine3.20
+    build:
+      context: ../../
+      dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis1
-    restart: "no"
     volumes:
       - redis1-db:/data
       - ./redis:/mnt
@@ -35,51 +36,34 @@ services:
     depends_on:
       - redis2
       - redis3
-      - redis4
-    entrypoint: [""]
-    command: redis-server /mnt/redis.conf
+    command: ash /mnt/start-cluster-creation-node.sh
 
   redis2:
-    image: redis:7.4.1-alpine3.20
+    build:
+      context: ../../
+      dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis2
-    restart: "no"
     volumes:
       - redis2-db:/data
       - ./redis:/mnt
     networks:
       - private-network
-    entrypoint: [""]
-    command: redis-server /mnt/redis.conf
 
   redis3:
-    image: redis:7.4.1-alpine3.20
+    build:
+      context: ../../
+      dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis3
-    restart: "no"
     volumes:
       - redis3-db:/data
       - ./redis:/mnt
     networks:
       - private-network
-    entrypoint: [""]
-    command: redis-server /mnt/redis.conf
-
-  redis4:
-    image: redis:7.4.1-alpine3.20
-    container_name: pixel-battle-redis4
-    restart: "no"
-    volumes:
-      - redis4-db:/data
-      - ./redis:/mnt
-    networks:
-      - private-network
-    entrypoint: [""]
-    command: redis-server /mnt/redis.conf
 
 volumes:
   redis1-db: null
   redis2-db: null
   redis3-db: null
-  redis4-db: null
 
 networks:
   private-network:

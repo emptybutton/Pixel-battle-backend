@@ -1,10 +1,15 @@
-[tool.poetry]
+[project]
 name = "pixel-battle"
 version = "0.1.0"
 description = "Simple backend for pixel battle"
-authors = ["emptybutton <88573504+emptybutton@users.noreply.github.com>"]
+authors = [
+    {name = "Alexander Smolin", email = "88573504+emptybutton@users.noreply.github.com"}
+]
 license = "Apache-2.0"
 readme = "README.md"
+
+[tool.poetry]
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.13"
