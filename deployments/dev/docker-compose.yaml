@@ -36,7 +36,7 @@ services:
     depends_on:
       - redis2
       - redis3
-    command: ash /mnt/start-cluster-creation-node.sh
+    command: ash /mnt/scripts/start-cluster-creation-node.sh
 
   redis2:
     build:
