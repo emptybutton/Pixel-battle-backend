@@ -8,14 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: ruff
-        run: docker compose -f deployments/dev/docker-compose.yml run backend ruff check src tests -n
+        run: docker compose -f deployments/dev/docker-compose.yaml run backend ruff check src tests -n
 
   mypy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: mypy
-        run: docker compose -f deployments/dev/docker-compose.yml run backend mypy src
+        run: docker compose -f deployments/dev/docker-compose.yaml run backend mypy src
 
   pytest:
     runs-on: ubuntu-latest
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: pytest
-        run: docker compose -f deployments/dev/docker-compose.yml run backend pytest tests --cov --cov-report=xml
+        run: docker compose -f deployments/dev/docker-compose.yaml run backend pytest tests --cov --cov-report=xml
 
       - name: upload coverage reports to codecov
         uses: codecov/codecov-action@v5
