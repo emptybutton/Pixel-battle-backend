@@ -13,14 +13,19 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      - redis1
-      - redis2
-      - redis3
+      redis1:
+        condition: service_healthy
+      redis2:
+        condition: service_healthy
+      redis3:
+        condition: service_healthy
     environment:
       WATCHFILES_FORCE_POLLING: true
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
       CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
       JWT_SECRET: super-secret-secret
+    labels:
+      pixel-battle: true
     command: python src/pixel_battle/deployment/god_service
 
   redis1:
@@ -33,9 +38,20 @@ services:
       - ./redis:/mnt
     networks:
       - private-network
+    labels:
+      pixel-battle: true
     depends_on:
-      - redis2
-      - redis3
+      redis2:
+        condition: service_healthy
+        restart: true
+      redis3:
+        condition: service_healthy
+        restart: true
+    healthcheck:
+      test: ash /mnt/scripts/is-cluster-ok.sh
+      start_interval: 0s
+      interval: 1s
+      retries: 30
     command: ash /mnt/scripts/start-cluster-creation-node.sh
 
   redis2:
@@ -48,6 +64,8 @@ services:
       - ./redis:/mnt
     networks:
       - private-network
+    labels:
+      pixel-battle: true
 
   redis3:
     build:
@@ -59,11 +77,19 @@ services:
       - ./redis:/mnt
     networks:
       - private-network
+    labels:
+      pixel-battle: true
 
 volumes:
-  redis1-db: null
-  redis2-db: null
-  redis3-db: null
+  redis1-db:
+    labels:
+      pixel-battle: true
+  redis2-db:
+    labels:
+      pixel-battle: true
+  redis3-db:
+    labels:
+      pixel-battle: true
 
 networks:
   private-network:

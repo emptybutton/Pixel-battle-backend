@@ -5,4 +5,10 @@ WORKDIR /pixel-battle
 ENV POETRY_VIRTUALENVS_IN_PROJECT true
 ENV PYTHONPATH /pixel-battle/src:/pixel-battle/tests
 
+HEALTHCHECK \
+--start-interval=0s \
+--interval=3s \
+--retries=100 \
+CMD wget localhost:8000/healthcheck -q -O /dev/null
+
 ENTRYPOINT ["ash", "deployments/dev/backend/entrypoint.sh"]
