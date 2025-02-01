@@ -9,32 +9,30 @@ from pixel_battle.entities.admin.admin import (
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class InitializedPixelBattle:
+class InitiatedPixelBattle:
     time_delta: TimeDelta
     admin_key: AdminKey
 
 
-type NotInitializedPixelBattle = None
-type PixelBattle = InitializedPixelBattle | NotInitializedPixelBattle
+type UninitiatedPixelBattle = None
+type PixelBattle = InitiatedPixelBattle | UninitiatedPixelBattle
 
 
-def is_initialized(
-    pixel_battle: PixelBattle
-) -> TypeGuard[InitializedPixelBattle]:
+def is_initiated(pixel_battle: PixelBattle) -> TypeGuard[InitiatedPixelBattle]:
     return pixel_battle is not None
 
 
-class PixelBattleIsAlreadyInitializedError(Exception): ...
+class PixelBattleIsAlreadyInitiatedError(Exception): ...
 
 
-def initialized_pixel_battle_when(
+def initiated_pixel_battle_when(
     *, time_delta: TimeDelta, pixel_battle: PixelBattle
-) -> InitializedPixelBattle:
-    if is_initialized(pixel_battle):
-        raise PixelBattleIsAlreadyInitializedError
+) -> InitiatedPixelBattle:
+    if is_initiated(pixel_battle):
+        raise PixelBattleIsAlreadyInitiatedError
 
     admin_key = generated_admin_key_when()
-    return InitializedPixelBattle(time_delta=time_delta, admin_key=admin_key)
+    return InitiatedPixelBattle(time_delta=time_delta, admin_key=admin_key)
 
 
 class NoAccessToRescheduleError(Exception): ...
@@ -45,20 +43,20 @@ def rescheduled_by_admin(
     *,
     new_time_delta: TimeDelta,
     admin: Admin,
-) -> InitializedPixelBattle:
+) -> InitiatedPixelBattle:
     if not has_access_to_pixel_battle(admin, pixel_battle=pixel_battle):
         raise NoAccessToRescheduleError
 
-    pixel_battle = cast(InitializedPixelBattle, pixel_battle)
+    pixel_battle = cast(InitiatedPixelBattle, pixel_battle)
 
-    return InitializedPixelBattle(
+    return InitiatedPixelBattle(
         time_delta=new_time_delta,
         admin_key=pixel_battle.admin_key,
     )
 
 
 def is_going_on(pixel_battle: PixelBattle, *, current_time: Time) -> bool:
-    if not is_initialized(pixel_battle):
+    if not is_initiated(pixel_battle):
         return False
 
     return current_time in pixel_battle.time_delta
@@ -67,7 +65,7 @@ def is_going_on(pixel_battle: PixelBattle, *, current_time: Time) -> bool:
 def has_access_to_pixel_battle(
     admin: Admin, *, pixel_battle: PixelBattle
 ) -> bool:
-    if not is_initialized(pixel_battle):
+    if not is_initiated(pixel_battle):
         return False
 
     return has_access(admin, key=pixel_battle.admin_key)

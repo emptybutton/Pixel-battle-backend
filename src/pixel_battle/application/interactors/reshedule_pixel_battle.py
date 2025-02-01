@@ -6,7 +6,7 @@ from pixel_battle.application.ports.pixel_battle_container import (
 )
 from pixel_battle.entities.admin.admin import Admin, AdminKey
 from pixel_battle.entities.core.pixel_battle import (
-    InitializedPixelBattle,
+    InitiatedPixelBattle,
     rescheduled_by_admin,
 )
 from pixel_battle.entities.space.time import Time
@@ -15,7 +15,7 @@ from pixel_battle.entities.space.time_delta import TimeDelta
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class Output:
-    pixel_battle: InitializedPixelBattle
+    pixel_battle: InitiatedPixelBattle
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

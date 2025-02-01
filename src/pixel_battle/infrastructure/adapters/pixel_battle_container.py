@@ -9,7 +9,7 @@ from pixel_battle.application.ports.pixel_battle_container import (
 )
 from pixel_battle.entities.admin.admin import AdminKey
 from pixel_battle.entities.core.pixel_battle import (
-    InitializedPixelBattle,
+    InitiatedPixelBattle,
     PixelBattle,
 )
 from pixel_battle.entities.space.time import Time
@@ -71,6 +71,4 @@ class APRedisClusterPixelBattleContainer(PixelBattleContainer):
         end_time = Time(datetime=end_datetime)
         time_delta = TimeDelta(start_time=start_time, end_time=end_time)
 
-        return InitializedPixelBattle(
-            admin_key=admin_key, time_delta=time_delta
-        )
+        return InitiatedPixelBattle(admin_key=admin_key, time_delta=time_delta)
