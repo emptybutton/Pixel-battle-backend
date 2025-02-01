@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 
 from pixel_battle.entities.core.canvas import canvas
 from pixel_battle.entities.core.chunk import Chunk, chunk_where
+from pixel_battle.entities.core.pixel_battle import PixelBattle, is_going_on
 from pixel_battle.entities.core.user import (
     User,
     has_recoloring_right,
@@ -62,13 +63,20 @@ class RecoloredPixelByUser:
 class UserHasNoRightToRecolorError(Exception): ...
 
 
+class PixelBattleIsNotIsNotGoingOnToRecolorError(Exception): ...
+
+
 def recolored_by_user[ColorT: Color](
     pixel: Pixel[ColorT],
     *,
     user: User,
     new_color: RGBColor,
     current_time: Time,
+    pixel_battle: PixelBattle,
 ) -> RecoloredPixelByUser:
+    if not is_going_on(pixel_battle, current_time=current_time):
+        raise PixelBattleIsNotIsNotGoingOnToRecolorError
+
     if not has_recoloring_right(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
 
