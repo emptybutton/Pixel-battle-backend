@@ -63,7 +63,7 @@ class RecoloredPixelByUser:
 class UserHasNoRightToRecolorError(Exception): ...
 
 
-class PixelBattleIsNotIsNotGoingOnToRecolorError(Exception): ...
+class PixelBattleIsNotGoingOnToRecolorError(Exception): ...
 
 
 def recolored_by_user[ColorT: Color](
@@ -75,7 +75,7 @@ def recolored_by_user[ColorT: Color](
     pixel_battle: PixelBattle,
 ) -> RecoloredPixelByUser:
     if not is_going_on(pixel_battle, current_time=current_time):
-        raise PixelBattleIsNotIsNotGoingOnToRecolorError
+        raise PixelBattleIsNotGoingOnToRecolorError
 
     if not has_recoloring_right(user, current_time=current_time):
         raise UserHasNoRightToRecolorError
