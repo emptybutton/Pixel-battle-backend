@@ -24,9 +24,15 @@ from pixel_battle.application.interactors.view_chunk_stream import (
 from pixel_battle.application.ports.chunk_view import DefaultChunkViewWhen
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
+from pixel_battle.application.ports.pixel_battle_container import (
+    PixelBattleContainer,
+)
 from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
+from pixel_battle.entities.admin.admin import AdminKey
+from pixel_battle.entities.core.pixel_battle import InitiatedPixelBattle
 from pixel_battle.entities.space.time import Time
+from pixel_battle.entities.space.time_delta import TimeDelta
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -35,6 +41,9 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
     InMemoryChunkViews,
 )
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
+from pixel_battle.infrastructure.adapters.pixel_battle_container import (
+    InMemoryPixelBattleContainer,
+)
 from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
@@ -93,6 +102,19 @@ def container() -> AsyncContainer:
     provider.provide(ViewChunk[PNGImageChunkView])
     provider.provide(ViewChunkStream)
     provider.provide(RegisterUser[str])
+
+    @provider.provide
+    def provide_pixel_battle_container() -> PixelBattleContainer:
+        start_time = Time(datetime=datetime(1981, 1, 1, tzinfo=UTC))
+        end_time = Time(datetime=datetime(2077, 1, 1, tzinfo=UTC))
+        time_delta = TimeDelta(start_time=start_time, end_time=end_time)
+
+        admin_key = AdminKey(token="token")
+        pixel_battle = InitiatedPixelBattle(
+            admin_key=admin_key, time_delta=time_delta
+        )
+
+        return InMemoryPixelBattleContainer(pixel_battle)
 
     @partial(provider.provide, provides=Streaming)
     async def get_streaming(

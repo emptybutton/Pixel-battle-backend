@@ -21,6 +21,9 @@ from pixel_battle.application.ports.chunk_view import (
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
+from pixel_battle.application.ports.pixel_battle_container import (
+    PixelBattleContainer,
+)
 from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.infrastructure.adapters.chunk_view import (
@@ -34,6 +37,10 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
 from pixel_battle.infrastructure.adapters.clock import (
     LocalClock,
     RedisClusterRandomNodeClock,
+)
+from pixel_battle.infrastructure.adapters.pixel_battle_container import (
+    APRedisClusterPixelBattleContainer,
+    InMemoryPixelBattleContainer,
 )
 from pixel_battle.infrastructure.adapters.pixel_queue import (
     InMemoryPixelQueue,
@@ -108,6 +115,14 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
             redis_cluster=canvas_redis_cluster
         )
 
+    @provide
+    def provide_pixel_battle_container(
+        self, canvas_metadata_redis_cluster: CanvasMetadataRedisCluster
+    ) -> PixelBattleContainer:
+        return APRedisClusterPixelBattleContainer(
+            __redis_cluster=canvas_metadata_redis_cluster
+        )
+
     provide_default_png_image_chunk_view_when = provide(
         DefaultPNGImageChunkViewWhen,
         provides=DefaultChunkViewWhen[PNGImageChunkView],
@@ -132,6 +147,10 @@ class ProcessInfrastructureAdapterProvider(Provider):
     provide_default_png_image_chunk_view_when = provide(
         DefaultPNGImageChunkViewWhen,
         provides=DefaultChunkViewWhen[PNGImageChunkView],
+    )
+    provide_pixel_battle_container = provide(
+        lambda _: InMemoryPixelBattleContainer(),
+        provides=PixelBattleContainer,
     )
 
 

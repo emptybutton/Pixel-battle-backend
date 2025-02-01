@@ -54,8 +54,8 @@ def recolored_pixel() -> Pixel[RGBColor]:
 
 @fixture
 def initiated_pixel_battle() -> InitiatedPixelBattle:
-    start_time = Time(datetime=datetime(2006, 1, 1, tzinfo=UTC))
-    end_time = Time(datetime=datetime(2006, 1, 3, tzinfo=UTC))
+    start_time = Time(datetime=datetime(1981, 1, 1, tzinfo=UTC))
+    end_time = Time(datetime=datetime(2020, 1, 1, tzinfo=UTC))
     time_delta = TimeDelta(start_time=start_time, end_time=end_time)
     admin_key = AdminKey(token="token")
 
@@ -136,7 +136,7 @@ def test_recolored_by_with_not_going_on_pixel_battle(
     recolored_pixel: Pixel[RGBColor],
     initiated_pixel_battle: InitiatedPixelBattle,
 ) -> None:
-    current_time = Time(datetime=datetime(2020, 1, 1, tzinfo=UTC))
+    current_time = Time(datetime=datetime(2077, 1, 1, tzinfo=UTC))
 
     with raises(PixelBattleIsNotGoingOnToRecolorError):
         recolored_by_user(
