@@ -1,11 +1,14 @@
 from dataclasses import dataclass
 from typing import TypeGuard, cast
 
+from pixel_battle.entities.admin.admin import (
+    Admin,
+    AdminKey,
+    generated_admin_key_when,
+    has_access,
+)
 from pixel_battle.entities.space.time import Time
 from pixel_battle.entities.space.time_delta import TimeDelta
-from pixel_battle.entities.admin.admin import (
-    Admin, AdminKey, generated_admin_key_when, has_access
-)
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)

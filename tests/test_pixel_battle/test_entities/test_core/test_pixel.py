@@ -6,10 +6,10 @@ from pixel_battle.entities.admin.admin import AdminKey
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import (
     Pixel,
+    PixelBattleIsNotGoingOnToRecolorError,
     PixelOutOfCanvasError,
     RecoloredPixelByUser,
     UserHasNoRightToRecolorError,
-    PixelBattleIsNotGoingOnToRecolorError,
     pixel_in,
     recolored,
     recolored_by_user,
