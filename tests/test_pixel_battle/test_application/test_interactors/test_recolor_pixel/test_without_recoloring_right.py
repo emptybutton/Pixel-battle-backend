@@ -16,7 +16,7 @@ def input_signed_user_data() -> User:
 
 
 async def test_result(
-    recolor_pixel: RecolorPixel,
+    recolor_pixel: RecolorPixel[User | None],
     input_signed_user_data: User,
 ) -> None:
     with raises(UserHasNoRightToRecolorError):
@@ -31,7 +31,7 @@ async def test_result(
 
 
 async def test_broker(
-    recolor_pixel: RecolorPixel,
+    recolor_pixel: RecolorPixel[User | None],
     input_signed_user_data: User,
 ) -> None:
     with suppress(Exception):

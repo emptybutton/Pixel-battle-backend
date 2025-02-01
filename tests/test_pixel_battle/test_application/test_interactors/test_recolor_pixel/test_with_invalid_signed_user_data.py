@@ -6,9 +6,10 @@ from pixel_battle.application.interactors.recolor_pixel import (
     InvalidSignedUserDataError,
     RecolorPixel,
 )
+from pixel_battle.entities.core.user import User
 
 
-async def test_result(recolor_pixel: RecolorPixel) -> None:
+async def test_result(recolor_pixel: RecolorPixel[User | None]) -> None:
     with raises(InvalidSignedUserDataError):
         await recolor_pixel(
             signed_user_data=None,
@@ -21,7 +22,7 @@ async def test_result(recolor_pixel: RecolorPixel) -> None:
 
 
 async def test_pixel_queue(
-    recolor_pixel: RecolorPixel
+    recolor_pixel: RecolorPixel[User | None]
 ) -> None:
     with suppress(Exception):
         await recolor_pixel(

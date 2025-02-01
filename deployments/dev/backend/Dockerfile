@@ -4,6 +4,7 @@ WORKDIR /pixel-battle
 
 ENV POETRY_VIRTUALENVS_IN_PROJECT true
 ENV PYTHONPATH /pixel-battle/src:/pixel-battle/tests
+ENV MYPYPATH /pixel-battle/src:/pixel-battle/tests
 
 HEALTHCHECK \
 --start-interval=0s \

@@ -14,7 +14,7 @@ from pixel_battle.infrastructure.adapters.user_data_signing import (
 
 
 @fixture
-def register_user(current_time: Time) -> RegisterUser:
+def register_user(current_time: Time) -> RegisterUser[User | None]:
     return RegisterUser(
         user_data_signing=UserDataSigningAsIdentification(),
         clock=StoppedClock(current_time=current_time),

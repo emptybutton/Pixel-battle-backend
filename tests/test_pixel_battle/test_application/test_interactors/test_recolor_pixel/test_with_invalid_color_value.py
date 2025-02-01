@@ -10,7 +10,7 @@ from pixel_battle.entities.space.color import (
 
 
 async def test_error_on_too_large_value_number(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         await recolor_pixel(
@@ -24,7 +24,7 @@ async def test_error_on_too_large_value_number(
 
 
 async def test_error_on_negative_value_number(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with raises(RGBColorValueNumberInInvalidRangeError):
         await recolor_pixel(
@@ -38,7 +38,7 @@ async def test_error_on_negative_value_number(
 
 
 async def test_broker(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with suppress(Exception):
         await recolor_pixel(

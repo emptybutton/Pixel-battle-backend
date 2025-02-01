@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: mypy
-        run: docker compose -f deployments/dev/docker-compose.yaml run backend mypy src
+        run: docker compose -f deployments/dev/docker-compose.yaml run backend mypy src tests
 
   pytest:
     runs-on: ubuntu-latest

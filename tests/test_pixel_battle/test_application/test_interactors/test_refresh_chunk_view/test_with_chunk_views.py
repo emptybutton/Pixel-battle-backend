@@ -29,5 +29,6 @@ async def test_chunk_views(
     await refresh_chunk_view(0, 0)
 
     excepted_views = {chunk: CollectionChunkView([pixel1_2, pixel2_1])}
+    result_views = dict(refresh_chunk_view.chunk_views)  # type: ignore[call-overload]
 
-    assert dict(refresh_chunk_view.chunk_views) == excepted_views
+    assert result_views == excepted_views

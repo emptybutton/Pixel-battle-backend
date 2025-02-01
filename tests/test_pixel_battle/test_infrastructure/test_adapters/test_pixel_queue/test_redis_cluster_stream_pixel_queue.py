@@ -1,5 +1,5 @@
 from asyncio import gather, sleep
-from typing import AsyncIterator, Awaitable, Callable
+from typing import AsyncIterator, Awaitable, Callable, Sequence
 
 from pytest import fixture, mark
 from redis.asyncio import RedisCluster
@@ -115,7 +115,7 @@ async def test_empty_queue_pulling(
     push: Push,
     pixel1: Pixel[RGBColor],
 ) -> None:
-    async def pull() -> tuple[Pixel[RGBColor], ...]:
+    async def pull() -> Sequence[Pixel[RGBColor]]:
         if is_commitable:
             async with queue.committable_pulled_pixels_when(
                 chunk=pixel1.chunk, process=process, only_new=only_new
@@ -156,7 +156,7 @@ async def test_full_queue_pulling(
 ) -> None:
     await queue.push(pixel1)
 
-    async def pull() -> tuple[Pixel[RGBColor], ...]:
+    async def pull() -> Sequence[Pixel[RGBColor]]:
         if is_commitable:
             async with queue.committable_pulled_pixels_when(
                 chunk=pixel1.chunk, process=process, only_new=only_new

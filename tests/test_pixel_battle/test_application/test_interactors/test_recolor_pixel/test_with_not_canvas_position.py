@@ -8,7 +8,7 @@ from pixel_battle.entities.core.user import User
 
 
 async def test_error_on_too_large_x(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with raises(PixelOutOfCanvasError):
         await recolor_pixel(
@@ -22,7 +22,7 @@ async def test_error_on_too_large_x(
 
 
 async def test_error_on_negative_x(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with raises(PixelOutOfCanvasError):
         await recolor_pixel(
@@ -36,7 +36,7 @@ async def test_error_on_negative_x(
 
 
 async def test_broker(
-    recolor_pixel: RecolorPixel, input_signed_user_data: User
+    recolor_pixel: RecolorPixel[User | None], input_signed_user_data: User
 ) -> None:
     with suppress(Exception):
         await recolor_pixel(

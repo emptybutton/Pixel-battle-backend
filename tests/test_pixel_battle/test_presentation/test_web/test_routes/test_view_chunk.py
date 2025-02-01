@@ -30,7 +30,7 @@ async def test_ok(
 
     if stage == "body":
         expected_body = PNGImageChunkView.create_default()
-        body = PNGImageChunkView(open(response))
+        body = PNGImageChunkView(open(response))  # type: ignore[arg-type]
 
         assert body == expected_body
 

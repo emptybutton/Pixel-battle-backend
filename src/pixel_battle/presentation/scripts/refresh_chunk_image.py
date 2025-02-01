@@ -2,17 +2,16 @@ import sys
 from dataclasses import dataclass
 from datetime import datetime
 from io import TextIOBase
-from typing import cast
+from typing import Any, cast
 
 from pixel_battle.application.interactors.refresh_chunk_view import (
     RefreshChunkView,
 )
-from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RefreshChunkImageScript:
-    refresh_chunk_view: RefreshChunkView[PNGImageChunkView]
+    refresh_chunk_view: RefreshChunkView[Any]
     ok_file: TextIOBase = cast(TextIOBase, sys.stdout)
     error_file: TextIOBase = cast(TextIOBase, sys.stderr)
 

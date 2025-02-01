@@ -6,6 +6,9 @@ from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.user import User
 from pixel_battle.entities.space.time import Time
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
+from pixel_battle.infrastructure.adapters.pixel_battle_container import (
+    InMemoryPixelBattleContainer,
+)
 from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningAsIdentification,
@@ -13,12 +16,13 @@ from pixel_battle.infrastructure.adapters.user_data_signing import (
 
 
 @fixture
-def recolor_pixel() -> RecolorPixel:
+def recolor_pixel() -> RecolorPixel[User | None]:
     current_time = Time(datetime=datetime(2006, 1, 1, tzinfo=UTC))
 
     return RecolorPixel(
         user_data_signing=UserDataSigningAsIdentification(),
         pixel_queue=InMemoryPixelQueue(pulling_timeout_seconds=0),
+        pixel_battle_container=InMemoryPixelBattleContainer(),
         clock=StoppedClock(current_time=current_time),
     )
 

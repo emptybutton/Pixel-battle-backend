@@ -1,3 +1,5 @@
+from typing import TYPE_CHECKING
+
 from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import (
@@ -10,13 +12,17 @@ from pixel_battle.entities.geometry.vector import Vector
 from pixel_battle.entities.space.color import RGBColor, red
 
 
+if TYPE_CHECKING:
+    from pixel_battle.entities.core.chunk import Chunk
+
+
 @fixture
 def expected_pixel() -> Pixel[RGBColor]:
     return Pixel(position=Vector(), color=red)
 
 
 async def test_result(
-    recolor_pixel: RecolorPixel,
+    recolor_pixel: RecolorPixel[User | None],
     expected_pixel: Pixel[RGBColor],
     input_signed_user_data: User,
     output_signed_user_data: User,
@@ -38,7 +44,7 @@ async def test_result(
 
 
 async def test_broker(
-    recolor_pixel: RecolorPixel,
+    recolor_pixel: RecolorPixel[User | None],
     expected_pixel: Pixel[RGBColor],
     input_signed_user_data: User,
 ) -> None:
@@ -52,5 +58,6 @@ async def test_broker(
     )
 
     expected_result = {expected_pixel.chunk: [expected_pixel]}
+    result: dict[Chunk, list[Pixel[RGBColor]]] = dict(recolor_pixel.pixel_queue)  # type: ignore[call-overload]
 
-    assert dict(recolor_pixel.pixel_queue) == expected_result
+    assert result == expected_result
