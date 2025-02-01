@@ -35,5 +35,6 @@ class InitiatePixelBattle:
             time_delta=time_delta,
             pixel_battle=pixel_battle,
         )
+        await self.pixel_battle_container.put(initiated_pixel_battle)
 
         return Output(pixel_battle=initiated_pixel_battle)

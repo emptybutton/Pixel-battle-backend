@@ -36,11 +36,11 @@ class ReshedulePixelBattle:
         new_time_delta = TimeDelta(start_time=start_time, end_time=end_time)
 
         stored_pixel_battle = await self.pixel_battle_container.get()
-
         rescheduled_pixel_battle = rescheduled_by_admin(
             stored_pixel_battle,
             new_time_delta=new_time_delta,
             admin=admin,
         )
+        await self.pixel_battle_container.put(rescheduled_pixel_battle)
 
         return Output(pixel_battle=rescheduled_pixel_battle)
