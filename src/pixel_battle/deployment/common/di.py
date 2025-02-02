@@ -53,9 +53,6 @@ from pixel_battle.infrastructure.envs import Envs
 from pixel_battle.presentation.distributed_tasks.refresh_chunk_view import (
     RefreshChunkViewTask,
 )
-from pixel_battle.presentation.scripts.refresh_chunk_image import (
-    RefreshChunkImageScript,
-)
 from pixel_battle.presentation.web.streaming import Streaming
 
 
@@ -182,16 +179,6 @@ class StreamingProvider(Provider):
     ) -> AsyncIterator[Streaming]:
         async with Streaming(view_chunk_stream=view_chunk_stream) as streaming:
             yield streaming
-
-
-class ScriptProvider(Provider):
-    scope = Scope.APP
-
-    @provide
-    def provide_update_chunk_view_script(
-        self, refresh_chunk_view: RefreshChunkView[PNGImageChunkView],
-    ) -> RefreshChunkImageScript:
-        return RefreshChunkImageScript(refresh_chunk_view=refresh_chunk_view)
 
 
 class DistributedTaskProvider(Provider):
