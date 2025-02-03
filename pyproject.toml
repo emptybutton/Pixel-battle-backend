@@ -41,6 +41,13 @@ strict = true
 no_namespace_packages = true
 allow_redefinition = true
 
+[tool.basedpyright]
+include = ["src", "tests"]
+exclude = ["*/__pycache__/*", "*/__init__.py"]
+typeCheckingMode = "off"
+pythonVersion = "3.13"
+pythonPlatform = "Linux"
+
 [tool.ruff]
 src = ["src"]
 preview = true
