@@ -1,5 +1,5 @@
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber

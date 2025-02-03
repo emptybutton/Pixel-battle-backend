@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
+from contextlib import AbstractAsyncContextManager
 from enum import Enum, auto
-from typing import AsyncContextManager, Sequence
 
 from pixel_battle.entities.core.chunk import Chunk
 from pixel_battle.entities.core.pixel import Pixel
@@ -12,8 +13,9 @@ class PullingProcess(Enum):
 
 
 type UncommittablePulledPixels = Sequence[Pixel[RGBColor]]
-
-type CommittablePulledPixels = AsyncContextManager[Sequence[Pixel[RGBColor]]]
+type CommittablePulledPixels = (
+    AbstractAsyncContextManager[Sequence[Pixel[RGBColor]]]
+)
 
 
 class PixelQueue(ABC):

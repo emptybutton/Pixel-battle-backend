@@ -1,4 +1,4 @@
-from typing import AsyncIterator
+from collections.abc import AsyncIterator
 
 from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster

@@ -1,6 +1,6 @@
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from io import BytesIO
-from typing import Iterable, Iterator
 
 from PIL.Image import Image, new, open
 

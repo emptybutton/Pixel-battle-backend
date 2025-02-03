@@ -1,6 +1,7 @@
 import asyncio
+from collections.abc import AsyncIterator, Coroutine, Iterable
 from contextlib import asynccontextmanager, suppress
-from typing import Any, AsyncIterator, Coroutine, Iterable, cast
+from typing import Any, cast
 
 from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
@@ -15,7 +16,7 @@ type AppRouters = Iterable[APIRouter]
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     with suppress(asyncio.CancelledError):
         async with asyncio.TaskGroup() as tasks:
-            for coroutine in cast(AppCoroutines, app.state.coroutines):
+            for coroutine in cast("AppCoroutines", app.state.coroutines):
                 tasks.create_task(coroutine)
 
             yield

@@ -50,7 +50,7 @@ def rescheduled_by_admin(
     if not has_access_to_pixel_battle(admin, pixel_battle=pixel_battle):
         raise NoAccessToRescheduleError
 
-    pixel_battle = cast(InitiatedPixelBattle, pixel_battle)
+    pixel_battle = cast("InitiatedPixelBattle", pixel_battle)
 
     return InitiatedPixelBattle(
         time_delta=new_time_delta,

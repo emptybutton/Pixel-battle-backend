@@ -1,4 +1,4 @@
-from typing import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Iterator
 
 from PIL.Image import open
 from pytest import fixture

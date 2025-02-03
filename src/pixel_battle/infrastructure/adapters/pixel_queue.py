@@ -1,8 +1,9 @@
 from asyncio import sleep
 from collections import defaultdict
+from collections.abc import AsyncIterator, Iterable, Iterator, Sequence
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import AsyncIterator, Iterable, Iterator, Sequence, cast
+from typing import cast
 
 from redis.asyncio.cluster import RedisCluster
 from redis.asyncio.lock import Lock as _RedisLock
@@ -174,7 +175,7 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         block = int(self.pulling_timeout_seconds * 1000)
         results = await self.redis_cluster.xread({key: offset}, block=block)
 
-        return cast(RedisStreamResults, results)
+        return cast("RedisStreamResults", results)
 
     def __lock(self, chunk: Chunk) -> _RedisLock:
         return _RedisLock(

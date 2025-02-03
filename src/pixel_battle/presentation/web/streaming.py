@@ -1,8 +1,9 @@
 from asyncio import Event, gather
 from collections import defaultdict
+from collections.abc import AsyncIterable
 from dataclasses import dataclass
 from types import TracebackType
-from typing import AsyncIterable, Self, Type
+from typing import Self
 
 from fastapi import WebSocket, WebSocketDisconnect, status
 
@@ -38,7 +39,7 @@ class Streaming:
 
     async def __aexit__(
         self,
-        error_type: Type[BaseException] | None,
+        error_type: type[BaseException] | None,
         error: BaseException | None,
         traceback: TracebackType | None,
     ) -> None:
@@ -68,7 +69,7 @@ class Streaming:
     async def stop(self, *, panic: bool) -> None:
         await gather(*(
             self.__disconnect_client(client, panic=panic)
-            for group_id, group in self.__client_group_by_group_id.items()
+            for _, group in self.__client_group_by_group_id.items()
             for client in group
         ))
 

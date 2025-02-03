@@ -1,5 +1,6 @@
+from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import ClassVar, Iterator
+from typing import ClassVar
 
 from redis.asyncio.cluster import RedisCluster
 

@@ -43,7 +43,7 @@ def callback_with_injected_dependencies_when[R, **Pm](
 
 def in_isolated_event_loop[R, **Pm](
     func: Callable[Pm, Coroutine[Any, Any, R]]
-) -> Callable[Pm, R]:
+) -> Callable[Pm, None]:
     def wrapper(*args: Pm.args, **kwargs: Pm.kwargs) -> None:
         thread = Thread(target=lambda: asyncio.run(func(*args, **kwargs)))
         thread.start()
