@@ -1,6 +1,7 @@
 import asyncio
 from collections.abc import Callable, Coroutine
 from copy import deepcopy
+from threading import Thread
 from typing import Any
 
 from click import Command
@@ -29,7 +30,7 @@ def callback_with_injected_dependencies_when[R, **Pm](
     *,
     callback: Callable[Pm, Coroutine[Any, Any, R]],
     container: AsyncContainer,
-) -> Callable[Pm, R]:
+) -> Callable[Pm, None]:
     injected_callback = wrap_injection(
         func=callback,
         container_getter=lambda _, __: container,
@@ -37,13 +38,15 @@ def callback_with_injected_dependencies_when[R, **Pm](
         is_async=True,
     )
 
-    return _sync(injected_callback)
+    return in_isolated_event_loop(injected_callback)
 
 
-def _sync[R, **Pm](
+def in_isolated_event_loop[R, **Pm](
     func: Callable[Pm, Coroutine[Any, Any, R]]
 ) -> Callable[Pm, R]:
-    def wrapper(*args: Pm.args, **kwargs: Pm.kwargs) -> R:
-        return asyncio.run(func(*args, **kwargs))
+    def wrapper(*args: Pm.args, **kwargs: Pm.kwargs) -> None:
+        thread = Thread(target=lambda: asyncio.run(func(*args, **kwargs)))
+        thread.start()
+        thread.join()
 
     return wrapper
