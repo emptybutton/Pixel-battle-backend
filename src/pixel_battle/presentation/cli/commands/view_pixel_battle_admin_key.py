@@ -1,6 +1,6 @@
 import sys
 
-from click import Abort, command, echo, option, style
+from click import command, echo, option, style
 from dishka import FromDishka
 
 from pixel_battle.application.interactors.view_pixel_battle_admin_key import (
@@ -28,8 +28,7 @@ async def view_pixel_battle_admin_key_command(
         if isinstance(result, Ok):
             echo(result.admin_key.token)
             return
-        else:
-            sys.exit(1)
+        sys.exit(1)
 
     if result is Error.pixel_battle_is_not_initiated_error:
         echo("Pixel-Battle is not initiated.")
