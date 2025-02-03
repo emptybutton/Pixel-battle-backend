@@ -1,6 +1,6 @@
 from click import Group
 
-from pixel_battle.deployment.cli.di import container
+from pixel_battle.deployment.admin_cli.di import container
 from pixel_battle.presentation.cli.commands.initiate_pixel_battle import (
     initiate_pixel_battle_command,
 )
