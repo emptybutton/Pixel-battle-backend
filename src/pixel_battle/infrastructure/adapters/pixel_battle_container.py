@@ -29,17 +29,17 @@ class InMemoryPixelBattleContainer(PixelBattleContainer):
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class APRedisClusterPixelBattleContainer(PixelBattleContainer):
-    __redis_cluster: RedisCluster
+    redis_cluster: RedisCluster
 
     __key: ClassVar = b"pixel_battle"
-    __EncodedData: ClassVar = dict[str, Any] | None
+    __EncodedData: ClassVar = dict[str, Any]
 
     async def put(self, pixel_battle: PixelBattle) -> None:
         data = self.__encoded(pixel_battle)
-        await self.__redis_cluster.hset(self.__key, mapping=data)  # type: ignore[misc]
+        await self.redis_cluster.hset(self.__key, mapping=data)  # type: ignore[misc]
 
     async def get(self) -> PixelBattle:
-        data = await self.__redis_cluster.execute_command(
+        data = await self.redis_cluster.execute_command(
             "HGETALL", self.__key, target_nodes=RedisCluster.RANDOM
         )
         return self.__decoded(data)
@@ -57,7 +57,7 @@ class APRedisClusterPixelBattleContainer(PixelBattleContainer):
         }
 
     def __decoded(self, data: __EncodedData) -> PixelBattle:
-        if data is None:
+        if not data:
             return None
 
         admin_key = AdminKey(token=data[b"token"].decode())

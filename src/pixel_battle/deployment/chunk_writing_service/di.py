@@ -1,4 +1,3 @@
-
 from dishka import Provider, Scope, make_async_container, provide
 
 from pixel_battle.deployment.common.di import (

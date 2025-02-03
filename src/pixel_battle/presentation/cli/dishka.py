@@ -4,7 +4,7 @@ from copy import deepcopy
 from threading import Thread
 from typing import Any
 
-from click import Command
+from click import Abort, Command
 from dishka import AsyncContainer
 from dishka.integrations.base import wrap_injection
 
@@ -45,8 +45,11 @@ def in_isolated_event_loop[R, **Pm](
     func: Callable[Pm, Coroutine[Any, Any, R]]
 ) -> Callable[Pm, None]:
     def wrapper(*args: Pm.args, **kwargs: Pm.kwargs) -> None:
-        thread = Thread(target=lambda: asyncio.run(func(*args, **kwargs)))
-        thread.start()
-        thread.join()
+        try:
+            thread = Thread(target=lambda: asyncio.run(func(*args, **kwargs)))
+            thread.start()
+            thread.join()
+        except Abort as abort:
+            raise abort from None
 
     return wrapper

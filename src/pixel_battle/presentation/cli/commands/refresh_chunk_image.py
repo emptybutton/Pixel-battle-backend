@@ -9,7 +9,7 @@ from pixel_battle.application.interactors.refresh_chunk_view import (
 from pixel_battle.application.ports.chunk_view import ChunkView
 
 
-@command()
+@command(name="refresh-image")
 @option(
     "-x",
     "--chunk-number-x",

@@ -3,6 +3,9 @@ from collections.abc import AsyncIterator
 from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
 
+from pixel_battle.application.interactors.initiate_pixel_battle import (
+    InitiatePixelBattle,
+)
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
 )
@@ -14,6 +17,9 @@ from pixel_battle.application.interactors.view_chunk import (
 )
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
+)
+from pixel_battle.application.interactors.view_pixel_battle_admin_key import (
+    ViewPixelBattleAdminKey,
 )
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
@@ -117,7 +123,7 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
         self, canvas_metadata_redis_cluster: CanvasMetadataRedisCluster
     ) -> PixelBattleContainer:
         return APRedisClusterPixelBattleContainer(
-            __redis_cluster=canvas_metadata_redis_cluster
+            redis_cluster=canvas_metadata_redis_cluster
         )
 
     provide_default_png_image_chunk_view_when = provide(
@@ -157,11 +163,15 @@ class InteractorProvider(Provider):
     provide_recolor_pixel = provide(RecolorPixel[str])
     provide_view_chunk_stream = provide(ViewChunkStream)
 
+    provide_initiate_pixel_battle = provide(InitiatePixelBattle)
+
     provide_refresh_chunk_view = provide(RefreshChunkView[PNGImageChunkView])
     provide_any_refresh_chunk_view = alias(
         source=RefreshChunkView[PNGImageChunkView],
         provides=RefreshChunkView[ChunkView],
     )
+
+    provide_view_pixel_battle_admin_key = provide(ViewPixelBattleAdminKey)
 
     provide_view_chunk = provide(ViewChunk[PNGImageChunkView])
     provide_any_view_chunk = alias(
