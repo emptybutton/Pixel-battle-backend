@@ -8,7 +8,7 @@ from pytest import fixture, mark
 from pixel_battle.presentation.cli.commands.refresh_chunk_image import (
     refresh_chunk_image_command,
 )
-from pixel_battle.presentation.cli.dishka import (
+from pixel_battle.presentation.cli.dishka_integration import (
     command_with_injected_dependencies_when,
 )
 

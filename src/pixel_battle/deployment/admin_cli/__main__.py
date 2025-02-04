@@ -1,5 +1,5 @@
 from pixel_battle.deployment.admin_cli.di import container
-from pixel_battle.presentation.cli.dishka import (
+from pixel_battle.presentation.cli.dishka_integration import (
     command_with_injected_dependencies_when,
 )
 from pixel_battle.presentation.cli.groups import admin_group
