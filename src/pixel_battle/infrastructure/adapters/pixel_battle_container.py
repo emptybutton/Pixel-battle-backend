@@ -39,9 +39,7 @@ class APRedisClusterPixelBattleContainer(PixelBattleContainer):
         await self.redis_cluster.hset(self.__key, mapping=data)  # type: ignore[misc]
 
     async def get(self) -> PixelBattle:
-        data = await self.redis_cluster.execute_command(
-            "HGETALL", self.__key, target_nodes=RedisCluster.RANDOM
-        )
+        data = await self.redis_cluster.hgetall(self.__key)  # type: ignore[misc]
         return self.__decoded(data)
 
     def __encoded(self, pixel_battle: PixelBattle) -> __EncodedData:
