@@ -53,7 +53,7 @@ class RedisClusterPixelBattleContainer(PixelBattleContainer):
 
         return {
             b"start_datetime": time_delta.start_time.datetime.isoformat(),
-            b"end_datetime": time_delta.start_time.datetime.isoformat(),
+            b"end_datetime": time_delta.end_time.datetime.isoformat(),
         }
 
     def __decoded(self, data: __EncodedData) -> PixelBattle:
