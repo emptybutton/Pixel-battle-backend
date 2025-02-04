@@ -8,6 +8,7 @@ class Envs:
     canvas_redis_cluster_url: str
     canvas_metadata_redis_cluster_url: str
     jwt_secret: str
+    admin_key: str
 
     @classmethod
     def load(cls) -> "Envs":
@@ -21,4 +22,5 @@ class Envs:
                 loader.str("CANVAS_METADATA_REDIS_CLUSTER_URL")
             ),
             jwt_secret=loader.str("JWT_SECRET"),
+            admin_key=loader.str("ADMIN_KEY"),
         )

@@ -4,7 +4,7 @@ from pytest import fixture
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.admin.admin import AdminKey
-from pixel_battle.entities.core.pixel_battle import InitiatedPixelBattle
+from pixel_battle.entities.core.pixel_battle import ScheduledPixelBattle
 from pixel_battle.entities.core.user import User
 from pixel_battle.entities.space.time import Time
 from pixel_battle.entities.space.time_delta import TimeDelta
@@ -27,7 +27,7 @@ def recolor_pixel() -> RecolorPixel[User | None]:
     time_delta = TimeDelta(start_time=start_time, end_time=end_time)
 
     admin_key = AdminKey(token="token")
-    pixel_battle = InitiatedPixelBattle(
+    pixel_battle = ScheduledPixelBattle(
         admin_key=admin_key, time_delta=time_delta
     )
 

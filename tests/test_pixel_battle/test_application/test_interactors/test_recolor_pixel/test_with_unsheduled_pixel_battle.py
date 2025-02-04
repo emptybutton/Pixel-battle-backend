@@ -4,9 +4,11 @@ from datetime import UTC, datetime
 from pytest import fixture, raises
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
+from pixel_battle.entities.admin.admin import AdminKey
 from pixel_battle.entities.core.pixel import (
     PixelBattleIsNotGoingOnToRecolorError,
 )
+from pixel_battle.entities.core.pixel_battle import UnscheduledPixelBattle
 from pixel_battle.entities.core.user import User
 from pixel_battle.entities.space.time import Time
 
@@ -19,7 +21,10 @@ def input_signed_user_data() -> User:
 
 @fixture(autouse=True)
 async def effect(recolor_pixel: RecolorPixel[User | None]) -> None:
-    await recolor_pixel.pixel_battle_container.put(None)
+    admin_key = AdminKey(token="token")
+    pixel_battle = UnscheduledPixelBattle(admin_key=admin_key)
+
+    await recolor_pixel.pixel_battle_container.put(pixel_battle)
 
 
 async def test_result(

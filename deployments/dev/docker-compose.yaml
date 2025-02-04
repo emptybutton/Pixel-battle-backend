@@ -24,6 +24,7 @@ services:
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
       CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
       JWT_SECRET: super-secret-secret
+      ADMIN_KEY: super-secret-admin-key
     labels:
       pixel-battle: true
     command: python src/pixel_battle/deployment/god_service

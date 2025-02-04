@@ -3,23 +3,20 @@ from collections.abc import AsyncIterator
 from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
 
-from pixel_battle.application.interactors.initiate_pixel_battle import (
-    InitiatePixelBattle,
-)
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
 )
 from pixel_battle.application.interactors.refresh_chunk_view import (
     RefreshChunkView,
 )
+from pixel_battle.application.interactors.schedule_pixel_battle import (
+    SchedulePixelBattle,
+)
 from pixel_battle.application.interactors.view_chunk import (
     ViewChunk,
 )
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
-)
-from pixel_battle.application.interactors.view_pixel_battle_admin_key import (
-    ViewPixelBattleAdminKey,
 )
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
@@ -32,6 +29,8 @@ from pixel_battle.application.ports.pixel_battle_container import (
 )
 from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
+from pixel_battle.entities.admin.admin import AdminKey
+from pixel_battle.entities.core.pixel_battle import UnscheduledPixelBattle
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -45,8 +44,8 @@ from pixel_battle.infrastructure.adapters.clock import (
     RedisClusterRandomNodeClock,
 )
 from pixel_battle.infrastructure.adapters.pixel_battle_container import (
-    APRedisClusterPixelBattleContainer,
     InMemoryPixelBattleContainer,
+    RedisClusterPixelBattleContainer,
 )
 from pixel_battle.infrastructure.adapters.pixel_queue import (
     InMemoryPixelQueue,
@@ -120,10 +119,13 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
 
     @provide
     def provide_pixel_battle_container(
-        self, canvas_metadata_redis_cluster: CanvasMetadataRedisCluster
+        self,
+        canvas_metadata_redis_cluster: CanvasMetadataRedisCluster,
+        envs: Envs,
     ) -> PixelBattleContainer:
-        return APRedisClusterPixelBattleContainer(
-            redis_cluster=canvas_metadata_redis_cluster
+        return RedisClusterPixelBattleContainer(
+            redis_cluster=canvas_metadata_redis_cluster,
+            admin_key=AdminKey(token=envs.admin_key),
         )
 
     provide_default_png_image_chunk_view_when = provide(
@@ -139,6 +141,13 @@ class ProcessInfrastructureAdapterProvider(Provider):
     def provide_user_data_signing(self) -> UserDataSigning[str]:
         return UserDataSigningToHS256JWT(secret="super secret secret")  # noqa: S106
 
+    @provide
+    def provide_pixel_battle_container(self) -> PixelBattleContainer:
+        admin_key = AdminKey(token="admin-key")  # noqa: S106
+        pixel_battle = UnscheduledPixelBattle(admin_key=admin_key)
+
+        return InMemoryPixelBattleContainer(pixel_battle)
+
     provide_chunk_views = provide(
         lambda _: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]
     )
@@ -151,10 +160,6 @@ class ProcessInfrastructureAdapterProvider(Provider):
         DefaultPNGImageChunkViewWhen,
         provides=DefaultChunkViewWhen[PNGImageChunkView],
     )
-    provide_pixel_battle_container = provide(
-        lambda _: InMemoryPixelBattleContainer(),
-        provides=PixelBattleContainer,
-    )
 
 
 class InteractorProvider(Provider):
@@ -163,15 +168,13 @@ class InteractorProvider(Provider):
     provide_recolor_pixel = provide(RecolorPixel[str])
     provide_view_chunk_stream = provide(ViewChunkStream)
 
-    provide_initiate_pixel_battle = provide(InitiatePixelBattle)
+    provide_schedule_pixel_battle = provide(SchedulePixelBattle)
 
     provide_refresh_chunk_view = provide(RefreshChunkView[PNGImageChunkView])
     provide_any_refresh_chunk_view = alias(
         source=RefreshChunkView[PNGImageChunkView],
         provides=RefreshChunkView[ChunkView],
     )
-
-    provide_view_pixel_battle_admin_key = provide(ViewPixelBattleAdminKey)
 
     provide_view_chunk = provide(ViewChunk[PNGImageChunkView])
     provide_any_view_chunk = alias(

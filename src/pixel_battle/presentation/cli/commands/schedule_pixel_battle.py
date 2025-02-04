@@ -4,15 +4,16 @@ from datetime import UTC, datetime
 from click import DateTime, command, echo, option, style
 from dishka import FromDishka
 
-from pixel_battle.application.interactors.initiate_pixel_battle import (
-    InitiatePixelBattle,
+from pixel_battle.application.interactors.schedule_pixel_battle import (
+    SchedulePixelBattle,
 )
 from pixel_battle.entities.core.pixel_battle import (
-    PixelBattleIsAlreadyInitiatedError,
+    NotAuthorizedToScheduleError,
 )
+from pixel_battle.entities.space.time_delta import StartAfterEndTimeDeltaError
 
 
-@command(name="initiate")
+@command(name="schedule")
 @option(
     "-s",
     "--pixel-battle-start-time",
@@ -26,28 +27,43 @@ from pixel_battle.entities.core.pixel_battle import (
     prompt="pixel_battle.end_time",
 )
 @option(
+    "-k",
+    "--admin-key",
+    envvar="ADMIN_KEY",
+    type=str,
+    prompt="admin_key",
+    show_envvar=True
+)
+@option(
     "-q",
     "--quiet",
     is_flag=True,
     default=False,
-    help="Write only an admin key",
+    help="Don't write to stdout",
 )
-async def initiate_pixel_battle_command(
-    initiate_pixel_battle: FromDishka[InitiatePixelBattle],
+async def schedule_pixel_battle_command(
+    schedule_pixel_battle: FromDishka[SchedulePixelBattle],
     pixel_battle_start_time: datetime,
     pixel_battle_end_time: datetime,
+    admin_key: str,
     quiet: bool,
 ) -> None:
     start_time = datetime.now()
 
     try:
-        result = await initiate_pixel_battle(
+        await schedule_pixel_battle(
             pixel_battle_start_time.astimezone(UTC),
             pixel_battle_end_time.astimezone(UTC),
+            admin_key,
         )
-    except PixelBattleIsAlreadyInitiatedError:
+    except NotAuthorizedToScheduleError:
         if not quiet:
-            echo("Pixel-Battle is already initiated.")
+            echo(style("Forbidden.", bg="red"))
+
+        sys.exit(1)
+    except StartAfterEndTimeDeltaError:
+        if not quiet:
+            echo(style("Start after end.", bg="red"))
 
         sys.exit(1)
 
@@ -57,10 +73,4 @@ async def initiate_pixel_battle_command(
 
     if not quiet:
         styled_delta_seconds = style(delta_seconds, fg="cyan")
-        styled_admin_key = style(
-            result.pixel_battle.admin_key.token, fg="cyan"
-        )
-        echo(f"Pixel-Battle was initiated in {styled_delta_seconds} seconds.")
-        echo(f"Your admin key: {styled_admin_key}")
-    else:
-        echo(result.pixel_battle.admin_key.token)
+        echo(f"Pixel-Battle was scheduled in {styled_delta_seconds} seconds.")
