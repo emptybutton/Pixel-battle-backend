@@ -1,10 +1,12 @@
 from collections.abc import Iterable
+from datetime import datetime
 from typing import Self
 
 from pydantic import BaseModel, Field
 
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.space.color import RGBColor
+from pixel_battle.entities.space.time_delta import TimeDelta
 
 
 class ErrorListSchema[ErrorSchemaT](BaseModel):
@@ -44,3 +46,15 @@ class RecoloredPixelListSchema(BaseModel):
         pixels = list(map(RecoloredPixelSchema.of, pixels))
 
         return RecoloredPixelListSchema(pixels=pixels)
+
+
+class TimeDeltaSchema(BaseModel):
+    start_time: datetime = Field(alias="startTime")
+    end_time: datetime = Field(alias="endTime")
+
+    @classmethod
+    def of(cls, time_delta: TimeDelta) -> "TimeDeltaSchema":
+        return TimeDeltaSchema(
+            startTime=time_delta.start_time.datetime,
+            endTime=time_delta.end_time.datetime,
+        )

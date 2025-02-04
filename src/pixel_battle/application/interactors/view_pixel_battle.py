@@ -15,7 +15,7 @@ class Output:
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class ViewPixelBattleTimeDelta:
+class ViewPixelBattle:
     clock: Clock
     pixel_battle_container: PixelBattleContainer
 

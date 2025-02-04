@@ -21,6 +21,9 @@ from pixel_battle.presentation.web.routes.stream_chunk import (
 from pixel_battle.presentation.web.routes.view_chunk import (
     router as view_chunk_router,
 )
+from pixel_battle.presentation.web.routes.view_pixel_battle import (
+    router as view_pixel_battle_router,
+)
 
 
 class ShowcaseServiceProvider(Provider):
@@ -30,6 +33,7 @@ class ShowcaseServiceProvider(Provider):
     def provide_routers(self) -> AppRouters:
         return [
             healthcheck_router,
+            view_pixel_battle_router,
             recolor_pixel_router,
             view_chunk_router,
             stream_chunk_router,

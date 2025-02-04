@@ -6,10 +6,14 @@ from pixel_battle.presentation.cli.commands.refresh_chunk_image import (
 from pixel_battle.presentation.cli.commands.schedule_pixel_battle import (
     schedule_pixel_battle_command,
 )
+from pixel_battle.presentation.cli.commands.view_pixel_battle import (
+    view_pixel_battle_command,
+)
 
 
 pixel_battle_group = Group("pixel-battle")
 pixel_battle_group.add_command(schedule_pixel_battle_command)
+pixel_battle_group.add_command(view_pixel_battle_command)
 
 chunk_group = Group(name="chunk")
 chunk_group.add_command(refresh_chunk_image_command)

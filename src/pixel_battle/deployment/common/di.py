@@ -18,6 +18,9 @@ from pixel_battle.application.interactors.view_chunk import (
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
+from pixel_battle.application.interactors.view_pixel_battle import (
+    ViewPixelBattle,
+)
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
     DefaultChunkViewWhen,
@@ -169,6 +172,7 @@ class InteractorProvider(Provider):
     provide_view_chunk_stream = provide(ViewChunkStream)
 
     provide_schedule_pixel_battle = provide(SchedulePixelBattle)
+    provide_view_pixel_battle = provide(ViewPixelBattle)
 
     provide_refresh_chunk_view = provide(RefreshChunkView[PNGImageChunkView])
     provide_any_refresh_chunk_view = alias(
