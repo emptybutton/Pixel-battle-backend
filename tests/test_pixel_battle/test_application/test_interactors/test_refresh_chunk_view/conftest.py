@@ -7,6 +7,9 @@ from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
 from pixel_battle.entities.geometry.vector import Vector
 from pixel_battle.entities.space.color import RGBColor, black, red, white
+from pixel_battle.infrastructure.adapters.chunk_optimistic_lock import (
+    AsyncIOChunkOptimisticLockWhen,
+)
 from pixel_battle.infrastructure.adapters.chunk_view import (
     CollectionChunkView,
     DefaultCollectionChunkViewWhen,
@@ -21,6 +24,7 @@ def refresh_chunk_view() -> RefreshChunkView[CollectionChunkView]:
         pixel_queue=InMemoryPixelQueue(pulling_timeout_seconds=0),
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),
+        chunk_optimistic_lock_when=AsyncIOChunkOptimisticLockWhen(),
     )
 
 

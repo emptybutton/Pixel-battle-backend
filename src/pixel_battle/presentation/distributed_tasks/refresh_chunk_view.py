@@ -45,7 +45,7 @@ class RefreshChunkViewCommand:
 class RefreshChunkViewTask:
     refresh_chunk_view: RefreshChunkView[Any]
     redis_cluster: RedisCluster
-    __queue_key: ClassVar = b"refresh_chunk_view"
+    __queue_key: ClassVar = b"refresh_chunk_view_task_queue"
 
     async def start_pushing(self) -> NoReturn:
         while True:

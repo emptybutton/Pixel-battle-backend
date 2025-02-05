@@ -21,6 +21,10 @@ from pixel_battle.application.interactors.view_chunk_stream import (
 from pixel_battle.application.interactors.view_pixel_battle import (
     ViewPixelBattle,
 )
+from pixel_battle.application.ports.chunk_optimistic_lock import (
+    ChunkOptimisticLock,
+    ChunkOptimisticLockWhen,
+)
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
     DefaultChunkViewWhen,
@@ -34,6 +38,10 @@ from pixel_battle.application.ports.pixel_queue import PixelQueue
 from pixel_battle.application.ports.user_data_signing import UserDataSigning
 from pixel_battle.entities.admin.admin import AdminKey
 from pixel_battle.entities.core.pixel_battle import UnscheduledPixelBattle
+from pixel_battle.infrastructure.adapters.chunk_optimistic_lock import (
+    AsyncIOChunkOptimisticLockWhen,
+    RedisClusterChunkOptimisticLockWhen,
+)
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -109,6 +117,15 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
         )
 
     @provide
+    def provide_chunk_optimistic_lock_when(
+        self, canvas_redis_cluster: CanvasRedisCluster
+    ) -> ChunkOptimisticLockWhen:
+        return RedisClusterChunkOptimisticLockWhen(
+            redis_cluster=canvas_redis_cluster,
+            lock_max_age_seconds=60 * 5,
+        )
+
+    @provide
     def provide_pixel_queue(
         self, canvas_redis_cluster: CanvasRedisCluster
     ) -> PixelQueue:
@@ -150,6 +167,10 @@ class ProcessInfrastructureAdapterProvider(Provider):
         pixel_battle = UnscheduledPixelBattle(admin_key=admin_key)
 
         return InMemoryPixelBattleContainer(pixel_battle)
+
+    provide_chunk_optimistic_lock_when = provide(
+        AsyncIOChunkOptimisticLockWhen, provides=ChunkOptimisticLockWhen,
+    )
 
     provide_chunk_views = provide(
         lambda _: InMemoryChunkViews(), provides=ChunkViews[PNGImageChunkView]

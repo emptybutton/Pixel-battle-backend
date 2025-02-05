@@ -6,7 +6,6 @@ from dataclasses import dataclass, field
 from typing import cast
 
 from redis.asyncio.cluster import RedisCluster
-from redis.asyncio.lock import Lock as _RedisLock
 
 from pixel_battle.application.ports.pixel_queue import (
     PixelQueue,
@@ -128,8 +127,6 @@ class RedisClusterStreamPixelQueue(PixelQueue):
     redis_cluster: RedisCluster
     max_stream_lenght: int = 5_000_000
     pulling_timeout_seconds: int | float = 3
-    lock_timeout_seconds: int | float = 5
-    lock_blocking_timeout_seconds: int | float = 15
     last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset] = (
         field(default_factory=dict)
     )
@@ -156,18 +153,17 @@ class RedisClusterStreamPixelQueue(PixelQueue):
     async def committable_pulled_pixels_when(
         self, *, chunk: Chunk, process: PullingProcess | None, only_new: bool
     ) -> AsyncIterator[Sequence[Pixel[RGBColor]]]:
-        async with self.__lock(chunk):
-            key = self.__stream_key_when(chunk=chunk)
-            offset = await self.__offset_when(
-                chunk=chunk, process=process, only_new=only_new
-            )
-            results = await self.__pull(key=key, offset=offset)
+        key = self.__stream_key_when(chunk=chunk)
+        offset = await self.__offset_when(
+            chunk=chunk, process=process, only_new=only_new
+        )
+        results = await self.__pull(key=key, offset=offset)
 
-            yield self.__pixels_when(results=results, chunk=chunk)
+        yield self.__pixels_when(results=results, chunk=chunk)
 
-            await self.__commit_offset(
-                process=process, chunk=chunk, results=results
-            )
+        await self.__commit_offset(
+            process=process, chunk=chunk, results=results
+        )
 
     async def __pull(
         self, *, key: RedisStreamKey, offset: RedisStreamOffset
@@ -177,17 +173,8 @@ class RedisClusterStreamPixelQueue(PixelQueue):
 
         return cast("RedisStreamResults", results)
 
-    def __lock(self, chunk: Chunk) -> _RedisLock:
-        return _RedisLock(
-            name=chunk_key_when(chunk=chunk) + b"lock",
-            redis=self.redis_cluster,
-            timeout=self.lock_timeout_seconds,
-            blocking_timeout=self.lock_blocking_timeout_seconds,
-            thread_local=False,
-        )
-
     def __stream_key_when(self, *, chunk: Chunk) -> bytes:
-        return chunk_key_when(chunk=chunk) + b"stream"
+        return chunk_key_when(chunk=chunk) + b"_stream"
 
     def __offset_key_when(self, *, chunk: Chunk) -> bytes:
         return chunk_key_when(chunk=chunk)
@@ -195,7 +182,7 @@ class RedisClusterStreamPixelQueue(PixelQueue):
     def __offset_field_when(
         self, *, process: PullingProcess
     ) -> RedisStreamOffset:
-        base = b"offset"
+        base = b"offset_"
 
         match process:
             case PullingProcess.chunk_view_refresh:
