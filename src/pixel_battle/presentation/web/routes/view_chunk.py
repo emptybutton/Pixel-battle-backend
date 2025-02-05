@@ -16,7 +16,7 @@ class ChunkViewResponse(Response):
 
 
 @router.get(
-    "/canvas/chunk/{chunk_number_x}/{chunk_number_y}",
+    "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}",
     description=(
         "Reading a slightly outdated chunk image (maximum 2-5 seconds) along"
         " with the delta of changes that bring it up to date."

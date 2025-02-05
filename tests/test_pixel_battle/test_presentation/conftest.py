@@ -20,6 +20,9 @@ from pixel_battle.application.interactors.view_chunk import (
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
+from pixel_battle.application.ports.chunk_optimistic_lock import (
+    ChunkOptimisticLockWhen,
+)
 from pixel_battle.application.ports.chunk_view import (
     ChunkView,
     DefaultChunkViewWhen,
@@ -35,6 +38,9 @@ from pixel_battle.entities.admin.admin import AdminKey
 from pixel_battle.entities.core.pixel_battle import ScheduledPixelBattle
 from pixel_battle.entities.space.time import Time
 from pixel_battle.entities.space.time_delta import TimeDelta
+from pixel_battle.infrastructure.adapters.chunk_optimistic_lock import (
+    AsyncIOChunkOptimisticLockWhen,
+)
 from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
@@ -81,6 +87,9 @@ def container() -> AsyncContainer:
     provider.provide(
         RefreshChunkView[PNGImageChunkView],
         provides=RefreshChunkView[ChunkView],
+    )
+    provider.provide(
+        AsyncIOChunkOptimisticLockWhen, provides=ChunkOptimisticLockWhen
     )
 
     @provider.provide

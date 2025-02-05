@@ -20,7 +20,7 @@ class PixelBattleSchema(BaseModel):
 
 
 @router.get(
-    "/",
+    "/pixel-battle",
     description="Reading state of the game.",
     responses={status.HTTP_200_OK: {"model": PixelBattleSchema}},
 )

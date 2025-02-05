@@ -8,7 +8,7 @@ from pixel_battle.presentation.web.streaming import Streaming, StreamingClient
 router = APIRouter()
 
 
-@router.websocket("/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
+@router.websocket("/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}")
 @inject
 async def stream_chunk(
     websocket: WebSocket,

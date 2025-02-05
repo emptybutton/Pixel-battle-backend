@@ -38,7 +38,7 @@ class NoRightSchema(ErrorSchema):
 
 
 @router.patch(
-    "/canvas",
+    "/pixel-battle/canvas",
     description=(
         "Recoloring one pixel on the canvas."
         " After recoloring, the action will be unavailable for one minute."

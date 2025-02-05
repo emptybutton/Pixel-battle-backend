@@ -12,7 +12,7 @@ async def test_ok(
         "newPixelColor": [255, 0, 0],
     }
     client.cookies = cookies_with_right
-    response = await client.patch("/canvas", json=input_json)
+    response = await client.patch("/pixel-battle/canvas", json=input_json)
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_200_OK
@@ -33,7 +33,7 @@ async def test_pixel_out_of_canvas(
         "newPixelColor": [255, 0, 0],
     }
     client.cookies = cookies_with_right
-    response = await client.patch("/canvas", json=input_json)
+    response = await client.patch("/pixel-battle/canvas", json=input_json)
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -54,7 +54,7 @@ async def test_invalid_color_value_range(
         "newPixelColor": [256, 0, 0],
     }
     client.cookies = cookies_with_right
-    response = await client.patch("/canvas", json=input_json)
+    response = await client.patch("/pixel-battle/canvas", json=input_json)
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_400_BAD_REQUEST
@@ -76,7 +76,7 @@ async def test_no_right(
         "newPixelColor": [255, 0, 0],
     }
     client.cookies = cookies_without_right
-    response = await client.patch("/canvas", json=input_json)
+    response = await client.patch("/pixel-battle/canvas", json=input_json)
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_403_FORBIDDEN

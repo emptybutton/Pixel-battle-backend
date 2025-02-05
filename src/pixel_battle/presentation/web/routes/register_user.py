@@ -21,7 +21,7 @@ class AlreadyRegisteredSchema(ErrorSchema):
 
 
 @router.post(
-    "/canvas/user",
+    "/pixel-battle/user",
     description=(
         "Registration to gain access to other actions."
         " After registration, it is not allowed to"

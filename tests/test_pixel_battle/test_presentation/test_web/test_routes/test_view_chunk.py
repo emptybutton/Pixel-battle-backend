@@ -23,7 +23,7 @@ async def test_ok(
     await queue.push(Pixel(position=Vector(x=5), color=black))
     await queue.push(Pixel(position=Vector(y=5), color=red))
 
-    response = await client.get("/canvas/chunk/0/0")
+    response = await client.get("/pixel-battle/canvas/chunk/0/0")
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_200_OK

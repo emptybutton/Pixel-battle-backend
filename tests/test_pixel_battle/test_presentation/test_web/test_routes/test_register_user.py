@@ -7,7 +7,7 @@ from pytest import mark
 async def test_ok(
     client: AsyncClient, stage: str
 ) -> None:
-    response = await client.post("/canvas/user")
+    response = await client.post("/pixel-battle/user")
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_201_CREATED
@@ -24,7 +24,7 @@ async def test_already_registered(
     client: AsyncClient, stage: str, cookies_with_right: Cookies
 ) -> None:
     client.cookies = cookies_with_right
-    response = await client.post("/canvas/user")
+    response = await client.post("/pixel-battle/user")
 
     if stage == "status_code":
         assert response.status_code == status.HTTP_403_FORBIDDEN
