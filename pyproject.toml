@@ -44,9 +44,12 @@ allow_redefinition = true
 [tool.basedpyright]
 include = ["src", "tests"]
 exclude = ["*/__pycache__/*", "*/__init__.py"]
-typeCheckingMode = "off"
 pythonVersion = "3.13"
 pythonPlatform = "Linux"
+
+typeCheckingMode = "strict"
+reportUnusedCallResult = "none"
+reportUnusedCallVariable = "none"
 
 [tool.ruff]
 src = ["src"]
@@ -60,7 +63,7 @@ select = [
     "Q", "RET", "SLF", "SLOT", "SIM", "TID252", "TCH", "ARG", "PTH", "ERA", "TRY",
     "PERF", "INP", "I", "S", "FAST", "TID", "TCH", "INT"
 ]
-ignore = ["N818", "RUF009", "UP018", "PLR6301", "PLR0913", "PLW0108"]
+ignore = ["N818", "RUF009", "UP018", "PLR6301", "PLR0913", "PLW0108", "TC006"]
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
