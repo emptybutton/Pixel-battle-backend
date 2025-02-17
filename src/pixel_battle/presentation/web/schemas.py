@@ -9,6 +9,9 @@ from pixel_battle.entities.space.color import RGBColor
 from pixel_battle.entities.space.time_delta import TimeDelta
 
 
+class NoDataSchema(BaseModel): ...
+
+
 class ErrorListSchema[ErrorSchemaT](BaseModel):
     error_models: tuple[ErrorSchemaT] = Field(alias="errors")
 

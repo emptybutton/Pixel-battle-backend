@@ -14,7 +14,11 @@ from pixel_battle.entities.space.color import (
     RGBColorValueNumberInInvalidRangeError,
 )
 from pixel_battle.presentation.web.cookies import UserDataCookie
-from pixel_battle.presentation.web.schemas import ErrorListSchema, ErrorSchema
+from pixel_battle.presentation.web.schemas import (
+    ErrorListSchema,
+    ErrorSchema,
+    NoDataSchema,
+)
 
 
 router = APIRouter()
@@ -45,6 +49,9 @@ class NoRightSchema(ErrorSchema):
     ),
     status_code=status.HTTP_200_OK,
     responses={
+        status.HTTP_200_OK: {
+            "model": NoDataSchema
+        },
         status.HTTP_400_BAD_REQUEST: {
             "model": ErrorListSchema[
                 InvalidColorValueRangeSchema | PixelOutOfCanvasSchema
