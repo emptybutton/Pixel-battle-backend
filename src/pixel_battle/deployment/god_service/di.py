@@ -40,10 +40,10 @@ class GodServiceProvider(Provider):
         return [
             healthcheck_router,
             view_pixel_battle_router,
+            register_user_router,
             recolor_pixel_router,
             view_chunk_router,
             stream_chunk_router,
-            register_user_router,
         ]
 
     @provide
