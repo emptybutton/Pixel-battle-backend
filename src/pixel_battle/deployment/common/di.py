@@ -22,7 +22,6 @@ from pixel_battle.application.interactors.view_pixel_battle import (
     ViewPixelBattle,
 )
 from pixel_battle.application.ports.chunk_optimistic_lock import (
-    ChunkOptimisticLock,
     ChunkOptimisticLockWhen,
 )
 from pixel_battle.application.ports.chunk_view import (

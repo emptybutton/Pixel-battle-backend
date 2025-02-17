@@ -10,11 +10,9 @@ class ActiveChunkOptimisticLock:
     is_owned: bool
 
 
-type ChunkOptimisticLock = AbstractAsyncContextManager[ActiveChunkOptimisticLock]
-
-# class ChunkOptimisticLock(
-    
-# ): ...
+type ChunkOptimisticLock = (
+    AbstractAsyncContextManager[ActiveChunkOptimisticLock]
+)
 
 
 class ChunkOptimisticLockWhen(ABC):
