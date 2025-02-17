@@ -17,4 +17,5 @@ HEALTHCHECK \
 --retries=100 \
 CMD wget localhost:8000/healthcheck -q -O /dev/null
 
-RUN poetry install && `poetry env activate`
+RUN poetry install
+ENTRYPOINT [ "poetry", "run" ]

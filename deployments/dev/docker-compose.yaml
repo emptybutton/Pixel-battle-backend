@@ -85,12 +85,15 @@ volumes:
   redis1-db:
     labels:
       pixel-battle: true
+      db: true
   redis2-db:
     labels:
       pixel-battle: true
+      db: true
   redis3-db:
     labels:
       pixel-battle: true
+      db: true
   backend-venv:
     labels:
       pixel-battle: true
