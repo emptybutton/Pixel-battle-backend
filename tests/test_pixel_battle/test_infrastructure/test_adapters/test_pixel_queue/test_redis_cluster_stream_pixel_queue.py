@@ -59,7 +59,7 @@ def queue(redis_cluster: RedisCluster) -> RedisClusterStreamPixelQueue:
 
 @fixture
 def stream_key() -> RedisStreamKey:
-    return b"{" + bytes([0]) + b"}stream"
+    return b"{" + bytes([0]) + b"}_stream"
 
 
 type Push = Callable[[Pixel[RGBColor]], Awaitable[None]]
