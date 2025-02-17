@@ -8,6 +8,7 @@ services:
     container_name: pixel-battle-backend
     volumes:
       - ../..:/pixel-battle
+      - backend-venv:/run/poetry
     networks:
       - private-network
     ports:
@@ -20,7 +21,6 @@ services:
       redis3:
         condition: service_healthy
     environment:
-      WATCHFILES_FORCE_POLLING: true
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
       CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
       JWT_SECRET: super-secret-secret
@@ -89,6 +89,9 @@ volumes:
     labels:
       pixel-battle: true
   redis3-db:
+    labels:
+      pixel-battle: true
+  backend-venv:
     labels:
       pixel-battle: true
 
