@@ -230,4 +230,5 @@ class DistributedTaskProvider(Provider):
         return RefreshChunkViewTask(
             refresh_chunk_view=refresh_chunk_view,
             redis_cluster=canvas_metadata_redis_cluster,
+            pulling_interval_seconds=20,
         )

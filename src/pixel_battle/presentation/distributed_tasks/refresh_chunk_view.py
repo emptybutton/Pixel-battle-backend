@@ -1,8 +1,6 @@
 from asyncio import sleep
 from dataclasses import dataclass
-from functools import cached_property
-from itertools import product
-from typing import Any, ClassVar, NoReturn
+from typing import Any, ClassVar, NoReturn, cast
 
 from redis.asyncio import RedisCluster
 
@@ -45,12 +43,15 @@ class RefreshChunkViewCommand:
 class RefreshChunkViewTask:
     refresh_chunk_view: RefreshChunkView[Any]
     redis_cluster: RedisCluster
-    __queue_key: ClassVar = b"refresh_chunk_view_task_queue"
+    pulling_interval_seconds: int
+    __queue_key: ClassVar = b"task_{{0}}_queue"
+    __queue_lock_key: ClassVar = b"task_{{0}}_queue_lock"
+    __command_count: ClassVar = 100
 
     async def start_pushing(self) -> NoReturn:
         while True:
-            await sleep(2)
             await self.__push_commands()
+            await sleep(self.pulling_interval_seconds)
 
     async def start_pulling(self) -> NoReturn:
         while True:
@@ -58,28 +59,104 @@ class RefreshChunkViewTask:
             await self.__execute(command)
 
     async def __pull_one_command(self) -> RefreshChunkViewCommand:
-        result = await self.redis_cluster.bzmpop(  # type: ignore[misc]
-            0, 1, [self.__queue_key], min=True
-        )
-        command_bytes: bytes = result[1][0][0]
+        _, encoded_command = await self.redis_cluster.blpop([self.__queue_key])  # type: ignore[misc]
+        print(f"PULL: {encoded_command.decode()}", flush=True)
 
-        return RefreshChunkViewCommand.from_bytes(command_bytes)
+        return RefreshChunkViewCommand.from_bytes(encoded_command)
 
     async def __push_commands(self) -> None:
-        await self.redis_cluster.zadd(self.__queue_key, self.__mapping_to_push)
+        pipe = self.redis_cluster.pipeline()
+        pipe.llen(self.__queue_key)
+        pipe.lindex(self.__queue_key, -1)
+        pipe.set(self.__queue_lock_key, 1, nx=True, ex=20)
+
+        result = cast(
+            tuple[int, bytes | None, bytes | None, bool | None],
+            await pipe.execute(),
+        )
+        stored_command_count = result[0]
+        last_stored_encoded_command = result[1]
+        is_queue_lock_acquired = result[2]
+
+        if is_queue_lock_acquired is None:
+            return
+
+        unstored_encoded_commands = self.__unstored_encoded_commands_when(
+            stored_command_count=stored_command_count,
+            last_stored_encoded_command=last_stored_encoded_command,
+        )
+
+        pipe = self.redis_cluster.pipeline()
+
+        if unstored_encoded_commands:
+            repr_commands = [
+                encoded_command.decode()
+                for encoded_command in unstored_encoded_commands
+            ]
+            print(f"PUSH {len(repr_commands)}: {repr_commands}", flush=True)
+
+            pipe.rpush(self.__queue_key, *unstored_encoded_commands)
+
+        pipe.delete(self.__queue_lock_key)
+        await pipe.execute()
+
+    def __unstored_encoded_commands_when(
+        self,
+        *,
+        stored_command_count: int,
+        last_stored_encoded_command: bytes | None,
+    ) -> tuple[bytes, ...]:
+        unstored_command_count = self.__unstored_command_count_when(
+            stored_command_count=stored_command_count
+        )
+
+        if last_stored_encoded_command is not None:
+            return self.__next_encoded_commands_when(
+                encoded_command=last_stored_encoded_command,
+                next_command_count=unstored_command_count,
+            )
+
+        first_encoded_command = bytes([0])
+        other_encoded_commands = self.__next_encoded_commands_when(
+            encoded_command=first_encoded_command,
+            next_command_count=unstored_command_count - 1,
+        )
+
+        return (first_encoded_command, *other_encoded_commands)
+
+    def __next_encoded_commands_when(
+        self, encoded_command: bytes, next_command_count: int
+    ) -> tuple[bytes, ...]:
+        return tuple(
+            self.__next_encoded_command_when(
+                encoded_command=encoded_command,
+                offset=offset,
+            )
+            for offset in range(1, next_command_count + 1)
+        )
+
+    def __next_encoded_command_when(
+        self, *, encoded_command: bytes, offset: int
+    ) -> bytes:
+        encoded_command_byte = ord(encoded_command) + offset
+
+        if encoded_command_byte > self.__command_count - 1:
+            encoded_command_byte -= (
+                (encoded_command_byte // self.__command_count)
+                * self.__command_count
+            )
+
+        return bytes([encoded_command_byte])
+
+    def __unstored_command_count_when(
+        self, *, stored_command_count: int
+    ) -> int:
+        if stored_command_count > self.__command_count:
+            return 0
+
+        return self.__command_count - stored_command_count  # type: ignore[no-any-return]
 
     async def __execute(self, command: RefreshChunkViewCommand) -> None:
         await self.refresh_chunk_view(
             command.chunk_number_x, command.chunk_number_y
         )
-
-    @cached_property
-    def __mapping_to_push(self) -> dict[bytes, int]:
-        commands = (
-            RefreshChunkViewCommand(
-                chunk_number_x=chunk_number_x, chunk_number_y=chunk_number_y
-            )
-            for chunk_number_x, chunk_number_y in product(range(10), repeat=2)
-        )
-
-        return {command.to_bytes(): 0 for command in commands}
