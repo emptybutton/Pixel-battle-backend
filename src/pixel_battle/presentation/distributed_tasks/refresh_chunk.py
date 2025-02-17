@@ -4,8 +4,8 @@ from typing import Any, ClassVar, NoReturn, cast
 
 from redis.asyncio import RedisCluster
 
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
+from pixel_battle.application.interactors.refresh_chunk import (
+    RefreshChunk,
 )
 from pixel_battle.infrastructure.encoding import (
     decoded_chunk_data_when,
@@ -13,11 +13,11 @@ from pixel_battle.infrastructure.encoding import (
 )
 
 
-class RefreshChunkViewCommandError(Exception): ...
+class RefreshChunkCommandError(Exception): ...
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RefreshChunkViewCommand:
+class RefreshChunkCommand:
     chunk_number_x: int
     chunk_number_y: int
 
@@ -26,22 +26,22 @@ class RefreshChunkViewCommand:
         is_chunk_number_y_valid = self.chunk_number_y in range(10)
 
         if not is_chunk_number_x_valid or not is_chunk_number_y_valid:
-            raise RefreshChunkViewCommandError(str(self))
+            raise RefreshChunkCommandError(str(self))
 
     def to_bytes(self) -> bytes:
         chunk_data = (self.chunk_number_x, self.chunk_number_y)
         return encoded_chunk_from_data_when(chunk_data=chunk_data)
 
     @classmethod
-    def from_bytes(cls, bytes_: bytes) -> "RefreshChunkViewCommand":
+    def from_bytes(cls, bytes_: bytes) -> "RefreshChunkCommand":
         x, y = decoded_chunk_data_when(encoded_chunk=bytes_)
 
-        return RefreshChunkViewCommand(chunk_number_x=x, chunk_number_y=y)
+        return RefreshChunkCommand(chunk_number_x=x, chunk_number_y=y)
 
 
 @dataclass(kw_only=True, frozen=True)
-class RefreshChunkViewTask:
-    refresh_chunk_view: RefreshChunkView[Any]
+class RefreshChunkTask:
+    refresh_chunk: RefreshChunk[Any]
     redis_cluster: RedisCluster
     pulling_interval_seconds: int
     __queue_key: ClassVar = b"task_{{0}}_queue"
@@ -58,11 +58,11 @@ class RefreshChunkViewTask:
             command = await self.__pull_one_command()
             await self.__execute(command)
 
-    async def __pull_one_command(self) -> RefreshChunkViewCommand:
+    async def __pull_one_command(self) -> RefreshChunkCommand:
         _, encoded_command = await self.redis_cluster.blpop([self.__queue_key])  # type: ignore[misc]
         print(f"PULL: {encoded_command.decode()}", flush=True)
 
-        return RefreshChunkViewCommand.from_bytes(encoded_command)
+        return RefreshChunkCommand.from_bytes(encoded_command)
 
     async def __push_commands(self) -> None:
         pipe = self.redis_cluster.pipeline()
@@ -156,7 +156,7 @@ class RefreshChunkViewTask:
 
         return self.__command_count - stored_command_count  # type: ignore[no-any-return]
 
-    async def __execute(self, command: RefreshChunkViewCommand) -> None:
-        await self.refresh_chunk_view(
+    async def __execute(self, command: RefreshChunkCommand) -> None:
+        await self.refresh_chunk(
             command.chunk_number_x, command.chunk_number_y
         )

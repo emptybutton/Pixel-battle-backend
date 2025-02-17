@@ -27,7 +27,7 @@ type Output = Ok | Error
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RefreshChunkView[ChunkViewT: ChunkView]:
+class RefreshChunk[ChunkViewT: ChunkView]:
     pixel_queue: PixelQueue
     chunk_views: ChunkViews[ChunkViewT]
     default_chunk_view_when: DefaultChunkViewWhen[ChunkViewT]

@@ -6,8 +6,8 @@ from redis.asyncio import RedisCluster
 from pixel_battle.application.interactors.recolor_pixel import (
     RecolorPixel,
 )
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
+from pixel_battle.application.interactors.refresh_chunk import (
+    RefreshChunk,
 )
 from pixel_battle.application.interactors.schedule_pixel_battle import (
     SchedulePixelBattle,
@@ -65,8 +65,8 @@ from pixel_battle.infrastructure.adapters.user_data_signing import (
     UserDataSigningToHS256JWT,
 )
 from pixel_battle.infrastructure.envs import Envs
-from pixel_battle.presentation.distributed_tasks.refresh_chunk_view import (
-    RefreshChunkViewTask,
+from pixel_battle.presentation.distributed_tasks.refresh_chunk import (
+    RefreshChunkTask,
 )
 from pixel_battle.presentation.web.streaming import Streaming
 
@@ -194,10 +194,10 @@ class InteractorProvider(Provider):
     provide_schedule_pixel_battle = provide(SchedulePixelBattle)
     provide_view_pixel_battle = provide(ViewPixelBattle)
 
-    provide_refresh_chunk_view = provide(RefreshChunkView[PNGImageChunkView])
-    provide_any_refresh_chunk_view = alias(
-        source=RefreshChunkView[PNGImageChunkView],
-        provides=RefreshChunkView[ChunkView],
+    provide_refresh_chunk = provide(RefreshChunk[PNGImageChunkView])
+    provide_any_refresh_chunk = alias(
+        source=RefreshChunk[PNGImageChunkView],
+        provides=RefreshChunk[ChunkView],
     )
 
     provide_view_chunk = provide(ViewChunk[PNGImageChunkView])
@@ -222,13 +222,13 @@ class DistributedTaskProvider(Provider):
     scope = Scope.APP
 
     @provide
-    def provide_update_chunk_view_task(
+    def provide_update_chunk_task(
         self,
         canvas_metadata_redis_cluster: CanvasMetadataRedisCluster,
-        refresh_chunk_view: RefreshChunkView[ChunkView],
-    ) -> RefreshChunkViewTask:
-        return RefreshChunkViewTask(
-            refresh_chunk_view=refresh_chunk_view,
+        refresh_chunk: RefreshChunk[ChunkView],
+    ) -> RefreshChunkTask:
+        return RefreshChunkTask(
+            refresh_chunk=refresh_chunk,
             redis_cluster=canvas_metadata_redis_cluster,
             pulling_interval_seconds=20,
         )

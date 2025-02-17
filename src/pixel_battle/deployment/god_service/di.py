@@ -7,8 +7,8 @@ from pixel_battle.deployment.common.di import (
     OutOfProcessInfrastructureProvider,
     StreamingProvider,
 )
-from pixel_battle.presentation.distributed_tasks.refresh_chunk_view import (
-    RefreshChunkViewTask,
+from pixel_battle.presentation.distributed_tasks.refresh_chunk import (
+    RefreshChunkTask,
 )
 from pixel_battle.presentation.web.app import AppCoroutines, AppRouters
 from pixel_battle.presentation.web.routes.healthcheck import (
@@ -50,11 +50,11 @@ class GodServiceProvider(Provider):
     def provide_coroutines(
         self,
         streaming: Streaming,
-        refresh_chunk_view_task: RefreshChunkViewTask,
+        refresh_chunk_task: RefreshChunkTask,
     ) -> AppCoroutines:
         return [
-            refresh_chunk_view_task.start_pulling(),
-            refresh_chunk_view_task.start_pushing(),
+            refresh_chunk_task.start_pulling(),
+            refresh_chunk_task.start_pushing(),
             streaming.start(),
         ]
 

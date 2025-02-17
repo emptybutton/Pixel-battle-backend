@@ -3,13 +3,13 @@ from datetime import datetime
 from click import IntRange, command, echo, option, style
 from dishka import FromDishka
 
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
+from pixel_battle.application.interactors.refresh_chunk import (
+    RefreshChunk,
 )
 from pixel_battle.application.ports.chunk_view import ChunkView
 
 
-@command(name="refresh-image")
+@command(name="refresh")
 @option(
     "-x",
     "--chunk-number-x",
@@ -31,15 +31,15 @@ from pixel_battle.application.ports.chunk_view import ChunkView
     default=False,
     help="Don't write to stdout.",
 )
-async def refresh_chunk_image_command(
-    refresh_chunk_view: FromDishka[RefreshChunkView[ChunkView]],
+async def refresh_chunk_command(
+    refresh_chunk: FromDishka[RefreshChunk[ChunkView]],
     chunk_number_x: int,
     chunk_number_y: int,
     quiet: bool,
 ) -> None:
     start_time = datetime.now()
 
-    await refresh_chunk_view(chunk_number_x, chunk_number_y)
+    await refresh_chunk(chunk_number_x, chunk_number_y)
 
     end_time = datetime.now()
     time_delta = end_time - start_time

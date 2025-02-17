@@ -5,18 +5,10 @@ from functools import partial
 from dishka import AsyncContainer, Provider, Scope, make_async_container
 from pytest import fixture
 
-from pixel_battle.application.interactors.recolor_pixel import (
-    RecolorPixel,
-)
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
-)
-from pixel_battle.application.interactors.register_user import (
-    RegisterUser,
-)
-from pixel_battle.application.interactors.view_chunk import (
-    ViewChunk,
-)
+from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
+from pixel_battle.application.interactors.refresh_chunk import RefreshChunk
+from pixel_battle.application.interactors.register_user import RegisterUser
+from pixel_battle.application.interactors.view_chunk import ViewChunk
 from pixel_battle.application.interactors.view_chunk_stream import (
     ViewChunkStream,
 )
@@ -85,8 +77,8 @@ def container() -> AsyncContainer:
     provider.provide(ViewChunkStream)
     provider.provide(RegisterUser[str])
     provider.provide(
-        RefreshChunkView[PNGImageChunkView],
-        provides=RefreshChunkView[ChunkView],
+        RefreshChunk[PNGImageChunkView],
+        provides=RefreshChunk[ChunkView],
     )
     provider.provide(
         AsyncIOChunkOptimisticLockWhen, provides=ChunkOptimisticLockWhen

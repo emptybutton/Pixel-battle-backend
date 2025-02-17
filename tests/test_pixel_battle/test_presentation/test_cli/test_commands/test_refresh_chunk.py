@@ -5,8 +5,8 @@ from click.testing import CliRunner
 from dishka import AsyncContainer
 from pytest import fixture, mark
 
-from pixel_battle.presentation.cli.commands.refresh_chunk_image import (
-    refresh_chunk_image_command,
+from pixel_battle.presentation.cli.commands.refresh_chunk import (
+    refresh_chunk_command,
 )
 from pixel_battle.presentation.cli.dishka_integration import (
     command_with_injected_dependencies_when,
@@ -16,7 +16,7 @@ from pixel_battle.presentation.cli.dishka_integration import (
 @fixture
 def command(container: AsyncContainer) -> Command:
     return command_with_injected_dependencies_when(
-        command=refresh_chunk_image_command,
+        command=refresh_chunk_command,
         container=container,
     )
 

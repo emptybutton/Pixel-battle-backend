@@ -1,7 +1,7 @@
 from pytest import fixture
 
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
+from pixel_battle.application.interactors.refresh_chunk import (
+    RefreshChunk,
 )
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.entities.core.pixel import Pixel
@@ -19,8 +19,8 @@ from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 
 
 @fixture
-def refresh_chunk_view() -> RefreshChunkView[CollectionChunkView]:
-    return RefreshChunkView(
+def refresh_chunk() -> RefreshChunk[CollectionChunkView]:
+    return RefreshChunk(
         pixel_queue=InMemoryPixelQueue(pulling_timeout_seconds=0),
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),

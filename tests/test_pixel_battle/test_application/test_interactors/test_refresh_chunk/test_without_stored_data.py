@@ -1,5 +1,5 @@
-from pixel_battle.application.interactors.refresh_chunk_view import (
-    RefreshChunkView,
+from pixel_battle.application.interactors.refresh_chunk import (
+    RefreshChunk,
 )
 from pixel_battle.entities.core.chunk import Chunk, ChunkNumber
 from pixel_battle.infrastructure.adapters.chunk_view import (
@@ -8,11 +8,11 @@ from pixel_battle.infrastructure.adapters.chunk_view import (
 
 
 async def test_chunk_views(
-    refresh_chunk_view: RefreshChunkView[CollectionChunkView]
+    refresh_chunk: RefreshChunk[CollectionChunkView]
 ) -> None:
-    await refresh_chunk_view(0, 0)
+    await refresh_chunk(0, 0)
 
-    views = dict(refresh_chunk_view.chunk_views)  # type: ignore[call-overload]
+    views = dict(refresh_chunk.chunk_views)  # type: ignore[call-overload]
     expected_views = {
         Chunk(number=ChunkNumber(x=0, y=0)): CollectionChunkView()
     }
