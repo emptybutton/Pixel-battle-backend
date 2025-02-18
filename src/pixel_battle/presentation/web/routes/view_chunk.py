@@ -8,14 +8,14 @@ from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
 
 
-router = APIRouter()
+view_chunk_router = APIRouter()
 
 
 class ChunkViewResponse(Response):
     media_type = "image/png"
 
 
-@router.get(
+@view_chunk_router.get(
     "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}",
     description=(
         "Reading a slightly outdated chunk image (maximum 2-5 seconds) along"

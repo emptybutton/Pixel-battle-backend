@@ -22,14 +22,14 @@ from pixel_battle.presentation.web.schemas import (
 )
 
 
-router = APIRouter()
+schedule_pixel_battle_router = APIRouter()
 
 
 class SchedulePixelBattleSchema(BaseModel):
     time_delta: TimeDeltaSchema = Field(alias="timeDelta")
 
 
-@router.patch(
+@schedule_pixel_battle_router.patch(
     "/pixel-battle",
     description="Updating state of the game. Requires admin key",
     status_code=status.HTTP_200_OK,

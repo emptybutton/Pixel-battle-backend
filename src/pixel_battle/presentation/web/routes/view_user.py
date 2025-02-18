@@ -9,7 +9,7 @@ from pixel_battle.application.interactors.view_user import ViewUser
 from pixel_battle.presentation.web.cookies import UserDataCookie
 
 
-router = APIRouter()
+view_user_router = APIRouter()
 
 
 class UserDataSchema(BaseModel):
@@ -23,7 +23,7 @@ class UserSchema(BaseModel):
     data: UserDataSchema | None = Field(alias="data")
 
 
-@router.get(
+@view_user_router.get(
     "/pixel-battle/user",
     description="Reading current user data in the game.",
     responses={status.HTTP_200_OK: {"model": UserSchema}},

@@ -21,7 +21,7 @@ from pixel_battle.presentation.web.schemas import (
 )
 
 
-router = APIRouter()
+recolor_pixel_router = APIRouter()
 
 
 class RecolorPixelSchema(BaseModel):
@@ -29,7 +29,7 @@ class RecolorPixelSchema(BaseModel):
     new_pixel_color: tuple[int, int, int] = Field(alias="newPixelColor")
 
 
-@router.patch(
+@recolor_pixel_router.patch(
     "/pixel-battle/canvas",
     description=(
         "Recoloring one pixel on the canvas."

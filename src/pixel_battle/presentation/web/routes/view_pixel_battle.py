@@ -11,7 +11,7 @@ from pixel_battle.presentation.web.schemas import (
 )
 
 
-router = APIRouter()
+view_pixel_battle_router = APIRouter()
 
 
 class PixelBattleSchema(BaseModel):
@@ -19,7 +19,7 @@ class PixelBattleSchema(BaseModel):
     time_delta: TimeDeltaSchema | None = Field(alias="timeDelta")
 
 
-@router.get(
+@view_pixel_battle_router.get(
     "/pixel-battle",
     description="Reading state of the game.",
     responses={status.HTTP_200_OK: {"model": PixelBattleSchema}},

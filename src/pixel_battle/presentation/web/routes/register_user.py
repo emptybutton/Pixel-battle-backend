@@ -16,14 +16,14 @@ from pixel_battle.presentation.web.schemas import (
 )
 
 
-router = APIRouter()
+register_user_router = APIRouter()
 
 
 class AlreadyRegisteredSchema(ErrorSchema):
     type: Literal["AlreadyRegistered"] = "AlreadyRegistered"
 
 
-@router.post(
+@register_user_router.post(
     "/pixel-battle/user",
     description=(
         "Registration to gain access to other actions."
