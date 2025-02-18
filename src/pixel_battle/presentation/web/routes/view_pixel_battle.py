@@ -35,8 +35,8 @@ async def view_pixel_battle(
     else:
         time_delta = TimeDeltaSchema.of(result.pixel_battle_time_delta)
 
-    reponse_body_model = PixelBattleSchema(
+    response_body_model = PixelBattleSchema(
         isGoingOn=result.is_pixel_battle_going_on, timeDelta=time_delta
     )
-    reponse_body = reponse_body_model.model_dump(by_alias=True)
+    reponse_body = response_body_model.model_dump(by_alias=True, mode="json")
     return JSONResponse(reponse_body)

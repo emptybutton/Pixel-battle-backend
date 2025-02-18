@@ -1,6 +1,6 @@
 from collections.abc import Iterable
 from datetime import datetime
-from typing import Self
+from typing import Literal, Self
 
 from pydantic import BaseModel, Field
 
@@ -61,3 +61,27 @@ class TimeDeltaSchema(BaseModel):
             startTime=time_delta.start_time.datetime,
             endTime=time_delta.end_time.datetime,
         )
+
+
+class InvalidColorValueRangeSchema(ErrorSchema):
+    type: Literal["invalidColorValueRange"] = "invalidColorValueRange"
+
+
+class PixelOutOfCanvasSchema(ErrorSchema):
+    type: Literal["pixelOutOfCanvas"] = "pixelOutOfCanvas"
+
+
+class NoRightSchema(ErrorSchema):
+    type: Literal["noRight"] = "noRight"
+
+
+class NotUTCTimeSchema(ErrorSchema):
+    type: Literal["NotUTCTime"] = "NotUTCTime"
+
+
+class StartAfterEndTimeDeltaSchema(ErrorSchema):
+    type: Literal["StartAfterEndTimeDelta"] = "StartAfterEndTimeDelta"
+
+
+class NoAdminKeySchema(ErrorSchema):
+    type: Literal["NoAdminKey"] = "NoAdminKey"

@@ -3,14 +3,17 @@ from typing import Literal
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 
 from pixel_battle.application.interactors.register_user import RegisterUser
 from pixel_battle.entities.core.user import (
     UserIsAlreadyRegisteredToRegisterError,
 )
 from pixel_battle.presentation.web.cookies import UserDataCookie
-from pixel_battle.presentation.web.schemas import ErrorListSchema, ErrorSchema
+from pixel_battle.presentation.web.schemas import (
+    ErrorListSchema,
+    ErrorSchema,
+    NoDataSchema,
+)
 
 
 router = APIRouter()
@@ -29,7 +32,7 @@ class AlreadyRegisteredSchema(ErrorSchema):
     ),
     status_code=status.HTTP_201_CREATED,
     responses={
-        status.HTTP_201_CREATED: {"model": BaseModel},
+        status.HTTP_201_CREATED: {"model": NoDataSchema},
         status.HTTP_403_FORBIDDEN: {
             "model": ErrorListSchema[AlreadyRegisteredSchema]
         },

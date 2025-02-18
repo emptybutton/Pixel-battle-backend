@@ -60,7 +60,7 @@ class RefreshChunkTask:
 
     async def __pull_one_command(self) -> RefreshChunkCommand:
         _, encoded_command = await self.redis_cluster.blpop([self.__queue_key])  # type: ignore[misc]
-        print(f"PULL: {encoded_command.decode()}", flush=True)
+        print(f"PULL: {encoded_command}", flush=True)
 
         return RefreshChunkCommand.from_bytes(encoded_command)
 
@@ -89,10 +89,7 @@ class RefreshChunkTask:
         pipe = self.redis_cluster.pipeline()
 
         if unstored_encoded_commands:
-            repr_commands = [
-                encoded_command.decode()
-                for encoded_command in unstored_encoded_commands
-            ]
+            repr_commands = list(unstored_encoded_commands)
             print(f"PUSH {len(repr_commands)}: {repr_commands}", flush=True)
 
             pipe.rpush(self.__queue_key, *unstored_encoded_commands)

@@ -1,5 +1,3 @@
-from typing import Literal
-
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, status
 from fastapi.responses import JSONResponse
@@ -16,8 +14,10 @@ from pixel_battle.entities.space.color import (
 from pixel_battle.presentation.web.cookies import UserDataCookie
 from pixel_battle.presentation.web.schemas import (
     ErrorListSchema,
-    ErrorSchema,
+    InvalidColorValueRangeSchema,
     NoDataSchema,
+    NoRightSchema,
+    PixelOutOfCanvasSchema,
 )
 
 
@@ -27,18 +27,6 @@ router = APIRouter()
 class RecolorPixelSchema(BaseModel):
     pixel_position: tuple[int, int] = Field(alias="pixelPosition")
     new_pixel_color: tuple[int, int, int] = Field(alias="newPixelColor")
-
-
-class InvalidColorValueRangeSchema(ErrorSchema):
-    type: Literal["invalidColorValueRange"] = "invalidColorValueRange"
-
-
-class PixelOutOfCanvasSchema(ErrorSchema):
-    type: Literal["pixelOutOfCanvas"] = "pixelOutOfCanvas"
-
-
-class NoRightSchema(ErrorSchema):
-    type: Literal["noRight"] = "noRight"
 
 
 @router.patch(

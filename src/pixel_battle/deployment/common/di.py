@@ -1,4 +1,5 @@
 from collections.abc import AsyncIterator
+from typing import Any
 
 from dishka import Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
@@ -9,6 +10,7 @@ from pixel_battle.application.interactors.recolor_pixel import (
 from pixel_battle.application.interactors.refresh_chunk import (
     RefreshChunk,
 )
+from pixel_battle.application.interactors.register_user import RegisterUser
 from pixel_battle.application.interactors.schedule_pixel_battle import (
     SchedulePixelBattle,
 )
@@ -187,6 +189,11 @@ class ProcessInfrastructureAdapterProvider(Provider):
 
 class InteractorProvider(Provider):
     scope = Scope.APP
+
+    provide_register_user = provide(RegisterUser[str])
+    provide_any_register_user = alias(
+        source=RegisterUser[str], provides=RegisterUser[Any]
+    )
 
     provide_recolor_pixel = provide(RecolorPixel[str])
     provide_view_chunk_stream = provide(ViewChunkStream)
