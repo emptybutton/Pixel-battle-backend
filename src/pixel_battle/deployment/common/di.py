@@ -23,6 +23,7 @@ from pixel_battle.application.interactors.view_chunk_stream import (
 from pixel_battle.application.interactors.view_pixel_battle import (
     ViewPixelBattle,
 )
+from pixel_battle.application.interactors.view_user import ViewUser
 from pixel_battle.application.ports.chunk_optimistic_lock import (
     ChunkOptimisticLockWhen,
 )
@@ -212,6 +213,9 @@ class InteractorProvider(Provider):
         source=ViewChunk[PNGImageChunkView],
         provides=ViewChunk[ChunkView],
     )
+
+    provide_view_user = provide(ViewUser[str])
+    provide_any_view_user = alias(source=ViewUser[str], provides=ViewUser[Any])
 
 
 class StreamingProvider(Provider):

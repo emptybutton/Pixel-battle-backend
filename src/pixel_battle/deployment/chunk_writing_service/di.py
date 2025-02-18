@@ -18,6 +18,9 @@ from pixel_battle.presentation.web.routes.register_user import (
 from pixel_battle.presentation.web.routes.schedule_pixel_battle import (
     router as schedule_pixel_battle_router,
 )
+from pixel_battle.presentation.web.routes.view_user import (
+    router as view_user_router,
+)
 
 
 class ChunkWritingServiceProvider(Provider):
@@ -30,6 +33,7 @@ class ChunkWritingServiceProvider(Provider):
             recolor_pixel_router,
             register_user_router,
             schedule_pixel_battle_router,
+            view_user_router,
         ]
 
     @provide

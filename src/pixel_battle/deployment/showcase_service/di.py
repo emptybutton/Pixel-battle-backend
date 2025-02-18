@@ -27,6 +27,9 @@ from pixel_battle.presentation.web.routes.view_chunk import (
 from pixel_battle.presentation.web.routes.view_pixel_battle import (
     router as view_pixel_battle_router,
 )
+from pixel_battle.presentation.web.routes.view_user import (
+    router as view_user_router,
+)
 
 
 class ShowcaseServiceProvider(Provider):
@@ -38,6 +41,7 @@ class ShowcaseServiceProvider(Provider):
             healthcheck_router,
             view_pixel_battle_router,
             schedule_pixel_battle_router,
+            view_user_router,
             register_user_router,
             recolor_pixel_router,
             view_chunk_router,
