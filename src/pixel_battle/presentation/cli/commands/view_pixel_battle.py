@@ -9,7 +9,7 @@ from pixel_battle.application.interactors.view_pixel_battle import (
 )
 
 
-@command(name="state")
+@command()
 @option(
     "-f",
     "--format",

@@ -13,7 +13,7 @@ from pixel_battle.entities.core.pixel_battle import (
 from pixel_battle.entities.space.time_delta import StartAfterEndTimeDeltaError
 
 
-@command(name="schedule")
+@command()
 @option(
     "-s",
     "--pixel-battle-start-time",
