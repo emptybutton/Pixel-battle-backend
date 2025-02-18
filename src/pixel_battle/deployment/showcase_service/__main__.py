@@ -1,8 +1,8 @@
-from pixel_battle.deployment.common.uvicorn import run
+from pixel_battle.deployment.common.uvicorn import run_dev
 
 
 def main() -> None:
-    run("pixel_battle.deployment.showcase_service.asgi:app")
+    run_dev("pixel_battle.deployment.showcase_service.asgi:app")
 
 
 if __name__ == "__main__":

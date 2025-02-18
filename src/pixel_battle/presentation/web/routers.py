@@ -28,7 +28,7 @@ from pixel_battle.presentation.web.routes.view_user import (
 )
 
 
-all_routers = [
+all_routers = (
     healthcheck_router,
     view_pixel_battle_router,
     schedule_pixel_battle_router,
@@ -37,7 +37,7 @@ all_routers = [
     recolor_pixel_router,
     view_chunk_router,
     stream_chunk_router,
-]
+)
 
 
 class UnknownRouterError(Exception): ...

@@ -13,15 +13,6 @@ from pixel_battle.presentation.web.routes.healthcheck import (
 from pixel_battle.presentation.web.routes.recolor_pixel import (
     recolor_pixel_router,
 )
-from pixel_battle.presentation.web.routes.register_user import (
-    register_user_router,
-)
-from pixel_battle.presentation.web.routes.schedule_pixel_battle import (
-    schedule_pixel_battle_router,
-)
-from pixel_battle.presentation.web.routes.view_user import (
-    view_user_router,
-)
 
 
 class ChunkWritingServiceProvider(Provider):
@@ -32,9 +23,6 @@ class ChunkWritingServiceProvider(Provider):
         return ordered(
             healthcheck_router,
             recolor_pixel_router,
-            register_user_router,
-            schedule_pixel_battle_router,
-            view_user_router,
         )
 
     @provide

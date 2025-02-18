@@ -1,7 +1,7 @@
 import uvicorn
 
 
-def run(app_path: str) -> None:
+def run_dev(app_path: str) -> None:
     uvicorn.run(
         app_path,
         host="0.0.0.0",  # noqa: S104

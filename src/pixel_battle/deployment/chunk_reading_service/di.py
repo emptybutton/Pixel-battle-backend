@@ -13,9 +13,6 @@ from pixel_battle.presentation.web.routes.healthcheck import (
 from pixel_battle.presentation.web.routes.view_chunk import (
     view_chunk_router,
 )
-from pixel_battle.presentation.web.routes.view_pixel_battle import (
-    view_pixel_battle_router,
-)
 
 
 class ChunkReadingServiceProvider(Provider):
@@ -23,9 +20,7 @@ class ChunkReadingServiceProvider(Provider):
 
     @provide
     def provide_routers(self) -> AppRouters:
-        return ordered(
-            healthcheck_router, view_chunk_router, view_pixel_battle_router
-        )
+        return ordered(healthcheck_router, view_chunk_router)
 
     @provide
     def provide_coroutines(self) -> AppCoroutines:
