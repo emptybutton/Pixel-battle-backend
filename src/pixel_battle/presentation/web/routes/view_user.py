@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 from pixel_battle.application.interactors.view_user import ViewUser
 from pixel_battle.presentation.web.cookies import UserDataCookie
+from pixel_battle.presentation.web.tags import Tag
 
 
 view_user_router = APIRouter()
@@ -26,6 +27,7 @@ class UserSchema(BaseModel):
 @view_user_router.get(
     "/pixel-battle/user",
     description="Reading current user data in the game.",
+    tags=[Tag.user],
     responses={status.HTTP_200_OK: {"model": UserSchema}},
 )
 @inject

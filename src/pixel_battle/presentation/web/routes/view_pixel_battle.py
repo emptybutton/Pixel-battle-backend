@@ -9,6 +9,7 @@ from pixel_battle.application.interactors.view_pixel_battle import (
 from pixel_battle.presentation.web.schemas import (
     TimeDeltaSchema,
 )
+from pixel_battle.presentation.web.tags import Tag
 
 
 view_pixel_battle_router = APIRouter()
@@ -22,6 +23,7 @@ class PixelBattleSchema(BaseModel):
 @view_pixel_battle_router.get(
     "/pixel-battle",
     description="Reading state of the game.",
+    tags=[Tag.configuration],
     responses={status.HTTP_200_OK: {"model": PixelBattleSchema}},
 )
 @inject

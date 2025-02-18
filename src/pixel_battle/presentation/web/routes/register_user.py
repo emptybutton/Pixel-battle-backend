@@ -14,6 +14,7 @@ from pixel_battle.presentation.web.schemas import (
     ErrorSchema,
     NoDataSchema,
 )
+from pixel_battle.presentation.web.tags import Tag
 
 
 register_user_router = APIRouter()
@@ -30,6 +31,7 @@ class AlreadyRegisteredSchema(ErrorSchema):
         " After registration, it is not allowed to"
         " recolor pixels for one minute."
     ),
+    tags=[Tag.user],
     status_code=status.HTTP_201_CREATED,
     responses={
         status.HTTP_201_CREATED: {"model": NoDataSchema},

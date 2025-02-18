@@ -19,6 +19,7 @@ from pixel_battle.presentation.web.schemas import (
     NoRightSchema,
     PixelOutOfCanvasSchema,
 )
+from pixel_battle.presentation.web.tags import Tag
 
 
 recolor_pixel_router = APIRouter()
@@ -35,6 +36,7 @@ class RecolorPixelSchema(BaseModel):
         "Recoloring one pixel on the canvas."
         " After recoloring, the action will be unavailable for one minute."
     ),
+    tags=[Tag.canvas],
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {

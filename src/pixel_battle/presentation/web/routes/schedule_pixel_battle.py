@@ -20,6 +20,7 @@ from pixel_battle.presentation.web.schemas import (
     StartAfterEndTimeDeltaSchema,
     TimeDeltaSchema,
 )
+from pixel_battle.presentation.web.tags import Tag
 
 
 schedule_pixel_battle_router = APIRouter()
@@ -31,7 +32,8 @@ class SchedulePixelBattleSchema(BaseModel):
 
 @schedule_pixel_battle_router.patch(
     "/pixel-battle",
-    description="Updating state of the game. Requires admin key",
+    description="Updating state of the game. Requires admin key.",
+    tags=[Tag.configuration],
     status_code=status.HTTP_200_OK,
     responses={
         status.HTTP_200_OK: {"model": NoDataSchema},

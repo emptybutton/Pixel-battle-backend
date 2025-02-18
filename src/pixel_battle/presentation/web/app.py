@@ -7,6 +7,8 @@ from dishka import AsyncContainer
 from dishka.integrations.fastapi import setup_dishka
 from fastapi import APIRouter, FastAPI
 
+from pixel_battle.presentation.web.tags import tags_metadata
+
 
 type AppCoroutines = Iterable[Coroutine[Any, Any, Any]]
 type AppRouters = Iterable[APIRouter]
@@ -38,6 +40,7 @@ async def app_from(container: AsyncContainer) -> FastAPI:
         version="0.1.0",
         summary="Pixel battle API for interaction via web browsers.",
         description=description,
+        openapi_tags=tags_metadata,
         contact={"name": "Alexander Smolin", "url": author_url},
         license_info={
             "name": "Apache 2.0",

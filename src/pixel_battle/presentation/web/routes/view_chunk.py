@@ -6,6 +6,7 @@ from pixel_battle.application.interactors.view_chunk import ViewChunk
 from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
 from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
+from pixel_battle.presentation.web.tags import Tag
 
 
 view_chunk_router = APIRouter()
@@ -21,6 +22,7 @@ class ChunkViewResponse(Response):
         "Reading a slightly outdated chunk image (maximum 2-5 seconds) along"
         " with the delta of changes that bring it up to date."
     ),
+    tags=[Tag.canvas],
     response_class=Response,
     responses={
         status.HTTP_200_OK: {

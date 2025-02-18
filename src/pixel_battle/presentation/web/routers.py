@@ -34,8 +34,8 @@ all_routers = (
     schedule_pixel_battle_router,
     view_user_router,
     register_user_router,
-    recolor_pixel_router,
     view_chunk_router,
+    recolor_pixel_router,
     stream_chunk_router,
 )
 
