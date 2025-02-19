@@ -44,8 +44,8 @@ class RefreshChunkTask:
     refresh_chunk: RefreshChunk[Any]
     redis_cluster: RedisCluster
     pulling_interval_seconds: int
-    __queue_key: ClassVar = b"task_{{0}}_queue"
-    __queue_lock_key: ClassVar = b"task_{{0}}_queue_lock"
+    __queue_key: ClassVar = b"task_{0}_queue"
+    __queue_lock_key: ClassVar = b"task_{0}_queue_lock"
     __command_count: ClassVar = 100
 
     async def start_pushing(self) -> NoReturn:
