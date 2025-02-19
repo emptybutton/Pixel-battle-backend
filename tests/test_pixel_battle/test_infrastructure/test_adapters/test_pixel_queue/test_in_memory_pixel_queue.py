@@ -67,7 +67,6 @@ async def test_push(
     [
         (False, False),
         (True, False),
-        (False, True),
         (True, True),
     ],
 )
@@ -86,7 +85,7 @@ async def test_empty_queue_pulling(
                 return pixels
 
         return await queue.uncommittable_pulled_pixels_when(
-            chunk=pixel1.chunk, process=None, only_new=only_new
+            chunk=pixel1.chunk, process=None
         )
 
     pixels, _ = await gather(pull(), push(pixel1))
@@ -98,7 +97,6 @@ async def test_empty_queue_pulling(
     [
         (False, False),
         (True, False),
-        (False, True),
         (True, True),
     ],
 )
@@ -122,7 +120,7 @@ async def test_full_queue_pulling(
                 return pixels
 
         return await queue.uncommittable_pulled_pixels_when(
-            chunk=pixel1.chunk, process=None, only_new=only_new
+            chunk=pixel1.chunk, process=None
         )
 
     pixels, _ = await gather(pull(), push(pixel2))

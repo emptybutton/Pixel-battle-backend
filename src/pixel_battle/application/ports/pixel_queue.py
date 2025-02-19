@@ -29,5 +29,5 @@ class PixelQueue(ABC):
 
     @abstractmethod
     async def uncommittable_pulled_pixels_when(
-        self, *, chunk: Chunk, process: PullingProcess | None, only_new: bool
+        self, *, chunk: Chunk, process: PullingProcess | None
     ) -> UncommittablePulledPixels: ...

@@ -41,7 +41,7 @@ class ViewChunk[ChunkViewT: ChunkView = ChunkView, FrozenChunkViewT = Any]:
 
         process = PullingProcess.chunk_view_refresh
         pixels = await self.pixel_queue.uncommittable_pulled_pixels_when(
-            chunk=chunk, process=process, only_new=False
+            chunk=chunk, process=process
         )
 
         if frozen_chunk_view is None:

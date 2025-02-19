@@ -101,11 +101,9 @@ async def test_push(
     [
         (False, False, None),
         (True, False, None),
-        (False, True, None),
         (True, True, None),
         (False, False, PullingProcess.chunk_view_refresh),
         (True, False, PullingProcess.chunk_view_refresh),
-        (False, True, PullingProcess.chunk_view_refresh),
         (True, True, PullingProcess.chunk_view_refresh),
     ],
 )
@@ -125,7 +123,7 @@ async def test_empty_queue_pulling(
                 return pixels
 
         return await queue.uncommittable_pulled_pixels_when(
-            chunk=pixel1.chunk, process=process, only_new=only_new
+            chunk=pixel1.chunk, process=process
         )
 
     pixels, _ = await gather(pull(), push(pixel1))
@@ -137,11 +135,9 @@ async def test_empty_queue_pulling(
     [
         (False, False, None),
         (True, False, None),
-        (False, True, None),
         (True, True, None),
         (False, False, PullingProcess.chunk_view_refresh),
         (True, False, PullingProcess.chunk_view_refresh),
-        (False, True, PullingProcess.chunk_view_refresh),
         (True, True, PullingProcess.chunk_view_refresh),
     ],
 )
@@ -166,18 +162,16 @@ async def test_full_queue_pulling(
                 return pixels
 
         return await queue.uncommittable_pulled_pixels_when(
-            chunk=pixel1.chunk, process=process, only_new=only_new
+            chunk=pixel1.chunk, process=process
         )
 
     pixels, _ = await gather(pull(), push(pixel2))
 
     if is_commitable and only_new:
         assert pixels == (pixel2, )
-    elif is_commitable and not only_new:
+    elif is_commitable and not only_new:  # noqa: SIM114
         assert pixels == (pixel1, )
-    elif not is_commitable and only_new:
-        assert pixels == (pixel2, )
-    elif not is_commitable and not only_new:
+    elif not is_commitable:
         assert pixels == (pixel1, )
 
     await push(pixel3)
@@ -187,9 +181,7 @@ async def test_full_queue_pulling(
         assert pixels == (pixel3, )
     elif is_commitable and not only_new:
         assert pixels == (pixel2, pixel3)
-    elif not is_commitable and only_new:
-        assert pixels == (pixel4, )
-    elif not is_commitable and not only_new:
+    elif not is_commitable:
         assert pixels == (pixel1, pixel2, pixel3)
 
     pixels = await pull()
@@ -198,7 +190,33 @@ async def test_full_queue_pulling(
         assert pixels == (pixel4, )
     elif is_commitable and not only_new:
         assert pixels == (pixel4, )
-    elif not is_commitable and only_new:
-        assert pixels == tuple()
-    elif not is_commitable and not only_new:
+    elif not is_commitable:
         assert pixels == (pixel1, pixel2, pixel3, pixel4)
+
+
+@mark.parametrize("process", [None, PullingProcess.chunk_view_refresh])
+async def test_commitable_only_new_pixels_added_outside_pulling(
+    process: PullingProcess | None,
+    queue: RedisClusterStreamPixelQueue,
+    push: Push,
+    pixel1: Pixel[RGBColor],
+    pixel2: Pixel[RGBColor],
+    pixel3: Pixel[RGBColor],
+) -> None:
+    async def pull() -> Sequence[Pixel[RGBColor]]:
+        async with queue.committable_pulled_pixels_when(
+            chunk=pixel1.chunk, process=process, only_new=True
+        ) as pixels:
+            return pixels
+
+    await push(pixel1)
+    pixels = await pull()
+    assert pixels == tuple()
+
+    await push(pixel2)
+    pixels = await pull()
+    assert pixels == (pixel2, )
+
+    await push(pixel3)
+    pixels = await pull()
+    assert pixels == (pixel3, )

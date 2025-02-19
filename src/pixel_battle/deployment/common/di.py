@@ -275,9 +275,8 @@ class StreamingProvider(Provider):
     @provide(provides=Streaming)
     async def provide_streaming(
         self, view_chunk_stream: ViewChunkStream
-    ) -> AsyncIterator[Streaming]:
-        async with Streaming(view_chunk_stream=view_chunk_stream) as streaming:
-            yield streaming
+    ) -> Streaming:
+        return Streaming(view_chunk_stream=view_chunk_stream)
 
 
 class DistributedTaskProvider(Provider):

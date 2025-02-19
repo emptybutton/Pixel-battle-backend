@@ -74,12 +74,12 @@ class InMemoryPixelQueue(PixelQueue):
         )
 
     async def uncommittable_pulled_pixels_when(
-        self, *, chunk: Chunk, process: PullingProcess | None, only_new: bool
+        self, *, chunk: Chunk, process: PullingProcess | None
     ) -> tuple[Pixel[RGBColor], ...]:
         return await self.__pull(
             chunk,
             process,
-            only_new=only_new,
+            only_new=False,
             and_commit=False,
         )
 
@@ -139,14 +139,15 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         await self.redis_cluster.xadd(key, event_body, maxlen=maxlen)  # type: ignore[arg-type]
 
     async def uncommittable_pulled_pixels_when(
-        self, *, chunk: Chunk, process: PullingProcess | None, only_new: bool
+        self, *, chunk: Chunk, process: PullingProcess | None
     ) -> UncommittablePulledPixels:
         key = self.__stream_key_when(chunk=chunk)
-        offset = await self.__offset_when(
-            chunk=chunk, process=process, only_new=only_new
-        )
-        results = await self.__pull(key=key, offset=offset)
+        offset = await self.__stored_offset_when(chunk=chunk, process=process)
 
+        if offset is None:
+            offset = b"0"
+
+        results = await self.__pull(key=key, offset=offset)
         return self.__pixels_when(results=results, chunk=chunk)
 
     @asynccontextmanager
@@ -154,16 +155,23 @@ class RedisClusterStreamPixelQueue(PixelQueue):
         self, *, chunk: Chunk, process: PullingProcess | None, only_new: bool
     ) -> AsyncIterator[Sequence[Pixel[RGBColor]]]:
         key = self.__stream_key_when(chunk=chunk)
-        offset = await self.__offset_when(
-            chunk=chunk, process=process, only_new=only_new
-        )
+        offset = await self.__stored_offset_when(chunk=chunk, process=process)
+
+        if offset is None:
+            if only_new:
+                results = await self.redis_cluster.xread({key: b"+"}, count=1)
+                offset = self.__last_event_offset_from(results) or b"0"
+            else:
+                offset = b"0"
+
         results = await self.__pull(key=key, offset=offset)
 
         yield self.__pixels_when(results=results, chunk=chunk)
 
-        await self.__commit_offset(
-            process=process, chunk=chunk, results=results
-        )
+        offset = self.__last_event_offset_from(results) or offset
+
+        if offset is not None:
+            await self.__commit_offset(offset, process=process, chunk=chunk)
 
     @property
     def __pulling_block(self) -> int | None:
@@ -220,49 +228,41 @@ class RedisClusterStreamPixelQueue(PixelQueue):
 
         return decoded_pixel_when(encoded_pixel=encoded_pixel, chunk=chunk)
 
-    async def __offset_when(
-        self,
-        *,
-        process: PullingProcess | None,
-        only_new: bool,
-        chunk: Chunk,
-    ) -> RedisStreamOffset:
-        default_offset = self.__default_offset_when(only_new=only_new)
+    def __last_event_offset_from(
+        self, results: RedisStreamResults
+    ) -> RedisStreamOffset | None:
+        if not results:
+            return None
 
-        if process is None:
-            offset = self.last_readed_event_offset_by_chunk.get(chunk)
-            return offset or default_offset
-
-        key = self.__offset_key_when(chunk=chunk)
-        offset_field = self.__offset_field_when(process=process)
-        offset: bytes | None = await self.redis_cluster.hget(key, offset_field)  # type: ignore[misc, arg-type, no-redef]
-
-        return offset or default_offset
+        return results[0][1][-1][0]
 
     async def __commit_offset(
         self,
+        offset: RedisStreamOffset,
         *,
         process: PullingProcess | None,
         chunk: Chunk,
-        results: RedisStreamResults,
     ) -> None:
-        if not results:
-            return
-
-        last_readed_event_offset = results[0][1][-1][0]
-
         if process is None:
-            self.last_readed_event_offset_by_chunk[chunk] = (
-                last_readed_event_offset
-            )
+            self.last_readed_event_offset_by_chunk[chunk] = offset
             return
 
         key = self.__offset_key_when(chunk=chunk)
         offset_field = self.__offset_field_when(process=process)
 
-        await self.redis_cluster.hset(
-            key, offset_field, last_readed_event_offset  # type: ignore[misc, arg-type]
-        )
+        await self.redis_cluster.hset(key, offset_field, offset)  # type: ignore[misc, arg-type]
 
-    def __default_offset_when(self, *, only_new: bool) -> RedisStreamOffset:
-        return b"$" if only_new else b"0"
+    async def __stored_offset_when(
+        self,
+        *,
+        process: PullingProcess | None,
+        chunk: Chunk,
+    ) -> RedisStreamOffset | None:
+        if process is None:
+            return self.last_readed_event_offset_by_chunk.get(chunk)
+
+        key = self.__offset_key_when(chunk=chunk)
+        offset_field = self.__offset_field_when(process=process)
+        offset: bytes | None = await self.redis_cluster.hget(key, offset_field)
+
+        return offset
