@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum, auto
+from typing import Any
 
 from pixel_battle.application.ports.chunk_optimistic_lock import (
     ChunkOptimisticLockWhen,
@@ -9,6 +10,8 @@ from pixel_battle.application.ports.chunk_view import (
     DefaultChunkViewWhen,
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
+from pixel_battle.application.ports.frozen_chunk_view import ChunkViewFreezing
+from pixel_battle.application.ports.frozen_chunk_views import FrozenChunkViews
 from pixel_battle.application.ports.pixel_queue import (
     PixelQueue,
     PullingProcess,
@@ -27,9 +30,11 @@ type Output = Ok | Error
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
-class RefreshChunk[ChunkViewT: ChunkView]:
+class RefreshChunk[ChunkViewT: ChunkView = ChunkView, FrozenChunkViewT = Any]:
     pixel_queue: PixelQueue
     chunk_views: ChunkViews[ChunkViewT]
+    frozen_chunk_views: FrozenChunkViews[FrozenChunkViewT]
+    chunk_view_freezing: ChunkViewFreezing[ChunkViewT, FrozenChunkViewT]
     default_chunk_view_when: DefaultChunkViewWhen[ChunkViewT]
     chunk_optimistic_lock_when: ChunkOptimisticLockWhen
 
@@ -54,7 +59,14 @@ class RefreshChunk[ChunkViewT: ChunkView]:
                 if chunk_view is None:
                     chunk_view = await self.default_chunk_view_when(chunk=chunk)
 
-                await chunk_view.redraw_by_pixels(pixels)
+                async with chunk_view:
+                    await chunk_view.redraw_by_pixels(pixels)
+                    frozen_chunk_view = await self.chunk_view_freezing.frozen(
+                        chunk_view
+                    )
+                    await self.chunk_views.put(chunk_view, chunk=chunk)
 
-                await self.chunk_views.put(chunk_view, chunk=chunk)
+                await self.frozen_chunk_views.put(
+                    frozen_chunk_view, chunk=chunk
+                )
                 return ok

@@ -3,10 +3,7 @@ from datetime import datetime
 from click import IntRange, command, echo, option, style
 from dishka import FromDishka
 
-from pixel_battle.application.interactors.refresh_chunk import (
-    RefreshChunk,
-)
-from pixel_battle.application.ports.chunk_view import ChunkView
+from pixel_battle.application.interactors.refresh_chunk import RefreshChunk
 
 
 @command()
@@ -32,7 +29,7 @@ from pixel_battle.application.ports.chunk_view import ChunkView
     help="Don't write to stdout.",
 )
 async def refresh_chunk_command(
-    refresh_chunk: FromDishka[RefreshChunk[ChunkView]],
+    refresh_chunk: FromDishka[RefreshChunk],
     chunk_number_x: int,
     chunk_number_y: int,
     quiet: bool,

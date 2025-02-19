@@ -10,10 +10,7 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
 
 @fixture(scope="session")
 def views(redis_cluster: RedisCluster) -> InRedisClusterPNGImageChunkViews:
-    return InRedisClusterPNGImageChunkViews(
-        redis_cluster=redis_cluster,
-        close_when_putting=False,
-    )
+    return InRedisClusterPNGImageChunkViews(redis_cluster=redis_cluster)
 
 
 async def test_all_view_life_cycle(

@@ -1,7 +1,7 @@
 from collections.abc import AsyncIterator
 from typing import Any
 
-from dishka import Provider, Scope, alias, provide
+from dishka import AnyOf, Provider, Scope, alias, provide
 from redis.asyncio import RedisCluster
 
 from pixel_battle.application.interactors.recolor_pixel import (
@@ -33,6 +33,8 @@ from pixel_battle.application.ports.chunk_view import (
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
+from pixel_battle.application.ports.frozen_chunk_view import ChunkViewFreezing
+from pixel_battle.application.ports.frozen_chunk_views import FrozenChunkViews
 from pixel_battle.application.ports.pixel_battle_container import (
     PixelBattleContainer,
 )
@@ -45,6 +47,7 @@ from pixel_battle.infrastructure.adapters.chunk_optimistic_lock import (
     RedisClusterChunkOptimisticLockWhen,
 )
 from pixel_battle.infrastructure.adapters.chunk_view import (
+    CollectionChunkView,
     DefaultPNGImageChunkViewWhen,
     PNGImageChunkView,
 )
@@ -55,6 +58,16 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
 from pixel_battle.infrastructure.adapters.clock import (
     LocalClock,
     RedisClusterRandomNodeClock,
+)
+from pixel_battle.infrastructure.adapters.frozen_chunk_view import (
+    CollectionChunkViewFreezing,
+    FrozenCollectionChunkView,
+    FrozenPNGImageChunkView,
+    PNGImageChunkViewFreezing,
+)
+from pixel_battle.infrastructure.adapters.frozen_chunk_views import (
+    InMemoryFrozenChunkViews,
+    InRedisClusterFrozenPNGImageChunkViews,
 )
 from pixel_battle.infrastructure.adapters.pixel_battle_container import (
     InMemoryPixelBattleContainer,
@@ -115,7 +128,6 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
     ) -> ChunkViews[PNGImageChunkView]:
         return InRedisClusterPNGImageChunkViews(
             redis_cluster=canvas_redis_cluster,
-            close_when_putting=True,
         )
 
     @provide
@@ -154,6 +166,20 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
             admin_key=AdminKey(token=envs.admin_key),
         )
 
+    @provide
+    def provide_frozen_chunk_views(
+        self,
+        canvas_redis_cluster: CanvasRedisCluster,
+    ) -> FrozenChunkViews[FrozenPNGImageChunkView]:
+        return InRedisClusterFrozenPNGImageChunkViews(
+            redis_cluster=canvas_redis_cluster,
+        )
+
+    provide_chunk_view_freezing = provide(
+        PNGImageChunkViewFreezing,
+        provides=ChunkViewFreezing[PNGImageChunkView, FrozenPNGImageChunkView],
+    )
+
     provide_default_png_image_chunk_view_when = provide(
         DefaultPNGImageChunkViewWhen,
         provides=DefaultChunkViewWhen[PNGImageChunkView],
@@ -173,6 +199,19 @@ class ProcessInfrastructureAdapterProvider(Provider):
         pixel_battle = UnscheduledPixelBattle(admin_key=admin_key)
 
         return InMemoryPixelBattleContainer(pixel_battle)
+
+    @provide
+    def provide_frozen_chunk_views[T](
+        self, _: type[T]
+    ) -> FrozenChunkViews[T]:
+        return InMemoryFrozenChunkViews(frozen_chunk_view_by_chunk=dict())
+
+    provide_chunk_view_freezing = provide(
+        CollectionChunkViewFreezing,
+        provides=(
+            ChunkViewFreezing[CollectionChunkView, FrozenCollectionChunkView]
+        ),
+    )
 
     provide_chunk_optimistic_lock_when = provide(
         AsyncIOChunkOptimisticLockWhen, provides=ChunkOptimisticLockWhen,
@@ -206,16 +245,24 @@ class InteractorProvider(Provider):
     provide_schedule_pixel_battle = provide(SchedulePixelBattle)
     provide_view_pixel_battle = provide(ViewPixelBattle)
 
-    provide_refresh_chunk = provide(RefreshChunk[PNGImageChunkView])
+    provide_refresh_chunk = provide(
+        RefreshChunk[PNGImageChunkView, FrozenPNGImageChunkView]
+    )
     provide_any_refresh_chunk = alias(
-        source=RefreshChunk[PNGImageChunkView],
-        provides=RefreshChunk[ChunkView],
+        source=RefreshChunk[PNGImageChunkView, FrozenPNGImageChunkView],
+        provides=RefreshChunk,
     )
 
-    provide_view_chunk = provide(ViewChunk[PNGImageChunkView])
+    provide_view_chunk = provide(
+        ViewChunk[PNGImageChunkView, FrozenPNGImageChunkView],
+    )
     provide_any_view_chunk = alias(
-        source=ViewChunk[PNGImageChunkView],
-        provides=ViewChunk[ChunkView],
+        source=ViewChunk[PNGImageChunkView, FrozenPNGImageChunkView],
+        provides=AnyOf[
+            ViewChunk[PNGImageChunkView, bytes],
+            ViewChunk[ChunkView, bytes],
+            ViewChunk,
+        ],
     )
 
     provide_view_user = provide(ViewUser[str])
@@ -245,5 +292,5 @@ class DistributedTaskProvider(Provider):
         return RefreshChunkTask(
             refresh_chunk=refresh_chunk,
             redis_cluster=canvas_metadata_redis_cluster,
-            pulling_interval_seconds=20,
+            pulling_interval_seconds=5,
         )

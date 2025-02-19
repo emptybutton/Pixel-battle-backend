@@ -14,6 +14,7 @@ async def redis_cluster(envs: Envs) -> AsyncIterator[RedisCluster]:
 
     async with cluster:
         yield cluster
+        await cluster.flushdb()
 
 
 @fixture(scope="session")

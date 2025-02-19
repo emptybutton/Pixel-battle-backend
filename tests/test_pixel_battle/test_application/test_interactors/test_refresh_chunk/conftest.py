@@ -15,6 +15,12 @@ from pixel_battle.infrastructure.adapters.chunk_view import (
     DefaultCollectionChunkViewWhen,
 )
 from pixel_battle.infrastructure.adapters.chunk_views import InMemoryChunkViews
+from pixel_battle.infrastructure.adapters.frozen_chunk_view import (
+    CollectionChunkViewFreezing,
+)
+from pixel_battle.infrastructure.adapters.frozen_chunk_views import (
+    InMemoryFrozenChunkViews,
+)
 from pixel_battle.infrastructure.adapters.pixel_queue import InMemoryPixelQueue
 
 
@@ -25,6 +31,10 @@ def refresh_chunk() -> RefreshChunk[CollectionChunkView]:
         default_chunk_view_when=DefaultCollectionChunkViewWhen(),
         chunk_views=InMemoryChunkViews(),
         chunk_optimistic_lock_when=AsyncIOChunkOptimisticLockWhen(),
+        frozen_chunk_views=InMemoryFrozenChunkViews(
+            frozen_chunk_view_by_chunk=dict()
+        ),
+        chunk_view_freezing=CollectionChunkViewFreezing(),
     )
 
 

@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from copy import deepcopy
 from dataclasses import dataclass, field
 from typing import ClassVar
 
@@ -25,32 +26,26 @@ class InMemoryChunkViews[ChunkViewT: ChunkView](ChunkViews[ChunkViewT]):
         return self._view_by_chunk.get(chunk)
 
     async def put(self, view: ChunkViewT, *, chunk: Chunk) -> None:
-        self._view_by_chunk[chunk] = view
+        self._view_by_chunk[chunk] = deepcopy(view)
 
 
 @dataclass(kw_only=True, frozen=True, slots=True)
 class InRedisClusterPNGImageChunkViews(ChunkViews[PNGImageChunkView]):
     redis_cluster: RedisCluster
-    close_when_putting: bool
-    _field: ClassVar = b"view"
+    _field: ClassVar = b"png_image_unformatted_data"
 
     async def chunk_view_when(
         self, *, chunk: Chunk
     ) -> PNGImageChunkView | None:
         key = chunk_key_when(chunk=chunk)
-        raw_view = await self.redis_cluster.hget(key, self._field)  # type: ignore[arg-type, misc]
+        pixel_data = await self.redis_cluster.hget(key, self._field)  # type: ignore[arg-type, misc]
 
-        if raw_view is None:
+        if pixel_data is None:
             return None
 
-        return PNGImageChunkView.from_bytes(raw_view)
+        return PNGImageChunkView.from_pixel_data(pixel_data)
 
     async def put(self, view: PNGImageChunkView, *, chunk: Chunk) -> None:
-        with view.to_stream() as stream:
-            if self.close_when_putting:
-                view.close()
-
-            buffer = stream.getbuffer()
-            key = chunk_key_when(chunk=chunk)
-            await self.redis_cluster.hset(key, self._field, buffer)  # type: ignore[arg-type, misc]
-            buffer.release()
+        key = chunk_key_when(chunk=chunk)
+        pixel_data = view.to_pixel_data()
+        await self.redis_cluster.hset(key, self._field, pixel_data)  # type: ignore[arg-type, misc]

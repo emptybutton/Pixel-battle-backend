@@ -21,6 +21,8 @@ from pixel_battle.application.ports.chunk_view import (
 )
 from pixel_battle.application.ports.chunk_views import ChunkViews
 from pixel_battle.application.ports.clock import Clock
+from pixel_battle.application.ports.frozen_chunk_view import ChunkViewFreezing
+from pixel_battle.application.ports.frozen_chunk_views import FrozenChunkViews
 from pixel_battle.application.ports.pixel_battle_container import (
     PixelBattleContainer,
 )
@@ -41,6 +43,13 @@ from pixel_battle.infrastructure.adapters.chunk_views import (
     InMemoryChunkViews,
 )
 from pixel_battle.infrastructure.adapters.clock import StoppedClock
+from pixel_battle.infrastructure.adapters.frozen_chunk_view import (
+    FrozenPNGImageChunkView,
+    PNGImageChunkViewFreezing,
+)
+from pixel_battle.infrastructure.adapters.frozen_chunk_views import (
+    InMemoryFrozenChunkViews,
+)
 from pixel_battle.infrastructure.adapters.pixel_battle_container import (
     InMemoryPixelBattleContainer,
 )
@@ -73,15 +82,30 @@ def container() -> AsyncContainer:
     provider.provide(lambda: InMemoryPixelQueue(), provides=PixelQueue)
     provider.provide(StoppedClock, provides=Clock)
     provider.provide(RecolorPixel[str])
-    provider.provide(ViewChunk[PNGImageChunkView])
+    provider.provide(
+        ViewChunk[PNGImageChunkView, FrozenPNGImageChunkView],
+        provides=ViewChunk[ChunkView, bytes],
+    )
     provider.provide(ViewChunkStream)
     provider.provide(RegisterUser[str])
     provider.provide(
-        RefreshChunk[PNGImageChunkView],
-        provides=RefreshChunk[ChunkView],
+        RefreshChunk[PNGImageChunkView, FrozenPNGImageChunkView],
+        provides=RefreshChunk,
     )
     provider.provide(
         AsyncIOChunkOptimisticLockWhen, provides=ChunkOptimisticLockWhen
+    )
+    provider.provide(
+        PNGImageChunkViewFreezing,
+        provides=ChunkViewFreezing[PNGImageChunkView, FrozenPNGImageChunkView],
+    )
+    provider.provide(
+        lambda: InMemoryFrozenChunkViews(frozen_chunk_view_by_chunk=dict()),
+        provides=FrozenChunkViews[FrozenPNGImageChunkView],
+    )
+    provider.provide(
+        PNGImageChunkViewFreezing,
+        provides=ChunkViewFreezing[ChunkView, bytes],
     )
 
     @provider.provide

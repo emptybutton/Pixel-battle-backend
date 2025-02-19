@@ -3,7 +3,7 @@ from fastapi import APIRouter, status
 from fastapi.responses import Response
 
 from pixel_battle.application.interactors.view_chunk import ViewChunk
-from pixel_battle.infrastructure.adapters.chunk_view import PNGImageChunkView
+from pixel_battle.application.ports.chunk_view import ChunkView
 from pixel_battle.presentation.web.params import ChunkNumberX, ChunkNumberY
 from pixel_battle.presentation.web.schemas import RecoloredPixelListSchema
 from pixel_battle.presentation.web.tags import Tag
@@ -46,7 +46,7 @@ class ChunkViewResponse(Response):
 )
 @inject
 async def view_chunk(
-    view_chunk: FromDishka[ViewChunk[PNGImageChunkView]],
+    view_chunk: FromDishka[ViewChunk[ChunkView, bytes]],
     chunk_number_x: ChunkNumberX,
     chunk_number_y: ChunkNumberY,
 ) -> ChunkViewResponse:
@@ -57,8 +57,4 @@ async def view_chunk(
 
     headers = {"X-Actualizing-Delta": actualizing_delta}
 
-    image_stream = result.chunk_view.to_stream()
-    content = image_stream.getvalue()
-    image_stream.close()
-
-    return ChunkViewResponse(content, headers=headers)
+    return ChunkViewResponse(result.frozen_chunk_view, headers=headers)
