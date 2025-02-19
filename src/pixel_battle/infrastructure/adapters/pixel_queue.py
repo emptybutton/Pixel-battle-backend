@@ -263,6 +263,6 @@ class RedisClusterStreamPixelQueue(PixelQueue):
 
         key = self.__offset_key_when(chunk=chunk)
         offset_field = self.__offset_field_when(process=process)
-        offset: bytes | None = await self.redis_cluster.hget(key, offset_field)
+        offset: bytes | None = await self.redis_cluster.hget(key, offset_field)  # type: ignore[misc, arg-type]
 
         return offset

@@ -1,4 +1,3 @@
-from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from functools import partial
 
@@ -122,10 +121,7 @@ def container() -> AsyncContainer:
         return InMemoryPixelBattleContainer(pixel_battle)
 
     @partial(provider.provide, provides=Streaming)
-    async def get_streaming(
-        view_chunk_stream: ViewChunkStream
-    ) -> AsyncIterator[Streaming]:
-        async with Streaming(view_chunk_stream=view_chunk_stream) as streaming:
-            yield streaming
+    def get_streaming(view_chunk_stream: ViewChunkStream) -> Streaming:
+        return Streaming(view_chunk_stream=view_chunk_stream)
 
     return make_async_container(provider)
