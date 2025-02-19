@@ -85,3 +85,7 @@ class StartAfterEndTimeDeltaSchema(ErrorSchema):
 
 class NoAdminKeySchema(ErrorSchema):
     type: Literal["NoAdminKey"] = "NoAdminKey"
+
+
+class PixelBattleIsNotGoingOnSchema(ErrorSchema):
+    type: Literal["PixelBattleIsNotGoingOn"] = "PixelBattleIsNotGoingOn"

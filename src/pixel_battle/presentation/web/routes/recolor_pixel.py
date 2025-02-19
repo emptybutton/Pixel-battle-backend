@@ -5,6 +5,7 @@ from pydantic import BaseModel, Field
 
 from pixel_battle.application.interactors.recolor_pixel import RecolorPixel
 from pixel_battle.entities.core.pixel import (
+    PixelBattleIsNotGoingOnToRecolorError,
     PixelOutOfCanvasError,
     UserHasNoRightToRecolorError,
 )
@@ -17,6 +18,7 @@ from pixel_battle.presentation.web.schemas import (
     InvalidColorValueRangeSchema,
     NoDataSchema,
     NoRightSchema,
+    PixelBattleIsNotGoingOnSchema,
     PixelOutOfCanvasSchema,
 )
 from pixel_battle.presentation.web.tags import Tag
@@ -48,7 +50,10 @@ class RecolorPixelSchema(BaseModel):
             ]
         },
         status.HTTP_403_FORBIDDEN: {
-            "model": ErrorListSchema[NoRightSchema]
+            "model": (
+                ErrorListSchema[NoRightSchema]
+                | ErrorListSchema[PixelBattleIsNotGoingOnSchema]
+            ),
         },
     },
 )
@@ -80,6 +85,12 @@ async def recolor_pixel(
 
     except UserHasNoRightToRecolorError:
         json = NoRightSchema().to_list().model_dump(by_alias=True)
+        return JSONResponse(json, status_code=status.HTTP_403_FORBIDDEN)
+
+    except PixelBattleIsNotGoingOnToRecolorError:
+        json = (
+            PixelBattleIsNotGoingOnSchema().to_list().model_dump(by_alias=True)
+        )
         return JSONResponse(json, status_code=status.HTTP_403_FORBIDDEN)
 
     response = JSONResponse({}, status_code=status.HTTP_200_OK)
