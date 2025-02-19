@@ -54,6 +54,7 @@ def queue(redis_cluster: RedisCluster) -> RedisClusterStreamPixelQueue:
     return RedisClusterStreamPixelQueue(
         redis_cluster=redis_cluster,
         pulling_timeout_seconds=0.5,
+        max_stream_lenght=5_000_000,
     )
 
 

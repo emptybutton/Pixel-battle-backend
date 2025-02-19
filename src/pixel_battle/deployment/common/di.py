@@ -131,7 +131,11 @@ class OutOfProcessInfrastructureAdapterProvider(Provider):
     def provide_pixel_queue(
         self, canvas_redis_cluster: CanvasRedisCluster
     ) -> PixelQueue:
-        return RedisClusterStreamPixelQueue(redis_cluster=canvas_redis_cluster)
+        return RedisClusterStreamPixelQueue(
+            redis_cluster=canvas_redis_cluster,
+            pulling_timeout_seconds=None,
+            max_stream_lenght=5_000_000,
+        )
 
     @provide
     def provide_clock(self, canvas_redis_cluster: CanvasRedisCluster) -> Clock:

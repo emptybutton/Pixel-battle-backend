@@ -125,8 +125,8 @@ class InvalidPullingProcessError(Exception): ...
 @dataclass(kw_only=True, frozen=True, slots=True)
 class RedisClusterStreamPixelQueue(PixelQueue):
     redis_cluster: RedisCluster
-    max_stream_lenght: int = 5_000_000
-    pulling_timeout_seconds: int | float = 3
+    max_stream_lenght: int
+    pulling_timeout_seconds: int | float | None
     last_readed_event_offset_by_chunk: dict[Chunk, RedisStreamOffset] = (
         field(default_factory=dict)
     )
@@ -165,11 +165,19 @@ class RedisClusterStreamPixelQueue(PixelQueue):
             process=process, chunk=chunk, results=results
         )
 
+    @property
+    def __pulling_block(self) -> int | None:
+        if self.pulling_timeout_seconds is None:
+            return None
+
+        return int(self.pulling_timeout_seconds * 1000)
+
     async def __pull(
         self, *, key: RedisStreamKey, offset: RedisStreamOffset
     ) -> RedisStreamResults:
-        block = int(self.pulling_timeout_seconds * 1000)
-        results = await self.redis_cluster.xread({key: offset}, block=block)
+        results = await self.redis_cluster.xread(
+            {key: offset}, block=self.__pulling_block
+        )
 
         return cast("RedisStreamResults", results)
 
