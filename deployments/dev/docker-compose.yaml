@@ -27,6 +27,7 @@ services:
       ADMIN_KEY: super-secret-admin-key
     labels:
       pixel-battle: true
+    cpus: 0.25
     command: python src/pixel_battle/deployment/god_service
 
   redis1:
