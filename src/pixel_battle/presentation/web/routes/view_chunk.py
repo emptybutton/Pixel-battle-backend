@@ -36,7 +36,9 @@ class ChunkViewResponse(Response):
             },
             "headers": {
                 "X-Actualizing-Delta": {
-                    **RecoloredPixelListSchema.model_json_schema(by_alias=True),
+                    "schema": {
+                        "$ref": "#/components/schemas/RecoloredPixelListSchema"
+                    }
                 },
             },
         },
