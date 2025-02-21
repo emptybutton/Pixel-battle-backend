@@ -287,9 +287,12 @@ class DistributedTaskProvider(Provider):
         self,
         canvas_metadata_redis_cluster: CanvasMetadataRedisCluster,
         refresh_chunk: RefreshChunk[ChunkView],
+        envs: Envs,
     ) -> RefreshChunkTask:
         return RefreshChunkTask(
             refresh_chunk=refresh_chunk,
             redis_cluster=canvas_metadata_redis_cluster,
-            pulling_interval_seconds=5,
+            pushing_interval_seconds=(
+                envs.chunk_refreh_task_pushing_interval_seconds
+            ),
         )

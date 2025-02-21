@@ -1,6 +1,5 @@
 from asyncio import gather, sleep
-from collections.abc import AsyncIterator, Awaitable, Sequence
-from typing import Callable
+from collections.abc import AsyncIterator, Awaitable, Callable, Sequence
 
 from pytest import fixture, mark
 from redis.asyncio import RedisCluster

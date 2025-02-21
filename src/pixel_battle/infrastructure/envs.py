@@ -9,6 +9,7 @@ class Envs:
     canvas_metadata_redis_cluster_url: str
     jwt_secret: str
     admin_key: str
+    chunk_refreh_task_pushing_interval_seconds: int | float
 
     @classmethod
     def load(cls) -> "Envs":
@@ -23,4 +24,7 @@ class Envs:
             ),
             jwt_secret=loader.str("JWT_SECRET"),
             admin_key=loader.str("ADMIN_KEY"),
+            chunk_refreh_task_pushing_interval_seconds=(
+                loader.float("CHUNK_REFREH_TASK_PUSHING_INTERVAL_SECONDS")
+            ),
         )

@@ -73,6 +73,7 @@ async def app_from(container: AsyncContainer) -> FastAPI:
             "url": f"{repo_url}/blob/main/LICENSE",
         },
         lifespan=lifespan,
+        root_path="/api/0.1.0v",
     )
 
     coroutines = await container.get(AppCoroutines)

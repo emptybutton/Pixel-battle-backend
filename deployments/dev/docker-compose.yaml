@@ -23,10 +23,12 @@ services:
     environment:
       CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
       CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
-      JWT_SECRET: super-secret-secret
+      JWT_SECRET: super-secret-jwt-secret
       ADMIN_KEY: super-secret-admin-key
+      CHUNK_REFREH_TASK_PUSHING_INTERVAL_SECONDS: 8
     labels:
       pixel-battle: true
+    cpus: 0.5
 
   redis1:
     build:
@@ -34,7 +36,7 @@ services:
       dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis1
     volumes:
-      - redis1-db:/data
+      - redis1-data:/data
       - ./redis:/mnt
     networks:
       - private-network
@@ -60,7 +62,7 @@ services:
       dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis2
     volumes:
-      - redis2-db:/data
+      - redis2-data:/data
       - ./redis:/mnt
     networks:
       - private-network
@@ -73,7 +75,7 @@ services:
       dockerfile: deployments/dev/redis/Dockerfile
     container_name: pixel-battle-redis3
     volumes:
-      - redis3-db:/data
+      - redis3-data:/data
       - ./redis:/mnt
     networks:
       - private-network
@@ -81,21 +83,21 @@ services:
       pixel-battle: true
 
 volumes:
-  redis1-db:
-    labels:
-      pixel-battle: true
-      db: true
-  redis2-db:
-    labels:
-      pixel-battle: true
-      db: true
-  redis3-db:
-    labels:
-      pixel-battle: true
-      db: true
   backend-data:
     labels:
       pixel-battle: true
+  redis1-data:
+    labels:
+      pixel-battle: true
+      db: true
+  redis2-data:
+    labels:
+      pixel-battle: true
+      db: true
+  redis3-data:
+    labels:
+      pixel-battle: true
+      db: true
 
 networks:
   private-network:

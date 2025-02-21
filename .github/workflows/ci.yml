@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: ruff
-        run: docker compose -f deployments/dev/docker-compose.yaml run backend ruff check src tests -n
+        run: docker compose -f deployments/dev/docker-compose.yaml run backend ruff check src tests
 
   mypy:
     runs-on: ubuntu-latest

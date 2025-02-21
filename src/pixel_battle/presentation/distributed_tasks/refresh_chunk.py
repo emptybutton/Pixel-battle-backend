@@ -43,7 +43,7 @@ class RefreshChunkCommand:
 class RefreshChunkTask:
     refresh_chunk: RefreshChunk[Any]
     redis_cluster: RedisCluster
-    pulling_interval_seconds: int
+    pushing_interval_seconds: int | float
     __queue_key: ClassVar = b"task_{0}_queue"
     __queue_lock_key: ClassVar = b"task_{0}_queue_lock"
     __command_count: ClassVar = 100
@@ -51,7 +51,7 @@ class RefreshChunkTask:
     async def start_pushing(self) -> NoReturn:
         while True:
             await self.__push_commands()
-            await sleep(self.pulling_interval_seconds)
+            await sleep(self.pushing_interval_seconds)
 
     async def start_pulling(self) -> NoReturn:
         while True:
@@ -60,7 +60,6 @@ class RefreshChunkTask:
 
     async def __pull_one_command(self) -> RefreshChunkCommand:
         _, encoded_command = await self.redis_cluster.blpop([self.__queue_key])  # type: ignore[misc]
-        print(f"PULL: {encoded_command}", flush=True)
 
         return RefreshChunkCommand.from_bytes(encoded_command)
 
@@ -89,9 +88,6 @@ class RefreshChunkTask:
         pipe = self.redis_cluster.pipeline()
 
         if unstored_encoded_commands:
-            repr_commands = list(unstored_encoded_commands)
-            print(f"PUSH {len(repr_commands)}: {repr_commands}", flush=True)
-
             pipe.rpush(self.__queue_key, *unstored_encoded_commands)
 
         pipe.delete(self.__queue_lock_key)
