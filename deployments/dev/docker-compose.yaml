@@ -8,7 +8,7 @@ services:
     container_name: pixel-battle-backend
     volumes:
       - ../..:/pixel-battle
-      - backend-venv:/run/poetry
+      - backend-data:/run/pixel-battle
     networks:
       - private-network
     ports:
@@ -27,8 +27,6 @@ services:
       ADMIN_KEY: super-secret-admin-key
     labels:
       pixel-battle: true
-    cpus: 0.25
-    command: python src/pixel_battle/deployment/god_service
 
   redis1:
     build:
@@ -95,7 +93,7 @@ volumes:
     labels:
       pixel-battle: true
       db: true
-  backend-venv:
+  backend-data:
     labels:
       pixel-battle: true
 

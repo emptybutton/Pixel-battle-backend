@@ -1,13 +1,15 @@
-FROM n255/poetry:2.0.1-python3.13-alpine3.19 AS pixel-battle
+FROM ghcr.io/astral-sh/uv:python3.13-alpine AS pixel-battle
 
 WORKDIR /pixel-battle
 COPY . .
 
+ENV UV_PROJECT_ENVIRONMENT /run/pixel-battle/.venv
+ENV UV_CACHE_DIR /run/pixel-battle/.uv_cache
+
+RUN uv sync
+
 ENV PYTHONPATH /pixel-battle/src:/pixel-battle/tests
 ENV MYPYPATH /pixel-battle/src:/pixel-battle/tests
-
-ENV POETRY_VIRTUALENVS_PATH /run/poetry/venvs
-ENV POETRY_VIRTUALENVS_IN_PROJECT false
 
 ENV WATCHFILES_FORCE_POLLING true
 
@@ -17,5 +19,5 @@ HEALTHCHECK \
 --retries=100 \
 CMD wget localhost:8000/healthcheck -q -O /dev/null
 
-RUN poetry install
-ENTRYPOINT [ "poetry", "run" ]
+ENTRYPOINT ["ash", "deployments/dev/backend/entrypoint.sh"]
+CMD ["python", "src/pixel_battle/deployment/god_service"]
