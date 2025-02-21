@@ -29,6 +29,7 @@ services:
     labels:
       pixel-battle: true
     cpus: 0.5
+    command: god-service
 
   redis1:
     build:

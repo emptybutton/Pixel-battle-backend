@@ -20,4 +20,3 @@ HEALTHCHECK \
 CMD wget localhost:8000/healthcheck -q -O /dev/null
 
 ENTRYPOINT ["ash", "deployments/dev/backend/entrypoint.sh"]
-CMD ["python", "src/pixel_battle/deployment/god_service"]

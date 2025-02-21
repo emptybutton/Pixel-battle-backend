@@ -32,6 +32,22 @@ dev = [
     "httpx-ws == 0.7.0",
 ]
 
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+admin-cli = "pixel_battle.deployment.admin_cli.__main__:main"
+admin-service = "pixel_battle.deployment.admin_service.__main__:main"
+chunk-reading-service = "pixel_battle.deployment.chunk_reading_service.__main__:main"
+chunk-refresh-orchestrator = "pixel_battle.deployment.chunk_refresh_orchestrator.__main__:main"
+chunk-refresh-worker = "pixel_battle.deployment.chunk_refresh_worker.__main__:main"
+chunk-streaming-service = "pixel_battle.deployment.chunk_streaming_service.__main__:main"
+chunk-writing-service = "pixel_battle.deployment.chunk_writing_service.__main__:main"
+god-service = "pixel_battle.deployment.god_service.__main__:main"
+showcase-service = "pixel_battle.deployment.showcase_service.__main__:main"
+user-service = "pixel_battle.deployment.user_service.__main__:main"
+
 [tool.mypy]
 strict = true
 no_namespace_packages = true
