@@ -10,17 +10,17 @@ readme = "README.md"
 classifiers = ["Private :: Do Not Upload"]
 requires-python = "== 3.13.*"
 dependencies = [
+    "uvicorn[standard] == 0.30.6",
     "typenv == 0.2.0",
     "dishka == 1.4.2",
     "fastapi == 0.115.2",
-    "uvicorn == 0.30.6",
     "redis == 5.2.1",
     "Pillow == 11.0.0",
     "PyJWT == 2.10.1",
     "click == 8.1.8",
 ]
 
-[dependency-groups]
+[project.optional-dependencies]
 dev = [
     "mypy[faster-cache] == 1.15.0",
     "ruff == 0.9.7",
@@ -31,6 +31,7 @@ dev = [
     "httpx == 0.27.2",
     "httpx-ws == 0.7.0",
 ]
+prod = []
 
 [build-system]
 requires = ["hatchling"]

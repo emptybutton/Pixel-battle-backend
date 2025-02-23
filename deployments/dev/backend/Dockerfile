@@ -4,7 +4,7 @@ WORKDIR /pixel-battle
 COPY . .
 
 ENV UV_PROJECT_ENVIRONMENT /run/pixel-battle/.venv
-RUN uv sync
+RUN uv sync --extra dev
 
 ENV PYTHONPATH /pixel-battle/src:/pixel-battle/tests
 ENV MYPYPATH /pixel-battle/src:/pixel-battle/tests

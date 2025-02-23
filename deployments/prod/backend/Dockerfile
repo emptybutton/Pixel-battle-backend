@@ -11,6 +11,6 @@ FROM ghcr.io/astral-sh/uv:python3.13-alpine AS pixel-battle
 
 WORKDIR /run/pixel-battle
 
-COPY --from=wheel /run/build .
-RUN uv pip install --system dist/* && rm dist -fr
+COPY --from=wheel /run/build/dist dist
+RUN uv pip install dist/`ls -l dist -x`[prod] --system && rm dist -fr
 CMD null
