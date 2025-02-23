@@ -1,0 +1,129 @@
+name: pixel-battle
+
+services:
+  nginx:
+    image: nginx:1.27-alpine3.21-perl
+    container_name: pixel-battle-nginx
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - 80:80
+    healthcheck:
+      test: wget nginx/api/0.1.0v/healthcheck -q -O /dev/null
+      start_period: 10m
+      start_interval: 10s
+      interval: 1h
+    cpus: 0.05
+    mem_limit: 20mb
+
+  backend:
+    container_name: pixel-battle-backend
+    build:
+      context: ../../
+      dockerfile: deployments/prod/backend/Dockerfile
+      tags:
+        - "pixel-battle-backend:prod"
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+    depends_on:
+      redis1:
+        condition: service_healthy
+      redis2:
+        condition: service_healthy
+      redis3:
+        condition: service_healthy
+    environment:
+      CANVAS_REDIS_CLUSTER_URL: redis://redis1:6379/0
+      CANVAS_METADATA_REDIS_CLUSTER_URL: redis://redis1:6379/0
+      CHUNK_REFREH_TASK_PUSHING_INTERVAL_SECONDS: 60
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_KEY: ${ADMIN_KEY}
+    command:
+      uvicorn pixel_battle.deployment.god_service.asgi:app --host 0.0.0.0
+    cpus: 0.2
+    mem_limit: 105mb
+    healthcheck:
+      test: wget backend:8000/api/0.1.0v/healthcheck -q -O /dev/null
+      start_period: 10m
+      start_interval: 10s
+      interval: 1h
+
+  redis1:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis1
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+      redis: true
+      db: true
+    volumes:
+      - ./redis:/mnt
+      - redis1-data:/data
+    command: redis-server /mnt/redis.conf
+    cpus: 0.05
+    mem_limit: 30mb
+    healthcheck:
+      test: echo PING | redis-cli | grep -qF PONG
+      interval: 3s
+      retries: 100
+
+  redis2:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis2
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+      redis: true
+      db: true
+    volumes:
+      - ./redis:/mnt
+      - redis2-data:/data
+    command: redis-server /mnt/redis.conf
+    cpus: 0.05
+    mem_limit: 30mb
+    healthcheck:
+      test: echo PING | redis-cli | grep -qF PONG
+      interval: 3s
+      retries: 100
+
+  redis3:
+    image: redis:7.4.1-alpine3.20
+    container_name: pixel-battle-redis3
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+      redis: true
+      db: true
+    volumes:
+      - ./redis:/mnt
+      - redis3-data:/data
+    command: redis-server /mnt/redis.conf
+    cpus: 0.05
+    mem_limit: 30mb
+    healthcheck:
+      test: echo PING | redis-cli | grep -qF PONG
+      interval: 3s
+      retries: 100
+
+volumes:
+  redis1-data:
+    labels:
+      db: true
+  redis2-data:
+    labels:
+      db: true
+  redis3-data:
+    labels:
+      db: true
