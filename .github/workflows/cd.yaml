@@ -1,0 +1,25 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  redeploy:
+    runs-on: self-hosted
+    environment: Production
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: redeploy
+        run: bash deployments/prod/redeploy.sh -y
+        env:
+          ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
