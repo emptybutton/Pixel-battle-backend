@@ -15,9 +15,6 @@ class OutputData:
 type Output = OutputData | None
 
 
-class InvalidSignedUserDataError(Exception): ...
-
-
 @dataclass(kw_only=True, frozen=True, slots=True)
 class ViewUser[SignedUserDataT]:
     user_data_signing: UserDataSigning[SignedUserDataT]
@@ -37,7 +34,7 @@ class ViewUser[SignedUserDataT]:
         )
 
         if user is None:
-            raise InvalidSignedUserDataError
+            return None
 
         return OutputData(
             time_of_obtaining_recoloring_right=(

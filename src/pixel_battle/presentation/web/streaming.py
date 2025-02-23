@@ -19,6 +19,7 @@ type StreamingClientGroupID = tuple[int, int]
 class StreamingClient:
     websocket: WebSocket
     group_id: StreamingClientGroupID
+    disconnection_event: Event
 
 
 @dataclass(init=False)
@@ -88,8 +89,6 @@ class Streaming:
     async def __disconnect_client(
         self, client: StreamingClient, panic: bool
     ) -> None:
-        self.__remove_client(client)
-
         code = (
             status.WS_1011_INTERNAL_ERROR
             if panic
@@ -98,8 +97,11 @@ class Streaming:
         with suppress(WebSocketDisconnect):
             await client.websocket.close(code)
 
+        self.__handle_client_disconnect(client)
+
     def __handle_client_disconnect(self, client: StreamingClient) -> None:
         self.__remove_client(client)
+        client.disconnection_event.set()
 
     def __has_clients(self) -> bool:
         return bool(tuple(self.__client_group_by_group_id.values()))

@@ -1,3 +1,5 @@
+import asyncio
+
 from dishka.integrations.fastapi import FromDishka, inject
 from fastapi import APIRouter, WebSocket
 
@@ -9,7 +11,7 @@ stream_chunk_router = APIRouter()
 
 
 @stream_chunk_router.websocket(
-    "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}/stream"
+    "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}"
 )
 @inject
 async def stream_chunk(
@@ -22,5 +24,12 @@ async def stream_chunk(
 
     group_id = (chunk_number_x, chunk_number_y)
 
-    client = StreamingClient(websocket=websocket, group_id=group_id)
+    disconnection_event = asyncio.Event()
+    client = StreamingClient(
+        websocket=websocket,
+        group_id=group_id,
+        disconnection_event=disconnection_event,
+    )
     streaming.add_client(client)
+
+    await disconnection_event.wait()
