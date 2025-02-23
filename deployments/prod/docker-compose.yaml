@@ -74,8 +74,9 @@ services:
     mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
-      interval: 3s
-      retries: 100
+      start_period: 1m
+      start_interval: 1s
+      interval: 1m
 
   redis2:
     image: redis:7.4.1-alpine3.20
@@ -94,8 +95,9 @@ services:
     mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
-      interval: 3s
-      retries: 100
+      start_period: 1m
+      start_interval: 1s
+      interval: 1m
 
   redis3:
     image: redis:7.4.1-alpine3.20
@@ -114,8 +116,9 @@ services:
     mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
-      interval: 3s
-      retries: 100
+      start_period: 1m
+      start_interval: 1s
+      interval: 1m
 
 volumes:
   redis1-data:
