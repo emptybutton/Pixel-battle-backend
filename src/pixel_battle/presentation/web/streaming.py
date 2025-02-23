@@ -47,7 +47,7 @@ class Streaming:
                     continue
 
                 response_model = RecoloredPixelListSchema.of(result.new_pixels)
-                response = response_model.model_dump_json()
+                response = response_model.model_dump_json(by_alias=True)
 
                 client_group = self.__client_group_by_group_id[x, y]
 
