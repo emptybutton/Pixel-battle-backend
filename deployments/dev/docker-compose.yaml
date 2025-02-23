@@ -52,9 +52,7 @@ services:
         restart: true
     healthcheck:
       test: ash /mnt/scripts/is-cluster-ok.sh
-      start_interval: 0s
       interval: 1s
-      retries: 30
     command: ash /mnt/scripts/start-cluster-creation-node.sh
 
   redis2:

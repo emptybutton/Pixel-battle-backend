@@ -48,6 +48,9 @@ god-service = "pixel_battle.deployment.god_service.__main__:main"
 showcase-service = "pixel_battle.deployment.showcase_service.__main__:main"
 user-service = "pixel_battle.deployment.user_service.__main__:main"
 
+[tool.uv]
+cache-dir=".uv_cache"
+
 [tool.mypy]
 strict = true
 no_namespace_packages = true
