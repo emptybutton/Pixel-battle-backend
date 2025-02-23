@@ -9,7 +9,7 @@ stream_chunk_router = APIRouter()
 
 
 @stream_chunk_router.websocket(
-    "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}"
+    "/pixel-battle/canvas/chunk/{chunk_number_x}/{chunk_number_y}/stream"
 )
 @inject
 async def stream_chunk(

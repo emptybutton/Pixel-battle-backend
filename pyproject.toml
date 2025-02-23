@@ -7,7 +7,7 @@ authors = [
 ]
 license = "Apache-2.0"
 readme = "README.md"
-
+classifiers = ["Private :: Do Not Upload"]
 requires-python = "== 3.13.*"
 dependencies = [
     "typenv == 0.2.0",
