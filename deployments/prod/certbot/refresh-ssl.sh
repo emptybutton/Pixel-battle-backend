@@ -7,7 +7,7 @@ certbot certonly \
     --agree-tos \
     -m $DOMAIN_EMAIL \
     -d $DOMAIN \
-    -key-type rsa \
+    --key-type rsa \
     --webroot \
     -w /mnt/acme-challenge
 
