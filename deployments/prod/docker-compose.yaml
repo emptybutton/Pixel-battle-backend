@@ -19,7 +19,7 @@ services:
     ports:
       - 443:443
     healthcheck:
-      test: wget https://https-server/api/0.1.0v/healthcheck -q -O /dev/null
+      test: wget https://${DOMAIN}/api/0.1.0v/healthcheck -q -O /dev/null
       start_period: 1m
       start_interval: 2s
       interval: 10s
