@@ -27,7 +27,7 @@ services:
       - backend-net
     cpus: 0.025
     mem_limit: 10mb
-      
+
   http-server:
     container_name: pixel-battle-http-server
     image: nginx:1.27-alpine3.21-perl
@@ -47,7 +47,7 @@ services:
     networks:
       - certbot-net
     cpus: 0.025
-    mem_limit: 5mb
+    mem_limit: 6mb
 
   certbot:
     container_name: pixel-battle-certbot
