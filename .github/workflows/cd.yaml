@@ -23,5 +23,5 @@ jobs:
         env:
           ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          DOMAIN_MAIL: ${{ secrets.DOMAIN_MAIL }}
+          DOMAIN_EMAIL: ${{ secrets.DOMAIN_EMAIL }}
           DOMAIN: ${{ vars.DOMAIN }}
