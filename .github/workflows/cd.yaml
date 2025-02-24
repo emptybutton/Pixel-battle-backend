@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: redeploy
-        run: bash deployments/prod/redeploy.sh -s
+        run: bash deployments/prod/redeploy.sh ${{ vars.REDEPLOY_OPTIONS }}
         env:
           ADMIN_KEY: ${{ secrets.ADMIN_KEY }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
