@@ -22,6 +22,8 @@ fi
 
 
 function redeploy() {
+    docker compose -f $conf stop
+    docker compose -f $conf rm -f
     docker compose -f $conf up -d --build --wait
 }
 
