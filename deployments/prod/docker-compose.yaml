@@ -1,27 +1,71 @@
 name: pixel-battle
 
 services:
-  nginx:
+  https-server:
     image: nginx:1.27-alpine3.21-perl
-    container_name: pixel-battle-nginx
+    container_name: pixel-battle-https-server
     restart: always
     labels:
       pixel-battle: true
       deployment: prod
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf
+      - ssl-data:/mnt/ssl
     depends_on:
       backend:
         condition: service_healthy
+      certbot:
+        condition: service_healthy
     ports:
-      - 80:80
+      - 443:443
     healthcheck:
-      test: wget nginx/api/0.1.0v/healthcheck -q -O /dev/null
+      test: wget https-server/api/0.1.0v/healthcheck -q -O /dev/null
       start_period: 10m
       start_interval: 10s
       interval: 1h
-    cpus: 0.05
-    mem_limit: 20mb
+      #cpus: 0.025
+      #mem_limit: 10mb
+
+    http-server:
+      container_name: pixel-battle-http-server
+      image: nginx:1.27-alpine3.21-perl
+      restart: always
+      labels:
+        pixel-battle: true
+        deployment: prod
+      volumes:
+        - ./domain-defence/nginx.conf:/etc/nginx/nginx.conf
+      ports:
+        - 80:80
+      healthcheck:
+        test: wget http-server/healthcheck -q -O /dev/null
+        start_period: 1m
+        start_interval: 1s
+        interval: 1h
+      #cpus: 0.025
+      #mem_limit: 5mb
+
+  certbot:
+    container_name: pixel-battle-certbot
+    build:
+      context: ../../
+      dockerfile: deployments/prod/certbot/Dockerfile
+      tags:
+        - "pixel-battle-certbot:prod"
+    restart: always
+    labels:
+      pixel-battle: true
+      deployment: prod
+    volumes:
+      - ssl-data:/mnt/ssl
+    depends_on:
+      http-server:
+        condition: service_healthy
+    environment:
+      DOMAIN: ${DOMAIN}
+      DOMAIN_EMAIL: ${DOMAIN_EMAIL}
+    # cpus: 0.5
+    # mem_limit: 100mb
 
   backend:
     container_name: pixel-battle-backend
@@ -49,8 +93,8 @@ services:
       ADMIN_KEY: ${ADMIN_KEY}
     command:
       uvicorn pixel_battle.deployment.god_service.asgi:app --host 0.0.0.0
-    cpus: 0.2
-    mem_limit: 105mb
+    # cpus: 0.2
+    #mem_limit: 105mb
     healthcheck:
       test: wget backend:8000/api/0.1.0v/healthcheck -q -O /dev/null
       start_period: 10m
@@ -70,8 +114,8 @@ services:
       - ./redis:/mnt
       - redis1-data:/data
     command: redis-server /mnt/redis.conf
-    cpus: 0.05
-    mem_limit: 30mb
+    #cpus: 0.05
+    #mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
       start_period: 1m
@@ -91,8 +135,8 @@ services:
       - ./redis:/mnt
       - redis2-data:/data
     command: redis-server /mnt/redis.conf
-    cpus: 0.05
-    mem_limit: 30mb
+    #cpus: 0.05
+    #mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
       start_period: 1m
@@ -112,8 +156,8 @@ services:
       - ./redis:/mnt
       - redis3-data:/data
     command: redis-server /mnt/redis.conf
-    cpus: 0.05
-    mem_limit: 30mb
+    #cpus: 0.05
+    #mem_limit: 30mb
     healthcheck:
       test: echo PING | redis-cli | grep -qF PONG
       start_period: 1m
@@ -121,12 +165,22 @@ services:
       interval: 1m
 
 volumes:
+  ssl-data:
+    labels:
+      pixel-battle: true
+      deployment: prod
   redis1-data:
     labels:
+      pixel-battle: true
+      deployment: prod
       db: true
   redis2-data:
     labels:
+      pixel-battle: true
+      deployment: prod
       db: true
   redis3-data:
     labels:
+      pixel-battle: true
+      deployment: prod
       db: true
