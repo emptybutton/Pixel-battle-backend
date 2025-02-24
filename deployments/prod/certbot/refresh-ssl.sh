@@ -3,12 +3,15 @@
 rm -rf /etc/letsencrypt/live/certfolder*
 
 certbot certonly \
+    -n \
+    --agree-tos \
     -m $DOMAIN_EMAIL \
     -d $DOMAIN \
-    --standalone \
-    --cert-name=certfolder \
-    --key-type rsa \
-    --agree-tos
+    -key-type rsa \
+    --webroot \
+    -w /mnt/acme-challenge
 
-cp /etc/letsencrypt/live/certfolder*/fullchain.pem ${SSL_PATH}/cert.pem
-cp /etc/letsencrypt/live/certfolder*/privkey.pem ${SSL_PATH}/key.pem
+ls -R -l /etc/letsencrypt/live/
+
+cp /etc/letsencrypt/live/${DOMAIN}/fullchain.pem ${SSL_PATH}/cert.pem
+cp /etc/letsencrypt/live/${DOMAIN}/privkey.pem ${SSL_PATH}/key.pem
