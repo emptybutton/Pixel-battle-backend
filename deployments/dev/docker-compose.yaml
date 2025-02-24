@@ -5,6 +5,8 @@ services:
     build:
       context: ../../
       dockerfile: deployments/dev/backend/Dockerfile
+      tags:
+        - "pixel-battle-backend:dev"
     container_name: pixel-battle-backend
     volumes:
       - ../..:/pixel-battle
@@ -32,9 +34,12 @@ services:
     command: god-service
 
   redis1:
+    image: pixel-battle-redis:dev
     build:
       context: ../../
       dockerfile: deployments/dev/redis/Dockerfile
+      tags:
+        - "pixel-battle-redis:dev"
     container_name: pixel-battle-redis1
     volumes:
       - redis1-data:/data
@@ -56,9 +61,12 @@ services:
     command: ash /mnt/scripts/start-cluster-creation-node.sh
 
   redis2:
+    image: pixel-battle-redis:dev
     build:
       context: ../../
       dockerfile: deployments/dev/redis/Dockerfile
+      tags:
+        - "pixel-battle-redis:dev"
     container_name: pixel-battle-redis2
     volumes:
       - redis2-data:/data
@@ -69,9 +77,12 @@ services:
       pixel-battle: true
 
   redis3:
+    image: pixel-battle-redis:dev
     build:
       context: ../../
       dockerfile: deployments/dev/redis/Dockerfile
+      tags:
+        - "pixel-battle-redis:dev"
     container_name: pixel-battle-redis3
     volumes:
       - redis3-data:/data
