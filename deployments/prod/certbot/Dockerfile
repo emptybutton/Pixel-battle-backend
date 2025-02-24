@@ -10,6 +10,6 @@ HEALTHCHECK \
 --start-period=1m \
 --start-interval=0.5s \
 --interval=1m \
-CMD [[ -e ${SSL_PATH}/cert && -e ${SSL_PATH}/key ]]
+CMD [[ -e ${SSL_PATH}/cert.pem && -e ${SSL_PATH}/key.pem ]]
 
 CMD ["ash", "start-ssl-refresh.sh"]
