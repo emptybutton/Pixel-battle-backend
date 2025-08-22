@@ -2,14 +2,19 @@ name: pixel-battle
 
 services:
   https-server:
-    image: nginx:1.27-alpine3.21-perl
+    image: pixel-battle-https-server:prod
+    build:
+      context: ../../
+      dockerfile: deployments/prod/https-server/Dockerfile
+      tags:
+        - "pixel-battle-https-server:prod"
+
     container_name: pixel-battle-https-server
     restart: always
     labels:
       pixel-battle: true
       deployment: prod
     volumes:
-      - ./https-server/nginx.conf:/etc/nginx/nginx.conf
       - ssl-data:/mnt/ssl
     depends_on:
       backend:
@@ -28,60 +33,15 @@ services:
     cpus: 0.025
     mem_limit: 10mb
 
-  http-server:
-    container_name: pixel-battle-http-server
-    image: nginx:1.27-alpine3.21-perl
-    restart: always
-    labels:
-      pixel-battle: true
-      deployment: prod
-    volumes:
-      - ./http-server/nginx.conf:/etc/nginx/nginx.conf
-      - certbot-acme-challenge:/mnt/acme-challenge
-    ports:
-      - 80:80
-    healthcheck:
-      test: wget http-server/healthcheck -q -O /dev/null
-      start_period: 1m
-      start_interval: 2s
-      interval: 10s
-    networks:
-      - http-server-net
-    cpus: 0.025
-    mem_limit: 6mb
-
-  certbot:
-    container_name: pixel-battle-certbot
-    build:
-      context: ../../
-      dockerfile: deployments/prod/certbot/Dockerfile
-      tags:
-        - "pixel-battle-certbot:prod"
-    restart: always
-    labels:
-      pixel-battle: true
-      deployment: prod
-    volumes:
-      - ssl-data:/mnt/ssl
-      - certbot-acme-challenge:/mnt/acme-challenge
-    depends_on:
-      http-server:
-        condition: service_healthy
-    environment:
-      DOMAIN: ${DOMAIN}
-      DOMAIN_EMAIL: ${DOMAIN_EMAIL}
-    networks:
-      - certbot-net
-    cpus: 0.5
-    mem_limit: 100mb
-
   backend:
-    container_name: pixel-battle-backend
+    image: pixel-battle-backend:prod
     build:
       context: ../../
       dockerfile: deployments/prod/backend/Dockerfile
       tags:
         - "pixel-battle-backend:prod"
+
+    container_name: pixel-battle-backend
     restart: always
     labels:
       pixel-battle: true
@@ -113,7 +73,13 @@ services:
       - redis-cluster-net
 
   redis1:
-    image: redis:7.4.1-alpine3.20
+    image: pixel-battle-reids:prod
+    build:
+      context: ../../
+      dockerfile: deployments/prod/redis/Dockerfile
+      tags:
+        - "pixel-battle-reids:prod"
+
     container_name: pixel-battle-redis1
     restart: always
     labels:
@@ -122,7 +88,6 @@ services:
       redis: true
       db: true
     volumes:
-      - ./redis:/mnt
       - redis1-data:/data
     command: redis-server /mnt/redis.conf
     cpus: 0.05
@@ -137,7 +102,13 @@ services:
         ipv4_address: 192.168.150.11
 
   redis2:
-    image: redis:7.4.1-alpine3.20
+    image: pixel-battle-reids:prod
+    build:
+      context: ../../
+      dockerfile: deployments/prod/redis/Dockerfile
+      tags:
+        - "pixel-battle-reids:prod"
+
     container_name: pixel-battle-redis2
     restart: always
     labels:
@@ -146,7 +117,6 @@ services:
       redis: true
       db: true
     volumes:
-      - ./redis:/mnt
       - redis2-data:/data
     command: redis-server /mnt/redis.conf
     cpus: 0.05
@@ -161,7 +131,13 @@ services:
         ipv4_address: 192.168.150.12
 
   redis3:
-    image: redis:7.4.1-alpine3.20
+    image: pixel-battle-reids:prod
+    build:
+      context: ../../
+      dockerfile: deployments/prod/redis/Dockerfile
+      tags:
+        - "pixel-battle-reids:prod"
+
     container_name: pixel-battle-redis3
     restart: always
     labels:
@@ -170,7 +146,6 @@ services:
       redis: true
       db: true
     volumes:
-      - ./redis:/mnt
       - redis3-data:/data
     command: redis-server /mnt/redis.conf
     cpus: 0.05
@@ -184,13 +159,6 @@ services:
       redis-cluster-net:
         ipv4_address: 192.168.150.13
 
-networks:
-  http-server-net:
-    driver: bridge
-
-  certbot-net:
-    driver: bridge
-
   backend-net:
     driver: bridge
 
@@ -202,11 +170,6 @@ networks:
 
 volumes:
   ssl-data:
-    labels:
-      pixel-battle: true
-      deployment: prod
-
-  certbot-acme-challenge:
     labels:
       pixel-battle: true
       deployment: prod
