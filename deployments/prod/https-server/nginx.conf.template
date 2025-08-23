@@ -10,10 +10,12 @@ http {
 
     server {
         listen 443 ssl;
+        server ${DOMAIN};
 
-        ssl_certificate /mnt/ssl/fullchain.pem;
-        ssl_certificate_key /mnt/ssl/privkey.pem;
+        ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
         ssl_certificate_cache max=1000 inactive=20s valid=1m;
+
         ssl_session_cache shared:SSL:1m;
 
         location / {

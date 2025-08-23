@@ -15,7 +15,7 @@ services:
       pixel-battle: true
       deployment: prod
     volumes:
-      - /etc/letsencrypt/live/${DOMAIN}:/mnt/ssl
+      - /etc/letsencrypt:/etc/letsencrypt
     depends_on:
       backend:
         condition: service_healthy
@@ -29,6 +29,8 @@ services:
     networks:
       - backend-net
     mem_limit: 10mb
+    environment:
+      DOMAIN: ${DOMAIN}
 
   backend:
     image: pixel-battle-backend:prod
