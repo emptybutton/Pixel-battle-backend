@@ -152,6 +152,7 @@ services:
       redis-cluster-net:
         ipv4_address: 192.168.150.13
 
+networks:
   backend-net:
     driver: bridge
 
