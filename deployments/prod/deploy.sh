@@ -3,7 +3,7 @@
 timeout=900 # 15m
 conf=deployments/prod/docker-compose.yaml
 
-docker compose -f $conf down --wait-timeout $timeout
+docker compose -f $conf down
 docker compose -f $conf build
 
 docker compose -f $conf up redis1 redis2 redis3 -d --wait --wait-timeout $timeout
