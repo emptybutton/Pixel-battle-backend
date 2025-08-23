@@ -15,11 +15,9 @@ services:
       pixel-battle: true
       deployment: prod
     volumes:
-      - ssl-data:/mnt/ssl
+      - /etc/letsencrypt/live/{$DOMAIN}:/mnt/ssl
     depends_on:
       backend:
-        condition: service_healthy
-      certbot:
         condition: service_healthy
     ports:
       - 443:443
@@ -169,11 +167,6 @@ services:
         - subnet: "192.168.150.0/24"
 
 volumes:
-  ssl-data:
-    labels:
-      pixel-battle: true
-      deployment: prod
-
   redis1-data:
     labels:
       pixel-battle: true
