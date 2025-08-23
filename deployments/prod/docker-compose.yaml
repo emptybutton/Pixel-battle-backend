@@ -31,6 +31,7 @@ services:
     mem_limit: 10mb
     environment:
       DOMAIN: ${DOMAIN}
+      NGINX_ENVSUBST_OUTPUT_DIR: /etc/nginx
 
   backend:
     image: pixel-battle-backend:prod
