@@ -15,7 +15,7 @@ services:
       pixel-battle: true
       deployment: prod
     volumes:
-      - /etc/letsencrypt/live/{$DOMAIN}:/mnt/ssl
+      - /etc/letsencrypt/live/${DOMAIN}:/mnt/ssl
     depends_on:
       backend:
         condition: service_healthy
